@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentValues } from "@/lib/api";
 
@@ -6,18 +6,65 @@ type Props = { svgUrl: string; binding: any };
 
 export function SvgDiagram({ svgUrl, binding }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const svgWrapperRef = useRef<HTMLDivElement>(null);
   const [svgContent, setSvgContent] = useState<string>("");
 
-  // Fetch SVG file
+  // ---- Zoom & Pan state ----
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    setZoom(z => Math.max(0.2, Math.min(5, z + delta)));
+  }, []);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button !== 0) return;
+      setDragging(true);
+      dragStart.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+    },
+    [pan]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!dragging) return;
+      setPan({
+        x: e.clientX - dragStart.current.x,
+        y: e.clientY - dragStart.current.y,
+      });
+    },
+    [dragging]
+  );
+
+  const handleMouseUp = useCallback(() => setDragging(false), []);
+
+  // Attach wheel listener
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
+  }, [handleWheel]);
+
+  // ---- SVG Fetch ----
   useEffect(() => {
     fetch(svgUrl)
       .then(r => r.text())
       .then(setSvgContent)
-      .catch(() => setSvgContent("<p class='text-red-400'>Failed to load SVG</p>"));
+      .catch(() =>
+        setSvgContent("<p class='text-red-400 p-4'>Failed to load SVG</p>")
+      );
   }, [svgUrl]);
 
-  // Collect unique asset_ids from binding
-  const assetIds = [...new Set(binding.signals?.map((s: any) => s.asset_id) || [])];
+  // ---- Live Data ----
+  const assetIds = [
+    ...new Set(binding.signals?.map((s: any) => s.asset_id) || []),
+  ];
 
   const { data: currentValues } = useQuery({
     queryKey: ["diagram-values", assetIds],
@@ -26,8 +73,12 @@ export function SvgDiagram({ svgUrl, binding }: Props) {
       for (const aid of assetIds as string[]) {
         try {
           const vals = await getCurrentValues({ asset_id: aid });
-          vals?.forEach((v: any) => { result[v.signal_id] = v; });
-        } catch { /* ignore */ }
+          vals?.forEach((v: any) => {
+            result[v.signal_id] = v;
+          });
+        } catch {
+          /* ignore */
+        }
       }
       return result;
     },
@@ -39,44 +90,93 @@ export function SvgDiagram({ svgUrl, binding }: Props) {
     if (!containerRef.current || !currentValues) return;
     const container = containerRef.current;
 
-    // Update state styles
-    container.querySelectorAll("[data-binding='state']").forEach((el: any) => {
-      const g = el.closest("[data-asset-id]") as HTMLElement;
-      const assetId = g?.getAttribute("data-asset-id");
-      if (!assetId) return;
-      const style = binding.state_styles?.default || {};
-      Object.entries(style).forEach(([k, v]) => { el.setAttribute(k, v as string); });
-    });
+    container
+      .querySelectorAll("[data-binding='state']")
+      .forEach((el: any) => {
+        const g = el.closest("[data-asset-id]") as HTMLElement;
+        const assetId = g?.getAttribute("data-asset-id");
+        if (!assetId) return;
+        const style = binding.state_styles?.default || {};
+        Object.entries(style).forEach(([k, v]) => {
+          el.setAttribute(k, v as string);
+        });
+      });
 
-    // Update signal values
-    container.querySelectorAll("[data-binding='signal_value']").forEach((el: any) => {
-      const signalName = el.getAttribute("data-signal-name");
-      const assetId = el.getAttribute("data-asset-id");
-      if (!signalName) return;
-      const key = `${assetId}.${signalName}`;
-      const cv = currentValues[key];
-      const sigConfig = binding.signals?.find(
-        (s: any) => s.signal_name === signalName && s.asset_id === assetId
-      );
+    container
+      .querySelectorAll("[data-binding='signal_value']")
+      .forEach((el: any) => {
+        const signalName = el.getAttribute("data-signal-name");
+        const assetId = el.getAttribute("data-asset-id");
+        if (!signalName) return;
+        const key = `${assetId}.${signalName}`;
+        const cv = currentValues[key];
+        const sigConfig = binding.signals?.find(
+          (s: any) =>
+            s.signal_name === signalName && s.asset_id === assetId
+        );
 
-      if (cv && cv.value !== null && cv.value !== undefined) {
-        const fmt = sigConfig?.format || "0.0";
-        const unit = sigConfig?.unit || "";
-        let display =
-          typeof cv.value === "number"
-            ? cv.value.toFixed(fmt.includes(".") ? fmt.split(".")[1].length : 1)
-            : cv.value;
-        el.textContent = `${display} ${unit}`;
-        el.setAttribute("fill", cv.quality === "GOOD" ? "#22c55e" : "#ef4444");
-      }
-    });
+        if (cv && cv.value !== null && cv.value !== undefined) {
+          const fmt = sigConfig?.format || "0.0";
+          const unit = sigConfig?.unit || "";
+          const display =
+            typeof cv.value === "number"
+              ? cv.value.toFixed(
+                  fmt.includes(".") ? fmt.split(".")[1].length : 1
+                )
+              : cv.value;
+          el.textContent = `${display} ${unit}`;
+          el.setAttribute(
+            "fill",
+            cv.quality === "GOOD" ? "#22c55e" : "#ef4444"
+          );
+        }
+      });
   }, [currentValues, binding]);
 
   return (
     <div
       ref={containerRef}
-      className="flex justify-center overflow-auto"
-      dangerouslySetInnerHTML={{ __html: svgContent }}
-    />
+      className="overflow-hidden rounded-lg relative"
+      style={{ height: 500 }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      {/* Zoom controls */}
+      <div className="absolute top-2 right-2 z-10 flex gap-1">
+        <button
+          onClick={() => setZoom(z => Math.min(5, z + 0.2))}
+          className="w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded text-sm"
+        >
+          +
+        </button>
+        <button
+          onClick={() => setZoom(z => Math.max(0.2, z - 0.2))}
+          className="w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded text-sm"
+        >
+          −
+        </button>
+        <button
+          onClick={() => {
+            setZoom(1);
+            setPan({ x: 0, y: 0 });
+          }}
+          className="px-2 h-8 bg-gray-800 hover:bg-gray-700 rounded text-xs"
+        >
+          Reset
+        </button>
+      </div>
+
+      <div
+        ref={svgWrapperRef}
+        style={{
+          transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+          transformOrigin: "0 0",
+          cursor: dragging ? "grabbing" : "grab",
+        }}
+        dangerouslySetInnerHTML={{ __html: svgContent }}
+      />
+    </div>
   );
 }

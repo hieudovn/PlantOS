@@ -62,3 +62,82 @@ PlantOS should be:
 This repository is the source of truth for PlantOS product architecture, technical design, rules, roadmap, and later implementation.
 
 Other repositories such as MES, Virtual Factory, and analytics applications should align with PlantOS instead of redefining their own operational data foundation.
+
+## Quick Start
+
+### Prerequisites
+
+- Docker Desktop 4.30+
+- Python 3.11+
+- Node.js 20+
+
+### 1. Start Infrastructure
+
+```bash
+docker compose -f deployment/docker-compose.yml up -d postgres tdengine
+```
+
+Wait for healthy (~20s):
+```bash
+docker ps --filter "name=plantos"
+```
+
+### 2. Setup Backend
+
+```bash
+cd backend
+pip install -e ".[dev]"
+alembic upgrade head
+python scripts/seed_demo_plant.py
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Verify:
+```bash
+curl http://localhost:8000/health
+# → {"status":"healthy","version":"0.1.0"}
+```
+
+### 3. Setup Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173
+
+### 4. Run Simulator
+
+```bash
+cd edge/simulator
+pip install -r requirements.txt
+python simulator.py --config ../../examples/demo-plant/demo-plant.yaml
+```
+
+### 5. Run Tests
+
+```bash
+cd backend
+python -m pytest tests/ -v
+# Expected: 44 passed
+```
+
+## Architecture
+
+- **Backend**: FastAPI + PostgreSQL (metadata) + TDengine (time-series)
+- **Frontend**: React + Vite + Tailwind CSS + shadcn/ui
+- **Edge**: Python simulator → HTTP ingestion
+- **API**: REST `/api/v1/*`, all data through API (no direct DB access)
+- **Principles**: UNS-native, CDM-native, Asset/Signal binding
+
+## MVP Features
+
+- Asset & Signal Registry (CRUD)
+- Measurement Ingestion & Query
+- Historian (TDengine-backed)
+- Dynamic SVG P&ID Diagram
+- GIS Map with Asset Markers
+- Trend Chart (multi-signal, ECharts)
+- Edge Simulator (15 signals, 4 scenarios)

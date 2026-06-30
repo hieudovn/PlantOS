@@ -14,15 +14,14 @@ from app.modules.measurements.schemas import (
 from app.modules.measurements.service import MeasurementService
 
 
-# Cached historian adapter singleton across requests
 _historian_instance: HistorianInterface | None = None
 
 
-def get_historian() -> HistorianInterface:
-    """Provide a historian adapter instance (cached singleton).
+async def get_historian() -> HistorianInterface:
+    """Async dependency — connect TDengine on first call, cache singleton.
 
-    Tries TDengine first; falls back to Stub.
-    Replace this with proper DI later.
+    Tries TDengine first; falls back to Stub if unavailable.
+    FastAPI supports async dependency functions natively.
     """
     global _historian_instance
     if _historian_instance is not None:
@@ -31,9 +30,15 @@ def get_historian() -> HistorianInterface:
     try:
         from app.modules.historian.tdengine_adapter import TDengineHistorianAdapter
 
-        _historian_instance = TDengineHistorianAdapter()
-    except ImportError:
-        _historian_instance = StubHistorianAdapter()
+        adapter = TDengineHistorianAdapter()
+        ok = await adapter.connect()
+        if ok:
+            _historian_instance = adapter
+            return adapter
+    except Exception:
+        pass
+
+    _historian_instance = StubHistorianAdapter()
     return _historian_instance
 
 

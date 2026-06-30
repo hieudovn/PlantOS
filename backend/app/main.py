@@ -15,29 +15,8 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle."""
     # Startup — initialize DB engine
     get_engine()
-
-    # Connect historian adapter if TDengine is available
-    historian_adapter = None
-    try:
-        from app.modules.historian.tdengine_adapter import TDengineHistorianAdapter
-        import app.modules.measurements.router as mr
-
-        adapter = TDengineHistorianAdapter()
-        ok = await adapter.connect()
-        if ok:
-            mr._historian_instance = adapter
-            historian_adapter = adapter
-            print(f"Historian connected: TDengine at {settings.TDENGINE_HOST}")
-        else:
-            print("Historian: TDengine unavailable, using Stub")
-    except Exception as e:
-        print(f"Historian init skipped: {e}")
-
     yield
-
-    # Shutdown
-    if historian_adapter is not None and hasattr(historian_adapter, "close"):
-        await historian_adapter.close()
+    # Shutdown — dispose DB engine
     dispose_engine()
 
 
