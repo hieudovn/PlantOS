@@ -1,10 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SignalMultiSelect } from "./SignalMultiSelect";
 import { TrendChart } from "./TrendChart";
 import { Plus, X } from "lucide-react";
 
-function fmt(iso: string) {
-  return iso.substring(0, 16);
+const STORAGE_KEY = "plantos-historian-state";
+
+function fmt(date: Date) {
+  const y = date.getFullYear();
+  const mo = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const h = String(date.getHours()).padStart(2, "0");
+  const mi = String(date.getMinutes()).padStart(2, "0");
+  return `${y}-${mo}-${d}T${h}:${mi}`;
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+function saveState(state: any) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    /* ignore */
+  }
 }
 
 interface Panel {
@@ -13,15 +38,34 @@ interface Panel {
   label: string;
 }
 
+const defaultPanels: Panel[] = [{ id: 1, signalIds: [], label: "Chart 1" }];
+
 export function HistorianPage() {
+  const saved = loadState();
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const [from, setFrom] = useState(fmt(today.toISOString()));
-  const [to, setTo] = useState(fmt(now.toISOString()));
-  const [panels, setPanels] = useState<Panel[]>([
-    { id: 1, signalIds: [], label: "Chart 1" },
-  ]);
-  const [active, setActive] = useState(0);
+
+  const [from, setFrom] = useState(saved?.from ?? fmt(today));
+  const [to, setTo] = useState(saved?.to ?? fmt(now));
+  const [panels, setPanels] = useState<Panel[]>(saved?.panels ?? defaultPanels);
+  const [active, setActive] = useState(saved?.active ?? 0);
+  const [chartType, setChartType] = useState(saved?.chartType ?? "line");
+  const [editingTab, setEditingTab] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-save state to localStorage
+  useEffect(() => {
+    saveState({ from, to, panels, active, chartType });
+  }, [from, to, panels, active, chartType]);
+
+  // Focus edit input when tab editing starts
+  useEffect(() => {
+    if (editingTab !== null) {
+      editInputRef.current?.focus();
+      editInputRef.current?.select();
+    }
+  }, [editingTab]);
 
   const addPanel = () => {
     const id = Math.max(0, ...panels.map(p => p.id)) + 1;
@@ -47,6 +91,15 @@ export function HistorianPage() {
           : np[i].label,
     };
     setPanels(np);
+  };
+
+  const commitRename = (i: number) => {
+    if (editValue.trim()) {
+      const np = [...panels];
+      np[i].label = editValue.trim();
+      setPanels(np);
+    }
+    setEditingTab(null);
   };
 
   return (
@@ -80,6 +133,19 @@ export function HistorianPage() {
             className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
           />
         </div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Chart Type</label>
+          <select
+            value={chartType}
+            onChange={e => setChartType(e.target.value)}
+            className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
+          >
+            <option value="line">Line</option>
+            <option value="bar">Bar</option>
+            <option value="scatter">Scatter</option>
+            <option value="area">Area</option>
+          </select>
+        </div>
         <span className="text-xs text-gray-600">
           {panels.reduce((s, p) => s + p.signalIds.length, 0)} signals
         </span>
@@ -96,7 +162,29 @@ export function HistorianPage() {
                 : "text-gray-500 hover:text-gray-300"
             }`}
           >
-            {p.label}
+            {editingTab === i ? (
+              <input
+                ref={editInputRef}
+                value={editValue}
+                onChange={e => setEditValue(e.target.value)}
+                onBlur={() => commitRename(i)}
+                onKeyDown={e => {
+                  if (e.key === "Enter") e.currentTarget.blur();
+                  if (e.key === "Escape") setEditingTab(null);
+                }}
+                className="bg-gray-800 px-1 py-0 text-sm w-24 outline-none"
+                onClick={e => e.stopPropagation()}
+              />
+            ) : (
+              <span
+                onDoubleClick={() => {
+                  setEditingTab(i);
+                  setEditValue(p.label);
+                }}
+              >
+                {p.label}
+              </span>
+            )}
             {panels.length > 1 && (
               <span
                 onClick={e => {
@@ -122,6 +210,7 @@ export function HistorianPage() {
           signalIds={panels[active]?.signalIds || []}
           from={new Date(from).toISOString()}
           to={new Date(to).toISOString()}
+          chartType={chartType}
         />
       </div>
     </div>

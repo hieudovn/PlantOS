@@ -141,3 +141,21 @@ python -m pytest tests/ -v
 - GIS Map with Asset Markers
 - Trend Chart (multi-signal, ECharts)
 - Edge Simulator (15 signals, 4 scenarios)
+
+## Known Limitations (Phase 2 Backlog)
+
+| # | Issue | Severity | Plan |
+|---|---|---|---|
+| 1 | **Historian state lost on navigation** — chart setups (signals, time range, panels) reset khi chuyển menu | High | Phase 2: persist state via URL params hoặc React context |
+| 2 | **Chart tabs cannot be renamed** — auto-named from first signal, no manual rename | Medium | Phase 2: inline edit on tab label |
+| 3 | **No chart type selector** — always line chart, no bar/scatter/area toggle | Low | Phase 2: add chart type dropdown |
+| 4 | **GIS OSM tiles blocked in some environments** — VS Code browser blocks external tile requests | Low | Works in real browser; Phase 2: add tile fallback |
+| 5 | **Datetime inputs use local time** — no UTC indicator, may confuse cross-timezone users | Low | Phase 2: add timezone label |
+
+## Phase 2 Priorities
+
+1. **Edge Agent** — DuckDB local buffer + MQTT publish + store-and-forward
+2. **UX Polish** — State persistence, chart rename, chart type selector
+3. **Asset Tree View** — Hierarchy navigation (Plant → Area → Asset)
+4. **Diagram Enhancement** — Click element → navigate detail, alarm overlay
+5. **Real-time Updates** — WebSocket for live data push (diagram, current values)
