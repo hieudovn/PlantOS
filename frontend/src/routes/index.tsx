@@ -7,6 +7,7 @@ import { SignalTable } from "@/features/signals/SignalTable";
 import { HistorianPage } from "@/features/historian/HistorianPage";
 import { DiagramPage } from "@/features/visualization/DiagramPage";
 import { GisMapPage } from "@/features/visualization/GisMapPage";
+import { EdgeFleetPage } from "@/features/edge-fleet/EdgeFleetPage";
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
       { path: "diagrams", element: <DiagramPage /> },
       { path: "gis", element: <GisMapPage /> },
       { path: "alarms", element: <PlaceholderPage title="Alarms" /> },
-      { path: "edge", element: <PlaceholderPage title="Edge Fleet" /> },
+      { path: "edge", element: <EdgeFleetPage /> },
     ],
   },
 ]);

@@ -1,6 +1,6 @@
 """Test HistorianInterface contract using StubHistorianAdapter."""
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import pytest
 
@@ -64,8 +64,8 @@ async def test_query_history(adapter, sample_measurements):
 
     result = await adapter.query_history(
         "PUMP-101.discharge_pressure",
-        from_ts=ts.replace(second=ts.second - 1),
-        to_ts=ts.replace(second=ts.second + 1),
+        from_ts=ts - timedelta(seconds=1),
+        to_ts=ts + timedelta(seconds=1),
     )
     assert len(result) == 1
     assert result[0].value == 7.2
