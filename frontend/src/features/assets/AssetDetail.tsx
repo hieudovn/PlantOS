@@ -1,7 +1,8 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getAsset, getSignals, getCurrentValues } from "@/lib/api";
+import { getAsset, getSignals } from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
+import { useRealtimeValues } from "@/lib/useRealtimeValues";
 
 export function AssetDetail() {
   const { assetId } = useParams<{ assetId: string }>();
@@ -18,16 +19,9 @@ export function AssetDetail() {
     enabled: !!assetId,
   });
 
-  const { data: currentValues } = useQuery({
-    queryKey: ["current", assetId],
-    queryFn: () => getCurrentValues({ asset_id: assetId! }),
-    enabled: !!assetId,
-    refetchInterval: 5000,
-  });
+  const currentValues = useRealtimeValues(assetId ? [assetId] : []);
 
   if (!asset) return <div className="text-gray-500">Loading...</div>;
-
-  const currentMap = new Map(currentValues?.map((c: any) => [c.signal_id, c]) || []);
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -67,7 +61,7 @@ export function AssetDetail() {
             </thead>
             <tbody className="divide-y divide-gray-800">
               {signals?.map((s: any) => {
-                const cv = currentMap.get(s.signal_id);
+                const cv = currentValues[s.signal_id];
                 return (
                   <tr key={s.signal_id}>
                     <td className="px-4 py-2 font-mono text-xs">{s.signal_name}</td>

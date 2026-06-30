@@ -1,5 +1,6 @@
 """Measurement API — FastAPI router."""
 
+import asyncio
 from fastapi import APIRouter, HTTPException, Query, Depends
 
 from app.modules.historian.interface import HistorianInterface
@@ -51,7 +52,24 @@ async def ingest_measurements(
     historian: HistorianInterface = Depends(get_historian),
 ):
     service = MeasurementService(historian)
-    return await service.ingest(data)
+    result = await service.ingest(data)
+
+    # Broadcast accepted measurements via WebSocket (non-blocking)
+    if result.accepted > 0:
+        from app.api.ws import broadcast_measurements
+
+        ws_data = [
+            {
+                "timestamp": m.timestamp.isoformat() if hasattr(m, "timestamp") else m["timestamp"],
+                "signal_id": m.signal_id if hasattr(m, "signal_id") else m["signal_id"],
+                "value": m.value if hasattr(m, "value") else m["value"],
+                "quality": m.quality if hasattr(m, "quality") else m.get("quality", "GOOD"),
+            }
+            for m in data.measurements
+        ]
+        asyncio.create_task(broadcast_measurements(ws_data))
+
+    return result
 
 
 @router.get("/measurements/current", response_model=list[CurrentValueResponse])

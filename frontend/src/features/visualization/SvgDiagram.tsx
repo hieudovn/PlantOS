@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getCurrentValues } from "@/lib/api";
+import { useRealtimeValues } from "@/lib/useRealtimeValues";
 
 type Props = { svgUrl: string; binding: any };
 
@@ -61,29 +60,12 @@ export function SvgDiagram({ svgUrl, binding }: Props) {
       );
   }, [svgUrl]);
 
-  // ---- Live Data ----
+  // ---- Live Data via WebSocket ----
   const assetIds = [
     ...new Set(binding.signals?.map((s: any) => s.asset_id) || []),
   ];
 
-  const { data: currentValues } = useQuery({
-    queryKey: ["diagram-values", assetIds],
-    queryFn: async () => {
-      const result: Record<string, any> = {};
-      for (const aid of assetIds as string[]) {
-        try {
-          const vals = await getCurrentValues({ asset_id: aid });
-          vals?.forEach((v: any) => {
-            result[v.signal_id] = v;
-          });
-        } catch {
-          /* ignore */
-        }
-      }
-      return result;
-    },
-    refetchInterval: binding.refresh_interval_ms || 5000,
-  });
+  const currentValues = useRealtimeValues(assetIds as string[]);
 
   // Update SVG DOM with current values
   useEffect(() => {
