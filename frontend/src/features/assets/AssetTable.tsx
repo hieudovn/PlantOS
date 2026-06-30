@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getAssets } from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AssetFilters } from "./AssetFilters";
+import { Search } from "lucide-react";
 
 export function AssetTable() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
 
   const params: Record<string, string> = {};
   searchParams.forEach((v, k) => { params[k] = v; });
@@ -16,14 +19,32 @@ export function AssetTable() {
     queryFn: () => getAssets(params),
   });
 
+  const filtered = assets?.filter((a: any) =>
+    !search ||
+    a.name.toLowerCase().includes(search.toLowerCase()) ||
+    a.asset_id.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Assets</h1>
-        <span className="text-sm text-gray-500">{assets?.length || 0} assets</span>
+        <span className="text-sm text-gray-500">{filtered?.length || 0} assets</span>
       </div>
 
-      <AssetFilters />
+      <div className="flex gap-3 items-center">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search by name or ID..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-64 bg-gray-900 border border-gray-700 rounded pl-10 pr-3 py-2 text-sm"
+          />
+        </div>
+        <AssetFilters />
+      </div>
 
       {isLoading ? (
         <div className="text-gray-500">Loading...</div>
@@ -40,7 +61,7 @@ export function AssetTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {assets?.map((a: any) => (
+              {filtered?.map((a: any) => (
                 <tr
                   key={a.asset_id}
                   className="hover:bg-gray-800/50 cursor-pointer transition-colors"

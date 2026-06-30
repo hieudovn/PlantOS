@@ -4,6 +4,7 @@ import { OverviewPage } from "@/features/overview/OverviewPage";
 import { AssetTable } from "@/features/assets/AssetTable";
 import { AssetDetail } from "@/features/assets/AssetDetail";
 import { SignalTable } from "@/features/signals/SignalTable";
+import { HistorianPage } from "@/features/historian/HistorianPage";
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -26,7 +27,7 @@ export const router = createBrowserRouter([
       { path: "assets", element: <AssetTable /> },
       { path: "assets/:assetId", element: <AssetDetail /> },
       { path: "signals", element: <SignalTable /> },
-      { path: "historian", element: <PlaceholderPage title="Historian" /> },
+      { path: "historian", element: <HistorianPage /> },
       { path: "diagrams", element: <PlaceholderPage title="Diagrams" /> },
       { path: "gis", element: <PlaceholderPage title="GIS Map" /> },
       { path: "alarms", element: <PlaceholderPage title="Alarms" /> },

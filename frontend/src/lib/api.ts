@@ -1,4 +1,5 @@
-const BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+// Use relative URLs — Vite proxy forwards /api to backend
+const BASE = "";
 
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -32,4 +33,9 @@ export const getSignals = (params?: Record<string, string>) => {
 export const getCurrentValues = (params: Record<string, string>) => {
   const qs = "?" + new URLSearchParams(params).toString();
   return fetchAPI<any[]>(`/api/v1/measurements/current${qs}`);
+};
+
+export const getHistory = (params: Record<string, string>) => {
+  const qs = "?" + new URLSearchParams(params).toString();
+  return fetchAPI<any>(`/api/v1/measurements/history${qs}`);
 };

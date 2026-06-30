@@ -1,22 +1,43 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { getSignals } from "@/lib/api";
+import { Search } from "lucide-react";
 
 export function SignalTable() {
   const [searchParams] = useSearchParams();
   const params: Record<string, string> = {};
   searchParams.forEach((v, k) => { params[k] = v; });
+  const [search, setSearch] = useState("");
 
   const { data: signals, isLoading } = useQuery({
     queryKey: ["signals-all", params],
     queryFn: () => getSignals(params),
   });
 
+  const filtered = signals?.filter((s: any) =>
+    !search ||
+    s.signal_id.toLowerCase().includes(search.toLowerCase()) ||
+    (s.display_name || s.signal_name).toLowerCase().includes(search.toLowerCase()) ||
+    (s.asset_id || "").toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Signals</h1>
-        <span className="text-sm text-gray-500">{signals?.length || 0} signals</span>
+        <span className="text-sm text-gray-500">{filtered?.length || 0} signals</span>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <input
+          type="text"
+          placeholder="Search by signal ID, name, or asset..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-64 bg-gray-900 border border-gray-700 rounded pl-10 pr-3 py-2 text-sm"
+        />
       </div>
 
       {isLoading ? (
@@ -35,7 +56,7 @@ export function SignalTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {signals?.map((s: any) => (
+              {filtered?.map((s: any) => (
                 <tr key={s.signal_id} className="hover:bg-gray-800/50">
                   <td className="px-4 py-3 font-mono text-xs">{s.signal_id}</td>
                   <td className="px-4 py-3">{s.display_name || s.signal_name}</td>
