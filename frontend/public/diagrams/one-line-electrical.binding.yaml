@@ -1,0 +1,38 @@
+diagram_id: one-line-electrical
+diagram_name: One-Line Electrical
+svg_file: one-line-electrical.svg
+refresh_interval_ms: 3000
+
+state_styles:
+  running: { stroke: "#22c55e", fill: "#166534" }
+  stopped: { stroke: "#6b7280", fill: "#1e293b" }
+  warning: { stroke: "#f59e0b", fill: "#78350f" }
+  alarm: { stroke: "#ef4444", fill: "#7f1d1d" }
+  default: { stroke: "#475569", fill: "#1e293b" }
+
+signals:
+  - asset_id: TRANSFORMER-01
+    signal_name: temperature
+    format: "0.0"
+    unit: "°C"
+  - asset_id: FEEDER-01
+    signal_name: current
+    format: "0.0"
+    unit: A
+  - asset_id: FEEDER-01
+    signal_name: power
+    format: "0.0"
+    unit: kW
+  - asset_id: BREAKER-01
+    signal_name: breaker_status
+    format: ""
+    unit: ""
+  - asset_id: BREAKER-01
+    signal_name: voltage
+    format: "0.00"
+    unit: kV
+
+states:
+  - asset_id: TRANSFORMER-01
+  - asset_id: FEEDER-01
+  - asset_id: BREAKER-01

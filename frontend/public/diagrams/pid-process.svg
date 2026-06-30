@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="800" height="300">
+  <style>
+    text { font-family: monospace; }
+    .label { fill: #9ca3af; font-size: 8px; }
+    .value { font-size: 10px; font-weight: bold; }
+    .equipment-label { fill: #e2e8f0; font-size: 9px; text-anchor: middle; }
+  </style>
+  <rect width="800" height="300" fill="#0f172a"/>
+
+  <!-- Title -->
+  <text x="400" y="20" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="bold">P&amp;ID — Process Line 01</text>
+
+  <!-- Flow arrows (static) -->
+  <line x1="60" y1="150" x2="120" y2="150" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#475569"/></marker></defs>
+
+  <!-- TANK-101 -->
+  <g data-asset-id="TANK-101" cursor="pointer">
+    <rect x="60" y="80" width="80" height="120" rx="4" fill="#1e293b" stroke="#475569" stroke-width="2" data-binding="state"/>
+    <text x="100" y="145" class="equipment-label">T-101</text>
+    <text x="100" y="160" class="label">Tank</text>
+    <text x="100" y="210" class="value" data-asset-id="TANK-101" data-signal-name="tank_level" data-binding="signal_value" fill="#22c55e">--.- %</text>
+  </g>
+
+  <!-- Pipe Tank->Pump -->
+  <line x1="140" y1="140" x2="180" y2="140" stroke="#475569" stroke-width="3"/>
+
+  <!-- PUMP-101 -->
+  <g data-asset-id="PUMP-101" cursor="pointer">
+    <circle cx="210" cy="140" r="35" fill="#1e293b" stroke="#475569" stroke-width="2" data-binding="state"/>
+    <text x="210" y="137" class="equipment-label">P-101</text>
+    <text x="210" y="150" class="label">Pump</text>
+    <text x="210" y="185" class="value" data-asset-id="PUMP-101" data-signal-name="discharge_pressure" data-binding="signal_value" fill="#22c55e">--.- bar</text>
+  </g>
+
+  <!-- Pipe Pump->Motor -->
+  <line x1="245" y1="140" x2="290" y2="140" stroke="#475569" stroke-width="3"/>
+
+  <!-- MOTOR-101 -->
+  <g data-asset-id="MOTOR-101" cursor="pointer">
+    <circle cx="325" cy="140" r="35" fill="#1e293b" stroke="#475569" stroke-width="2" data-binding="state"/>
+    <text x="325" y="137" class="equipment-label">M-101</text>
+    <text x="325" y="150" class="label">Motor</text>
+    <text x="325" y="185" class="value" data-asset-id="MOTOR-101" data-signal-name="motor_current" data-binding="signal_value" fill="#22c55e">--.- A</text>
+  </g>
+
+  <!-- Pipe Motor->Valve -->
+  <line x1="360" y1="140" x2="420" y2="140" stroke="#475569" stroke-width="3"/>
+
+  <!-- VALVE-101 -->
+  <g data-asset-id="VALVE-101" cursor="pointer">
+    <polygon points="420,120 440,110 460,120 460,160 440,170 420,160" fill="#1e293b" stroke="#475569" stroke-width="2" data-binding="state"/>
+    <text x="440" y="145" class="equipment-label">V-101</text>
+    <text x="440" y="158" class="label">Valve</text>
+    <text x="440" y="185" class="value" data-asset-id="VALVE-101" data-signal-name="valve_position" data-binding="signal_value" fill="#22c55e">--.- %</text>
+  </g>
+
+  <!-- Pipe out -->
+  <line x1="460" y1="140" x2="500" y2="140" stroke="#475569" stroke-width="3"/>
+
+  <!-- Legend -->
+  <text x="600" y="80" fill="#9ca3af" font-size="9">Legend:</text>
+  <circle cx="610" cy="100" r="6" fill="#22c55e"/><text x="622" y="104" fill="#9ca3af" font-size="8">Running</text>
+  <circle cx="610" cy="118" r="6" fill="#ef4444"/><text x="622" y="122" fill="#9ca3af" font-size="8">Alarm</text>
+  <circle cx="610" cy="136" r="6" fill="#6b7280"/><text x="622" y="140" fill="#9ca3af" font-size="8">Stopped</text>
+</svg>

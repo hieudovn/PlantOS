@@ -5,6 +5,8 @@ import { AssetTable } from "@/features/assets/AssetTable";
 import { AssetDetail } from "@/features/assets/AssetDetail";
 import { SignalTable } from "@/features/signals/SignalTable";
 import { HistorianPage } from "@/features/historian/HistorianPage";
+import { DiagramPage } from "@/features/visualization/DiagramPage";
+import { GisMapPage } from "@/features/visualization/GisMapPage";
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -28,8 +30,8 @@ export const router = createBrowserRouter([
       { path: "assets/:assetId", element: <AssetDetail /> },
       { path: "signals", element: <SignalTable /> },
       { path: "historian", element: <HistorianPage /> },
-      { path: "diagrams", element: <PlaceholderPage title="Diagrams" /> },
-      { path: "gis", element: <PlaceholderPage title="GIS Map" /> },
+      { path: "diagrams", element: <DiagramPage /> },
+      { path: "gis", element: <GisMapPage /> },
       { path: "alarms", element: <PlaceholderPage title="Alarms" /> },
       { path: "edge", element: <PlaceholderPage title="Edge Fleet" /> },
     ],

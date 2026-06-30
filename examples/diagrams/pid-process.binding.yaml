@@ -1,0 +1,35 @@
+diagram_id: pid-process
+diagram_name: P&amp;ID Process Line 01
+svg_file: pid-process.svg
+refresh_interval_ms: 3000
+
+state_styles:
+  running: { stroke: "#22c55e", fill: "#166534" }
+  stopped: { stroke: "#6b7280", fill: "#1e293b" }
+  warning: { stroke: "#f59e0b", fill: "#78350f" }
+  alarm: { stroke: "#ef4444", fill: "#7f1d1d" }
+  default: { stroke: "#475569", fill: "#1e293b" }
+
+signals:
+  - asset_id: TANK-101
+    signal_name: tank_level
+    format: "0.0"
+    unit: "%"
+  - asset_id: PUMP-101
+    signal_name: discharge_pressure
+    format: "0.0"
+    unit: bar
+  - asset_id: MOTOR-101
+    signal_name: motor_current
+    format: "0.0"
+    unit: A
+  - asset_id: VALVE-101
+    signal_name: valve_position
+    format: "0.0"
+    unit: "%"
+
+states:
+  - asset_id: TANK-101
+  - asset_id: PUMP-101
+  - asset_id: MOTOR-101
+  - asset_id: VALVE-101
