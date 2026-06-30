@@ -125,6 +125,21 @@ async def handle_protocol_status(request):
     })
 
 
+async def handle_save_connection(request):
+    """Save Modbus connection config to YAML."""
+    try:
+        data = await request.json()
+        if "modbus" not in _config:
+            _config["modbus"] = {}
+        _config["modbus"].update(data.get("modbus", {}))
+        import yaml
+        with open("config.yaml", "w") as f:
+            yaml.dump(dict(_config), f, default_flow_style=False)
+        return web.json_response({"status": "saved"})
+    except Exception as e:
+        return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+
 async def handle_setup_page(request):
     """Serve protocol setup page."""
     return web.FileResponse("templates/setup.html")
@@ -140,6 +155,7 @@ def create_app():
     app.router.add_get("/api/config", handle_config)
     app.router.add_get("/api/assets", handle_assets)
     app.router.add_get("/api/protocols/status", handle_protocol_status)
+    app.router.add_post("/api/connections/save", handle_save_connection)
     return app
 
 

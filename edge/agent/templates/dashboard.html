@@ -54,25 +54,47 @@
 
 <div id="tab-dashboard" class="content active">
   <div class="grid" id="stats"></div>
+  <div class="section-title">&#128200; Signal Values <span class="count" id="signal-cards-count"></span></div>
+  <div class="grid" id="signal-cards" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))"></div>
   <div class="section-title">&#128200; Latest Values <span class="count" id="signal-count"></span></div>
   <table><thead><tr><th>Signal ID</th><th>Value</th><th>Quality</th><th>Timestamp</th></tr></thead><tbody id="latest"></tbody></table>
   <div id="updated">Auto-refresh: 5s</div>
 </div>
 
 <div id="tab-assets" class="content">
-  <div class="section-title">&#127963; Synced Assets <span class="count" id="asset-count"></span></div>
-  <table><thead><tr><th>Asset ID</th><th>Name</th><th>Type</th><th>Status</th></tr></thead><tbody id="assets-tbody"></tbody></table>
+  <div class="section-title">&#127963; Assets <span class="count" id="asset-count"></span></div>
+  <div id="asset-tree"></div>
+  <div id="asset-detail" style="display:none;margin-top:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px"></div>
   <div style="margin-top:8px"><button class="tab" style="display:inline-block;padding:6px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);cursor:pointer" onclick="loadAssets()">&#8635; Refresh</button></div>
 </div>
 
 <div id="tab-connections" class="content">
-  <div class="section-title">&#128268; Connections</div>
+  <div class="section-title">&#128268; Connections Status</div>
   <div class="grid">
     <div class="card" id="conn-mqtt"><div class="label">MQTT</div><div class="value" style="font-size:14px">Loading...</div></div>
     <div class="card" id="conn-modbus"><div class="label">Modbus</div><div class="value" style="font-size:14px">Loading...</div></div>
     <div class="card" id="conn-sync"><div class="label">Sync Backlog</div><div class="value" style="font-size:14px">Loading...</div></div>
     <div class="card" id="conn-ingest"><div class="label">HTTP Ingest</div><div class="value" style="font-size:14px">Loading...</div></div>
   </div>
+
+  <div class="section-title" style="margin-top:20px">&#9881; Modbus TCP Configuration</div>
+  <div class="card" style="padding:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px">Host</label><input id="mb-host" value="127.0.0.1" style="width:100%;padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:12px"></div>
+      <div><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px">Port</label><input id="mb-port" value="502" style="width:100%;padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:12px"></div>
+      <div><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px">Unit ID</label><input id="mb-unit" value="1" style="width:100%;padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:12px"></div>
+      <div><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px">Poll Interval (ms)</label><input id="mb-interval" value="1000" style="width:100%;padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:12px"></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px">Tags (register,type,signal_id per line)</label>
+      <textarea id="mb-tags" rows="3" style="width:100%;padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:11px;resize:vertical">40001,holding,PUMP-101.discharge_press</textarea>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="saveConnection()" style="padding:8px 16px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;cursor:pointer;font-size:12px">&#128190; Save Config</button>
+      <span id="conn-save-status" style="font-size:11px;color:var(--text-muted)"></span>
+    </div>
+  </div>
+
   <div style="margin-top:8px"><button class="tab" style="display:inline-block;padding:6px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);cursor:pointer" onclick="loadConnections()">&#8635; Refresh</button></div>
 </div>
 
@@ -100,12 +122,31 @@ async function loadDashboard() {
       <div class="card"><div class="label">DB Size</div><div class="value">${(s.duckdb.db_size_mb||0).toFixed(2)} MB</div></div>`;
     document.getElementById('footer-info').textContent = 'Agent: '+(s.node_id||'unknown')+' | Synced: '+(s.duckdb.total_rows||0)+' rows';
     const l = await fetch('/api/measurements/latest').then(r=>r.json());
+    // Latest values table
     document.getElementById('latest').innerHTML = (l||[]).map(m=>
       '<tr><td>'+m.signal_id+'</td><td>'+(m.value!=null?m.value:'&mdash;')+'</td>'+
       '<td><span class="badge '+(m.quality||'').toLowerCase()+'">'+(m.quality||'&mdash;')+'</span></td>'+
       '<td style="color:var(--text-dim)">'+(m.timestamp?new Date(m.timestamp).toLocaleTimeString():'&mdash;')+'</td></tr>'
     ).join('');
     document.getElementById('signal-count').textContent = '| '+(l||[]).length+' signals';
+    // Signal value cards
+    const cardsEl = document.getElementById('signal-cards');
+    if (cardsEl) {
+      cardsEl.innerHTML = (l||[]).map(m => {
+        const parts = (m.signal_id||'').split('.');
+        const asset = parts.length > 1 ? parts[0] : '';
+        const sig = parts.length > 1 ? parts.slice(1).join('.') : parts[0];
+        const v = m.value;
+        const valStr = v != null ? (typeof v === 'number' ? (Number.isInteger(v) ? v : v.toFixed(1)) : v) : '\u2014';
+        return '<div class="card" style="position:relative">'+
+          '<div style="font-size:11px;font-weight:600;color:var(--text-primary)">'+(asset||'?')+'</div>'+
+          '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">'+(sig||'')+'</div>'+
+          '<div style="font-size:20px;font-weight:700;font-family:var(--font-mono);margin:4px 0">'+valStr+'</div>'+
+          '<div><span class="badge '+(m.quality||'').toLowerCase()+'">'+(m.quality||'UNKNOWN')+'</span></div>'+
+          '</div>';
+      }).join('');
+      document.getElementById('signal-cards-count').textContent = '| '+(l||[]).length+' signals';
+    }
     document.getElementById('updated').textContent = 'Updated: '+new Date().toLocaleTimeString();
   } catch(e) { console.error(e); }
 }
@@ -113,12 +154,63 @@ async function loadDashboard() {
 async function loadAssets() {
   try {
     const a = await fetch('/api/assets').then(r=>r.json());
-    document.getElementById('assets-tbody').innerHTML = (a||[]).map(x=>
-      '<tr><td>'+x.asset_id+'</td><td style="font-family:var(--font-sans)">'+x.name+'</td>'+
-      '<td>'+x.asset_type+'</td><td><span class="badge '+(x.lifecycle_status||'active')+'">'+(x.lifecycle_status||'active')+'</span></td></tr>'
-    ).join('');
     document.getElementById('asset-count').textContent = '| '+(a||[]).length+' assets';
+    // Build tree hierarchy from parent_asset_id
+    const map = {}; const roots = [];
+    (a||[]).forEach(x => { x._children = []; map[x.asset_id] = x; });
+    (a||[]).forEach(x => {
+      if (x.parent_asset_id && map[x.parent_asset_id]) map[x.parent_asset_id]._children.push(x);
+      else roots.push(x);
+    });
+    function renderTree(nodes, depth) {
+      if (!nodes || !nodes.length) return '';
+      let html = '<ul style="list-style:none;padding-left:'+(depth>0?20:0)+'px;margin:0">';
+      nodes.forEach(n => {
+        const hasChildren = n._children && n._children.length > 0;
+        const icon = n.asset_type==='Plant' ? '\u{1F333}' : n.asset_type==='Area'||n.asset_type==='Site' ? '\u{1F4C1}' : '\u{1F527}';
+        html += '<li style="padding:2px 0"><div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:4px"'+
+          ' onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'transparent\'">';
+        if (hasChildren) {
+          html += '<span style="cursor:pointer;color:var(--text-muted);font-size:9px;width:12px;text-align:center"'+
+            ' onclick="event.stopPropagation();var c=this.parentElement.nextElementSibling;if(c){c.style.display=c.style.display===\'none\'?\'block\':\'none\';this.textContent=c.style.display===\'block\'?\'\u25BC\':\'\u25B6\'}">\u25BC</span>';
+        } else {
+          html += '<span style="color:transparent;font-size:9px;width:12px;text-align:center">\u25BC</span>';
+        }
+        html += '<span>'+icon+' '+n.name+'</span>';
+        html += '<span class="badge '+(n.lifecycle_status||'active')+'" style="margin-left:auto">'+(n.lifecycle_status||'active')+'</span>';
+        html += '<span style="cursor:pointer;color:var(--accent);font-size:10px" onclick="event.stopPropagation();showAssetDetail(\''+n.asset_id+'\')">[detail \u25B6]</span>';
+        html += '</div>';
+        if (hasChildren) html += '<div style="display:'+(depth===0?'block':'none')+'">'+renderTree(n._children, depth+1)+'</div>';
+        html += '</li>';
+      });
+      html += '</ul>';
+      return html;
+    }
+    document.getElementById('asset-tree').innerHTML = renderTree(roots, 0);
+    document.getElementById('asset-detail').style.display = 'none';
   } catch(e) { console.error(e); }
+}
+
+function showAssetDetail(assetId) {
+  fetch('/api/assets').then(r=>r.json()).then(a => {
+    const x = (a||[]).find(y => y.asset_id === assetId);
+    if (!x) return;
+    const sigs = (x.signals||[]).map(s =>
+      '<tr><td>'+s.signal_id+'</td><td style="font-family:var(--font-sans)">'+s.name+'</td><td>'+(s.unit||'')+'</td><td>'+(s.data_type||'')+'</td></tr>'
+    ).join('');
+    document.getElementById('asset-detail').innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+      '<div style="font-weight:600;font-size:14px">'+(x.name||x.asset_id)+'</div>'+
+      '<span style="cursor:pointer;color:var(--text-muted);font-size:18px" onclick="document.getElementById(\'asset-detail\').style.display=\'none\'">&times;</span></div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">'+
+      '<div class="info-row"><span class="label">Asset ID</span><span class="value">'+(x.asset_id||'')+'</span></div>'+
+      '<div class="info-row"><span class="label">Type</span><span class="value">'+(x.asset_type||'')+'</span></div>'+
+      '<div class="info-row"><span class="label">Status</span><span class="value">'+(x.lifecycle_status||'')+'</span></div>'+
+      '<div class="info-row"><span class="label">Area</span><span class="value">'+(x.area||'')+'</span></div>'+
+      '</div>'+
+      (sigs ? '<div style="font-size:12px;font-weight:600;margin-bottom:6px">Signals</div><table style="font-size:11px"><thead><tr><th>Signal ID</th><th>Name</th><th>Unit</th><th>Type</th></tr></thead><tbody>'+sigs+'</tbody></table>' : '<div style="color:var(--text-muted);font-size:12px">No signals configured</div>');
+    document.getElementById('asset-detail').style.display = 'block';
+  });
 }
 
 async function loadConnections() {
@@ -133,6 +225,34 @@ async function loadConnections() {
     document.getElementById('conn-ingest').innerHTML = '<div class="label">HTTP Ingest</div>'+
       '<div class="value" style="font-size:12px;font-family:var(--font-mono)">awaiting config</div>';
   } catch(e) { console.error(e); }
+}
+
+async function saveConnection() {
+  const status = document.getElementById('conn-save-status');
+  status.textContent = 'Saving...';
+  try {
+    const lines = document.getElementById('mb-tags').value.split('\n').filter(l=>l.trim());
+    const tags = lines.map(l => {
+      const parts = l.split(',');
+      return {register: parseInt(parts[0]), type: parts[1]||'holding', signal_id: parts[2]||''};
+    });
+    const body = {
+      modbus: {
+        host: document.getElementById('mb-host').value,
+        port: parseInt(document.getElementById('mb-port').value),
+        unit_id: parseInt(document.getElementById('mb-unit').value),
+        poll_interval: parseInt(document.getElementById('mb-interval').value),
+        tags: tags
+      }
+    };
+    const r = await fetch('/api/connections/save', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const result = await r.json();
+    status.innerHTML = result.status === 'saved' ? '\u2713 Saved' : 'Error: '+result.message;
+    status.style.color = result.status === 'saved' ? 'var(--status-good)' : 'var(--status-alarm)';
+  } catch(e) {
+    status.textContent = 'Error: '+e.message;
+    status.style.color = 'var(--status-alarm)';
+  }
 }
 
 loadDashboard(); setInterval(loadDashboard, 5000);
