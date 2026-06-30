@@ -1,0 +1,6 @@
+{
+  "name": "@plantos/visualization-sdk",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PlantOS Visualization SDK for diagram binding and rendering"
+}

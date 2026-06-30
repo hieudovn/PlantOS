@@ -1,0 +1,134 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: plantos-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-plantos}
+      POSTGRES_USER: ${POSTGRES_USER:-plantos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-plantos}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-plantos} -d ${POSTGRES_DB:-plantos}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - plantos-net
+
+  tdengine:
+    image: tdengine/tdengine:3.3.4.0
+    container_name: plantos-tdengine
+    environment:
+      TAOS_FQDN: tdengine
+    ports:
+      - "${TDENGINE_REST_PORT:-6041}:6041"
+      - "${TDENGINE_NATIVE_PORT:-6030}:6030"
+    volumes:
+      - tdengine_data:/var/lib/taos
+      - tdengine_log:/var/log/taos
+    healthcheck:
+      test: ["CMD", "taos", "-s", "show databases"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - plantos-net
+
+  emqx:
+    image: emqx/emqx:5.7.2
+    container_name: plantos-emqx
+    environment:
+      EMQX_NAME: plantos-emqx
+      EMQX_HOST: emqx
+    ports:
+      - "${EMQX_MQTT_PORT:-1883}:1883"
+      - "${EMQX_WS_PORT:-8083}:8083"
+      - "${EMQX_DASHBOARD_PORT:-18083}:18083"
+    volumes:
+      - emqx_data:/opt/emqx/data
+      - emqx_log:/opt/emqx/log
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - plantos-net
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: plantos-backend
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-plantos}
+      POSTGRES_USER: ${POSTGRES_USER:-plantos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-plantos}
+      TDENGINE_HOST: tdengine
+      TDENGINE_PORT: ${TDENGINE_REST_PORT:-6041}
+      TDENGINE_DATABASE: ${TDENGINE_DATABASE:-plantos_ts}
+      EMQX_HOST: emqx
+      EMQX_MQTT_PORT: ${EMQX_MQTT_PORT:-1883}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      tdengine:
+        condition: service_healthy
+    networks:
+      - plantos-net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: plantos-frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:${BACKEND_PORT:-8000}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ../frontend/src:/app/src
+    depends_on:
+      - backend
+    networks:
+      - plantos-net
+    restart: unless-stopped
+
+  edge-simulator:
+    build:
+      context: ../edge/simulator
+      dockerfile: Dockerfile
+    container_name: plantos-edge-simulator
+    environment:
+      BACKEND_URL: http://backend:${BACKEND_PORT:-8000}
+    depends_on:
+      - backend
+    networks:
+      - plantos-net
+    restart: unless-stopped
+    profiles:
+      - simulator
+
+volumes:
+  postgres_data:
+  tdengine_data:
+  tdengine_log:
+  emqx_data:
+  emqx_log:
+
+networks:
+  plantos-net:
+    driver: bridge

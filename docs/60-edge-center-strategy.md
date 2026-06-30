@@ -38,7 +38,7 @@ Minimum Edge capabilities:
 - local buffer,
 - store-and-forward,
 - health reporting,
-- local lightweight historian/cache,
+- local lightweight historian/cache (**DuckDB** — see `docs/adr/ADR-0003-edge-local-tsdb-duckdb.md`),
 - local P&ID / one-line viewer,
 - local alarm list,
 - sync status.

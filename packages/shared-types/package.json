@@ -1,0 +1,6 @@
+{
+  "name": "@plantos/shared-types",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shared TypeScript type definitions for PlantOS"
+}

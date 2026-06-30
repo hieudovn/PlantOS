@@ -55,6 +55,13 @@ Can draft documents, propose architecture, write code, generate tests and refact
 
 AI cannot approve its own output.
 
+**AI Development Workflow**: See `docs/81-ai-workflow.md` for the Designer-Planner / Coder-Executioner session split model. Tóm tắt:
+
+- **V4 Pro** (Session 1 & 3): Design, Planning, Review
+- **V4 Flash** (Session 2): Implementation, Testing
+- Mọi task từ Phase 1 Task 4 trở đi tuân theo workflow này
+- Prompt cho Coder lưu tại `docs/prompts/phase1-task<N>-<name>.md`
+
 ## 4. AI working rules
 
 Any AI assistant working on PlantOS must:

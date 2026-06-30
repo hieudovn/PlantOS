@@ -192,7 +192,36 @@ MISSING
 - Raw tag/source references stay in metadata, not in UI bindings.
 - Historian backend must be replaceable behind interface.
 
-## 13. ADR required
+## 13. Edge local time-series storage
+
+Edge nodes cần local TSDB nhẹ, embedded để buffer dữ liệu khi mất kết nối Center, hỗ trợ analytics và anomaly detection tại Edge.
+
+**Decision: DuckDB** — xem `docs/adr/ADR-0003-edge-local-tsdb-duckdb.md`.
+
+| Tiêu chí | Edge (DuckDB) | Center (TDengine) |
+|---|---|---|
+| Kiến trúc | Embedded (1 file) | Server |
+| Vai trò | Buffer 1-2 tháng, analytics | Historian chính, long-term |
+| Deploy | `pip install duckdb` | Docker container |
+| Retention | SQL cron job | Built-in policy |
+| ML capability | Python UDF trong SQL | Application layer |
+
+DuckDB Edge schema mirror measurement canonical model:
+
+```sql
+CREATE TABLE measurements (
+    ts          TIMESTAMPTZ NOT NULL,
+    signal_id   VARCHAR NOT NULL,
+    value       DOUBLE,
+    quality     VARCHAR,
+    source      VARCHAR,
+);
+CREATE INDEX idx_measurements_signal_ts ON measurements(signal_id, ts);
+```
+
+DuckDB chỉ dùng trên Edge — không thay thế TDengine trên Center.
+
+## 14. ADR required
 
 Before implementation, create ADRs for:
 

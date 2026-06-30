@@ -10,6 +10,7 @@ Before planning or implementing any non-trivial change, read:
 - `docs/10-high-level-architecture.md`
 - `docs/20-data-model.md`
 - `docs/80-working-rules.md`
+- `docs/81-ai-workflow.md`
 
 ## Core rules
 
@@ -25,6 +26,11 @@ Before planning or implementing any non-trivial change, read:
 - Update documentation when changing architecture or data model.
 
 ## Expected working style
+
+PlantOS uses a multi-session AI workflow (see `docs/81-ai-workflow.md`):
+
+- **V4 Pro (this session):** PM-Designer-Planner + Reviewer-Critic. Design tasks, write Coder prompts, review output. Only code directly for trivial scaffolding or minor review fixes.
+- **V4 Flash (separate session):** Coder-Executioner + Tester. Read prompt from `docs/prompts/`, implement, test, report.
 
 For each task, produce:
 
