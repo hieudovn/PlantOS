@@ -67,23 +67,42 @@ export function SvgDiagram({ svgUrl, binding }: Props) {
 
   const currentValues = useRealtimeValues(assetIds as string[]);
 
-  // Update SVG DOM with current values
+  // Update SVG DOM with current values, click, hover, state colors
   useEffect(() => {
     if (!containerRef.current || !currentValues) return;
     const container = containerRef.current;
 
+    // ---- State-driven colors from current values ----
     container
       .querySelectorAll("[data-binding='state']")
       .forEach((el: any) => {
         const g = el.closest("[data-asset-id]") as HTMLElement;
         const assetId = g?.getAttribute("data-asset-id");
         if (!assetId) return;
-        const style = binding.state_styles?.default || {};
-        Object.entries(style).forEach(([k, v]) => {
+
+        // Find a "status" signal for this asset
+        let stateValue: string | null = null;
+        for (const [key, cv] of Object.entries(currentValues)) {
+          if (
+            key.startsWith(assetId) &&
+            (key.includes("status") || key.includes("running"))
+          ) {
+            stateValue = cv?.value ? "running" : "stopped";
+            break;
+          }
+        }
+
+        if (stateValue === null) stateValue = "running";
+
+        const styles = binding.state_styles || {};
+        const stateStyle =
+          styles[stateValue] || styles.default || { stroke: "#475569", fill: "#1e293b" };
+        Object.entries(stateStyle).forEach(([k, v]) => {
           el.setAttribute(k, v as string);
         });
       });
 
+    // ---- Signal values ----
     container
       .querySelectorAll("[data-binding='signal_value']")
       .forEach((el: any) => {
@@ -113,6 +132,51 @@ export function SvgDiagram({ svgUrl, binding }: Props) {
           );
         }
       });
+
+    // ---- Click handler: navigate to asset detail ----
+    container.querySelectorAll("[data-asset-id]").forEach((el: any) => {
+      const assetId = el.getAttribute("data-asset-id");
+      if (!assetId || el._clickBound) return;
+      el._clickBound = true;
+      el.style.cursor = "pointer";
+      el.addEventListener("click", () => {
+        window.location.href = `/assets/${assetId}`;
+      });
+    });
+
+    // ---- Hover handler: tooltip ----
+    container.querySelectorAll("[data-asset-id]").forEach((el: any) => {
+      if (el._hoverBound) return;
+      el._hoverBound = true;
+      const assetId = el.getAttribute("data-asset-id");
+
+      el.addEventListener("mouseenter", (e: MouseEvent) => {
+        const tooltip = document.createElement("div");
+        tooltip.className =
+          "fixed z-50 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-xs shadow-lg pointer-events-none";
+        tooltip.style.left = `${e.clientX + 12}px`;
+        tooltip.style.top = `${e.clientY - 8}px`;
+        tooltip.id = "svg-tooltip";
+
+        const name =
+          el.querySelector(".equipment-label")?.textContent || assetId;
+        tooltip.innerHTML = `<div class="font-medium">${name}</div><div class="text-gray-400">${assetId}</div>`;
+        document.body.appendChild(tooltip);
+
+        el.addEventListener("mousemove", (ev: MouseEvent) => {
+          const tip = document.getElementById("svg-tooltip");
+          if (tip) {
+            tip.style.left = `${ev.clientX + 12}px`;
+            tip.style.top = `${ev.clientY - 8}px`;
+          }
+        });
+      });
+
+      el.addEventListener("mouseleave", () => {
+        const tip = document.getElementById("svg-tooltip");
+        if (tip) tip.remove();
+      });
+    });
   }, [currentValues, binding]);
 
   return (

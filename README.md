@@ -142,6 +142,15 @@ python -m pytest tests/ -v
 - Trend Chart (multi-signal, ECharts)
 - Edge Simulator (15 signals, 4 scenarios)
 
+## Phase 2 Features
+
+- **Edge Agent** — DuckDB local buffer, MQTT publisher, store-and-forward sync
+- **Edge Fleet UI** — Real-time node status, heartbeat monitoring
+- **Asset Tree View** — UNS hierarchy navigation (Plant → Area → Asset)
+- **WebSocket Real-time** — Live data push for Asset Detail + Diagrams
+- **UX Polish** — Chart state persistence, tab rename, chart type selector
+- **Diagram Enhancement** — Click element → asset detail, state-driven colors, hover tooltip
+
 ## Known Limitations (Phase 2 Backlog)
 
 | # | Issue | Severity | Plan |
