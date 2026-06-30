@@ -11,7 +11,7 @@ class ModbusClient:
         self.host = host
         self.port = port
         self.unit_id = unit_id
-        self.client = ModbusTcpClient(host, port)
+        self.client = ModbusTcpClient(host=host, port=port)
         self._connected = False
 
     def connect(self) -> bool:

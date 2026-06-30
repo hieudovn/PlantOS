@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+
+# Edge runtime data
+edge_data.duckdb
+edge_data.duckdb.wal
+metadata_cache.json
+
+# Node
+node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+*.log

@@ -24,8 +24,6 @@ def setup(buffer, publisher, sync_mgr, config):
 def set_modbus_collector(collector):
     global _modbus_collector
     _modbus_collector = collector
-    _sync_manager = sync_mgr
-    _config = config
 
 
 async def handle_status(request):
