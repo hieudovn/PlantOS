@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getAssets } from "@/lib/api";
+import { useWorkspace } from "@/lib/WorkspaceContext";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AssetFilters } from "./AssetFilters";
 import { AssetTree } from "./AssetTree";
@@ -12,12 +13,13 @@ export function AssetTable() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"tree" | "table">("tree");
+  const { plantId } = useWorkspace();
 
-  const params: Record<string, string> = {};
+  const params: Record<string, string> = { plant_id: plantId };
   searchParams.forEach((v, k) => { params[k] = v; });
 
   const { data: assets, isLoading } = useQuery({
-    queryKey: ["assets", params],
+    queryKey: ["assets", plantId, params],
     queryFn: () => getAssets(params),
   });
 

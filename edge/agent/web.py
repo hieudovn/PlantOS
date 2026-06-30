@@ -13,6 +13,7 @@ _publisher = None
 _sync_manager = None
 _config = None
 _modbus_collector = None
+_opcua_collector = None
 _metadata = None
 
 
@@ -27,6 +28,11 @@ def setup(buffer, publisher, sync_mgr, config):
 def set_modbus_collector(collector):
     global _modbus_collector
     _modbus_collector = collector
+
+
+def set_opcua_collector(collector):
+    global _opcua_collector
+    _opcua_collector = collector
 
 
 def set_metadata(metadata):
@@ -56,6 +62,12 @@ async def handle_status(request):
             "host": _modbus_collector.client.host if _modbus_collector else None,
             "tags": len(_modbus_collector.mapper.tags) if _modbus_collector else 0,
         } if _modbus_collector else {"enabled": False},
+        "opcua": {
+            "enabled": _opcua_collector._enabled if _opcua_collector else False,
+            "connected": _opcua_collector.connected if _opcua_collector else False,
+            "endpoint": _opcua_collector.config.get("endpoint", "") if _opcua_collector else None,
+            "signal_count": len(_opcua_collector.mapper.node_ids) if _opcua_collector else 0,
+        } if _opcua_collector else {"enabled": False},
         "sync": {"backlog": unsynced},
         "signals": len(_config.get("signals", [])),
         "version": "0.2.0",
@@ -66,15 +78,30 @@ async def handle_latest(request):
     """Latest value per signal (current snapshot)."""
     try:
         rows = _buffer.conn.execute("""
-            SELECT signal_id, value, quality, MAX(ts) as ts
-            FROM measurements GROUP BY signal_id ORDER BY signal_id
+            SELECT signal_id, value, quality, ts
+            FROM measurements
+            WHERE ts = (SELECT MAX(ts) FROM measurements m2 WHERE m2.signal_id = measurements.signal_id)
+            ORDER BY signal_id
         """).fetchall()
-        return web.json_response([
-            {"signal_id": r[0], "value": r[1], "quality": r[2] or "SIMULATED",
-             "timestamp": r[3].isoformat() if r[3] else None}
-            for r in rows
-        ])
-    except Exception:
+        results = []
+        for r in rows:
+            ts = r[3]
+            if hasattr(ts, 'isoformat'):
+                ts_str = ts.isoformat()
+            elif ts is not None:
+                ts_str = str(ts)
+            else:
+                ts_str = None
+            results.append({
+                "signal_id": r[0],
+                "value": r[1],
+                "quality": r[2] or "SIMULATED",
+                "timestamp": ts_str,
+            })
+        return web.json_response(results)
+    except Exception as e:
+        import logging
+        logging.getLogger("web").error(f"handle_latest error: {e}", exc_info=True)
         return web.json_response([])
 
 
@@ -121,7 +148,13 @@ async def handle_protocol_status(request):
             "connected": _modbus_collector.connected if _modbus_collector else False,
             "host": _modbus_collector.config.get("host") if _modbus_collector else None,
             "tags": len(_modbus_collector.mapper.tags) if _modbus_collector else 0,
-        }
+        },
+        "opcua": {
+            "enabled": _opcua_collector._enabled if _opcua_collector else False,
+            "connected": _opcua_collector.connected if _opcua_collector else False,
+            "endpoint": _opcua_collector.config.get("endpoint", "") if _opcua_collector else None,
+            "signal_count": len(_opcua_collector.mapper.node_ids) if _opcua_collector else 0,
+        } if _opcua_collector else {"enabled": False},
     })
 
 

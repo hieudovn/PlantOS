@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
-import { getSignals } from "@/lib/api";
+import { getAssets, getSignals } from "@/lib/api";
+import { useWorkspace } from "@/lib/WorkspaceContext";
 import { Search } from "lucide-react";
 
 export function SignalTable() {
@@ -9,13 +10,26 @@ export function SignalTable() {
   const params: Record<string, string> = {};
   searchParams.forEach((v, k) => { params[k] = v; });
   const [search, setSearch] = useState("");
+  const { plantId } = useWorkspace();
 
-  const { data: signals, isLoading } = useQuery({
-    queryKey: ["signals-all", params],
-    queryFn: () => getSignals(params),
+  // Fetch assets for current workspace to filter signals by plant
+  const { data: plantAssets } = useQuery({
+    queryKey: ["assets", plantId],
+    queryFn: () => getAssets({ plant_id: plantId }),
   });
 
-  const filtered = signals?.filter((s: any) =>
+  const { data: signals, isLoading } = useQuery({
+    queryKey: ["signals-all"],
+    queryFn: () => getSignals(),
+  });
+
+  // Get the set of asset_ids belonging to this plant
+  const assetIds = new Set((plantAssets || []).map((a: any) => a.asset_id));
+
+  // Filter signals: only those belonging to the current workspace's assets
+  const plantSignals = (signals || []).filter((s: any) => assetIds.has(s.asset_id));
+
+  const filtered = plantSignals?.filter((s: any) =>
     !search ||
     s.signal_id.toLowerCase().includes(search.toLowerCase()) ||
     (s.display_name || s.signal_name).toLowerCase().includes(search.toLowerCase()) ||

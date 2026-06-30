@@ -44,6 +44,11 @@
   <div class="row"><label>Modbus:</label><span id="conn-status" class="badge off">Checking...</span></div>
   <div class="row"><label>Host:</label><span id="conn-host" style="font-size:12px;font-family:var(--font-mono)">—</span></div>
   <div class="row"><label>Tags:</label><span id="conn-tags" style="font-size:12px">—</span></div>
+  <div class="row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+    <label>OPC UA:</label><span id="opcua-status" class="badge off">Checking...</span>
+  </div>
+  <div class="row"><label>Endpoint:</label><span id="opcua-endpoint" style="font-size:12px;font-family:var(--font-mono)">—</span></div>
+  <div class="row"><label>OPC Tags:</label><span id="opcua-tags" style="font-size:12px">—</span></div>
 </div>
 
 <div class="card">
@@ -56,6 +61,23 @@
     <button class="btn btn-primary" onclick="testConnection()">Test Connection</button>
     <span id="test-result" style="font-size:12px;font-family:var(--font-mono)"></span>
   </div>
+</div>
+
+<div class="card">
+  <h2>OPC UA Connection</h2>
+  <div class="row"><label>Endpoint:</label><input id="opcua-endpoint-input" value="opc.tcp://localhost:4840" style="width:280px" /></div>
+  <div class="row"><label>Poll (s):</label><input id="opcua-poll" type="number" value="30" min="1" max="3600" style="width:100px" /></div>
+  <div class="row"><label>Enabled:</label>
+    <select id="opcua-enabled" style="width:100px">
+      <option value="false">No</option>
+      <option value="true">Yes</option>
+    </select>
+  </div>
+  <div class="row">
+    <button class="btn btn-primary" onclick="saveOpcuaConfig()">Save OPC UA Config</button>
+    <span id="opcua-save-result" style="font-size:12px;font-family:var(--font-mono)"></span>
+  </div>
+  <div id="opcua-msg" style="font-size:10px;color:var(--text-dim);margin-top:8px">Requires edge agent restart to apply. Edit config.yaml directly for full tag list (26 signals).</div>
 </div>
 
 <div class="card">
@@ -77,7 +99,49 @@ async function loadStatus() {
     document.getElementById('conn-status').className = 'badge ' + (m.connected ? 'on' : 'off');
     document.getElementById('conn-host').textContent = m.host || '—';
     document.getElementById('conn-tags').textContent = m.tags || '—';
+
+    // OPC UA status
+    const o = r.opcua || {};
+    document.getElementById('opcua-status').textContent = o.connected ? 'ON' : (o.enabled ? 'Connecting' : 'OFF');
+    document.getElementById('opcua-status').className = 'badge ' + (o.connected ? 'on' : 'off');
+    document.getElementById('opcua-endpoint').textContent = o.endpoint || '—';
+    document.getElementById('opcua-tags').textContent = (o.signal_count || 0) + ' signals';
+
+    // Populate OPC UA form from status
+    if (o.endpoint) document.getElementById('opcua-endpoint-input').value = o.endpoint;
+    if (o.enabled) document.getElementById('opcua-enabled').value = String(o.enabled);
   } catch(e) { console.error(e); }
+}
+
+async function saveOpcuaConfig() {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Saving...';
+  const result = document.getElementById('opcua-save-result');
+  result.textContent = '';
+
+  const pollSeconds = parseInt(document.getElementById('opcua-poll').value) || 30;
+  const body = {
+    opcua: {
+      enabled: document.getElementById('opcua-enabled').value === 'true',
+      endpoint: document.getElementById('opcua-endpoint-input').value,
+      poll_interval_ms: pollSeconds * 1000,
+    }
+  };
+
+  try {
+    const resp = await fetch('/api/connections/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await resp.json();
+    result.textContent = json.status === 'saved' ? '✓ Saved (restart agent)' : 'Error: ' + json.message;
+    result.style.color = json.status === 'saved' ? '#22c55e' : '#ef4444';
+  } catch(e) {
+    result.textContent = 'Error: ' + e.message;
+    result.style.color = '#ef4444';
+  }
+  btn.disabled = false; btn.textContent = 'Save OPC UA Config';
 }
 
 async function testConnection() {

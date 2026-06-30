@@ -16,3 +16,16 @@ router.include_router(measurements_router, tags=["Measurements"])
 router.include_router(edge_nodes_router, tags=["Edge Nodes"])
 router.include_router(alarms_router, tags=["Alarms"])
 router.include_router(events_router, tags=["Events"])
+
+
+# ---- Seed endpoint (idempotent) ----
+
+@router.post("/seed/vf-demo", tags=["Seed"])
+def seed_vf_demo():
+    """Seed Virtual Factory Compressor Train plant assets and signals."""
+    from app.seed.vf_demo_plant import seed_vf_demo_plant
+    try:
+        results = seed_vf_demo_plant()
+        return {"status": "ok", **results}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

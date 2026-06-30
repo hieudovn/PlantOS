@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { getAssets } from "@/lib/api";
+import { useWorkspace } from "@/lib/WorkspaceContext";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ChevronRight, ChevronDown } from "lucide-react";
 
@@ -126,9 +127,10 @@ function TreeNodeRow({ node, level = 0 }: { node: TreeNode; level?: number }) {
 }
 
 export function AssetTree() {
+  const { plantId } = useWorkspace();
   const { data: assets, isLoading } = useQuery({
-    queryKey: ["assets"],
-    queryFn: () => getAssets(),
+    queryKey: ["assets", plantId],
+    queryFn: () => getAssets({ plant_id: plantId }),
   });
 
   if (isLoading) return <div className="text-gray-500">Loading...</div>;

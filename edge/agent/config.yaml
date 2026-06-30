@@ -47,6 +47,73 @@ publish:
   interval_seconds: 1
   batch_size: 10
 
+# OPC UA collector (Virtual Factory Compressor Train)
+opcua:
+  enabled: true
+  endpoint: opc.tcp://localhost:4840
+  timeout: 5.0
+  poll_interval_ms: 30000  # 30s poll cycle
+  tags:
+    # === Compressor Core (7) ===
+    - node_id: ns=2;s=COMP01_SUCTION_PRESSURE
+      signal_id: COMP01-CORE.suction_pressure
+    - node_id: ns=2;s=COMP01_DISCHARGE_PRESSURE
+      signal_id: COMP01-CORE.discharge_pressure
+    - node_id: ns=2;s=COMP01_FLOW
+      signal_id: COMP01-CORE.flow_rate
+      scale: 3600.0     # m3/s -> m3/h
+    - node_id: ns=2;s=COMP01_SUCTION_TEMP
+      signal_id: COMP01-CORE.suction_temp
+    - node_id: ns=2;s=COMP01_DISCHARGE_TEMP
+      signal_id: COMP01-CORE.discharge_temp
+    - node_id: ns=2;s=COMP01_SPEED
+      signal_id: COMP01-CORE.speed
+    - node_id: ns=2;s=COMP01_POWER
+      signal_id: COMP01-CORE.power
+    # === Motor (7) ===
+    - node_id: ns=2;s=COMP01_MOTOR_CURRENT
+      signal_id: COMP01-MOTOR.current
+    - node_id: ns=2;s=COMP01_MOTOR_POWER
+      signal_id: COMP01-MOTOR.power
+    - node_id: ns=2;s=COMP01_MOTOR_WINDING_TEMP
+      signal_id: COMP01-MOTOR.winding_temp
+    - node_id: ns=2;s=COMP01_MOTOR_BRG_DE_TEMP
+      signal_id: COMP01-MOTOR.bearing_de_temp
+    - node_id: ns=2;s=COMP01_MOTOR_BRG_NDE_TEMP
+      signal_id: COMP01-MOTOR.bearing_nde_temp
+    - node_id: ns=2;s=COMP01_MOTOR_VIB_DE
+      signal_id: COMP01-MOTOR.vibration_de
+    - node_id: ns=2;s=COMP01_MOTOR_VIB_NDE
+      signal_id: COMP01-MOTOR.vibration_nde
+    # === Bearings (6) ===
+    - node_id: ns=2;s=COMP01_BRG_DE_TEMP
+      signal_id: COMP01-BEARINGS.de_temp
+    - node_id: ns=2;s=COMP01_BRG_NDE_TEMP
+      signal_id: COMP01-BEARINGS.nde_temp
+    - node_id: ns=2;s=COMP01_BRG_THRUST_TEMP
+      signal_id: COMP01-BEARINGS.thrust_temp
+    - node_id: ns=2;s=COMP01_VIB_DE
+      signal_id: COMP01-BEARINGS.vibration_de
+    - node_id: ns=2;s=COMP01_VIB_NDE
+      signal_id: COMP01-BEARINGS.vibration_nde
+    - node_id: ns=2;s=COMP01_VIB_AXIAL
+      signal_id: COMP01-BEARINGS.vibration_axial
+    # === Lube Oil (3) ===
+    - node_id: ns=2;s=COMP01_LO_PRESS
+      signal_id: COMP01-LUBE.pressure
+    - node_id: ns=2;s=COMP01_LO_TEMP
+      signal_id: COMP01-LUBE.temperature
+    - node_id: ns=2;s=COMP01_LO_FILTER_DP
+      signal_id: COMP01-LUBE.filter_dp
+    # === Cooling (2) ===
+    - node_id: ns=2;s=COMP01_CW_SUPPLY_TEMP
+      signal_id: COMP01-COOLING.supply_temp
+    - node_id: ns=2;s=COMP01_CW_RETURN_TEMP
+      signal_id: COMP01-COOLING.return_temp
+    # === Seal Gas (1) ===
+    - node_id: ns=2;s=COMP01_SEAL_FLOW
+      signal_id: COMP01-SEAL.flow_rate
+
 # Modbus TCP adapter
 modbus:
   enabled: false

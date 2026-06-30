@@ -26,6 +26,7 @@ async def ws_measurements(ws: WebSocket):
 
 async def broadcast_measurements(measurements: list[dict]):
     """Broadcast new measurements to all connected WebSocket clients."""
+    global _clients
     if not _clients:
         return
     payload = json.dumps({"type": "measurements", "data": measurements})

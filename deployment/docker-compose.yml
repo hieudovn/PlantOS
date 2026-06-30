@@ -22,7 +22,7 @@ services:
       - plantos-net
 
   tdengine:
-    image: tdengine/tdengine:3.3.4.0
+    image: tdengine/tdengine:latest
     container_name: plantos-tdengine
     environment:
       TAOS_FQDN: tdengine

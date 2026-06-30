@@ -72,9 +72,26 @@
   <div class="section-title">&#128268; Connections Status</div>
   <div class="grid">
     <div class="card" id="conn-mqtt"><div class="label">MQTT</div><div class="value" style="font-size:14px">Loading...</div></div>
+    <div class="card" id="conn-opcua"><div class="label">OPC UA</div><div class="value" style="font-size:14px">Loading...</div></div>
     <div class="card" id="conn-modbus"><div class="label">Modbus</div><div class="value" style="font-size:14px">Loading...</div></div>
     <div class="card" id="conn-sync"><div class="label">Sync Backlog</div><div class="value" style="font-size:14px">Loading...</div></div>
-    <div class="card" id="conn-ingest"><div class="label">HTTP Ingest</div><div class="value" style="font-size:14px">Loading...</div></div>
+  </div>
+
+  <div class="section-title" style="margin-top:20px">\&#9881; OPC UA Configuration</div>
+  <div class="card" style="padding:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px">Endpoint</label><input id="opcua-endpoint" style="width:100%;padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:12px"></div>
+      <div><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px">Poll Interval (ms)</label><input id="opcua-interval" value="1000" style="width:100%;padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:12px"></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px">Tags (node_id,signal_id,scale per line)</label>
+      <textarea id="opcua-tags" rows="4" style="width:100%;padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:11px;resize:vertical"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="saveOpcUaConnection()" style="padding:8px 16px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;cursor:pointer;font-size:12px">&#128190; Save OPC UA Config</button>
+      <span id="opcua-save-status" style="font-size:11px;color:var(--text-muted)"></span>
+    </div>
+    <div id="opcua-status-detail" style="margin-top:8px;font-size:11px;color:var(--text-dim)"></div>
   </div>
 
   <div class="section-title" style="margin-top:20px">&#9881; Modbus TCP Configuration</div>
@@ -118,7 +135,8 @@ async function loadDashboard() {
       <div class="card"><div class="label">DB Rows</div><div class="value">${(s.duckdb.total_rows||0).toLocaleString()}</div></div>
       <div class="card"><div class="label">Unsynced</div><div class="value ${(s.duckdb.unsynced||0)>0?'yellow':'green'}">${s.duckdb.unsynced||0}</div></div>
       <div class="card"><div class="label">MQTT</div><div class="value ${s.mqtt.connected?'green':'red'}">${s.mqtt.connected?'ON':'OFF'}</div></div>
-      <div class="card"><div class="label">Signals</div><div class="value">${s.signals||0}</div></div>
+      <div class="card"><div class="label">OPC UA</div><div class="value ${s.opcua?.connected?'green':'red'}">${s.opcua?.connected?'ON':'OFF'}</div></div>
+      <div class="card"><div class="label">Signals</div><div class="value">${(s.opcua?.signal_count||0)+(s.modbus?.tags||0)+(s.signals||0)}</div></div>
       <div class="card"><div class="label">DB Size</div><div class="value">${(s.duckdb.db_size_mb||0).toFixed(2)} MB</div></div>`;
     document.getElementById('footer-info').textContent = 'Agent: '+(s.node_id||'unknown')+' | Synced: '+(s.duckdb.total_rows||0)+' rows';
     const l = await fetch('/api/measurements/latest').then(r=>r.json());
@@ -218,6 +236,8 @@ async function loadConnections() {
     const s = await fetch('/api/status').then(r=>r.json());
     document.getElementById('conn-mqtt').innerHTML = '<div class="label">MQTT</div>'+
       '<div class="value" style="font-size:14px"><span class="status-dot '+(s.mqtt.connected?'on':'off')+'"></span>'+(s.mqtt.connected?'Connected':'Disconnected')+'</div>';
+    document.getElementById('conn-opcua').innerHTML = '<div class="label">OPC UA</div>'+
+      '<div class="value" style="font-size:14px">'+(s.opcua?.enabled?'<span class="status-dot '+(s.opcua?.connected?'on':'off')+'"></span>'+(s.opcua?.connected?'Connected ('+s.opcua.signal_count+' signals)':'Disconnected')+'<div style="font-size:10px;color:var(--text-dim);margin-top:2px">'+(s.opcua?.endpoint||'')+'</div>':'<span class="status-dot off"></span>Disabled')+'</div>';
     document.getElementById('conn-modbus').innerHTML = '<div class="label">Modbus</div>'+
       '<div class="value" style="font-size:14px">'+(s.modbus?.enabled?'<span class="status-dot '+(s.modbus.connected?'on':'off')+'"></span>'+(s.modbus.connected?'Connected':'Disconnected')+' ('+(s.modbus.host||'')+':'+s.modbus.tags+' tags)':'<span class="status-dot off"></span>Disabled')+'</div>';
     document.getElementById('conn-sync').innerHTML = '<div class="label">Sync Backlog</div>'+
@@ -248,6 +268,33 @@ async function saveConnection() {
     const r = await fetch('/api/connections/save', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const result = await r.json();
     status.innerHTML = result.status === 'saved' ? '\u2713 Saved' : 'Error: '+result.message;
+    status.style.color = result.status === 'saved' ? 'var(--status-good)' : 'var(--status-alarm)';
+  } catch(e) {
+    status.textContent = 'Error: '+e.message;
+    status.style.color = 'var(--status-alarm)';
+  }
+}
+
+async function saveOpcUaConnection() {
+  const status = document.getElementById('opcua-save-status');
+  status.textContent = 'Saving...';
+  try {
+    const lines = document.getElementById('opcua-tags').value.split('\n').filter(l=>l.trim());
+    const tags = lines.map(l => {
+      const parts = l.split(',');
+      return {node_id: parts[0]||'', signal_id: parts[1]||'', scale: parseFloat(parts[2])||1.0};
+    });
+    const body = {
+      opcua: {
+        enabled: true,
+        endpoint: document.getElementById('opcua-endpoint').value,
+        poll_interval_ms: parseInt(document.getElementById('opcua-interval').value),
+        tags: tags
+      }
+    };
+    const r = await fetch('/api/connections/save', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const result = await r.json();
+    status.innerHTML = result.status === 'saved' ? '\u2713 Saved (restart required)' : 'Error: '+result.message;
     status.style.color = result.status === 'saved' ? 'var(--status-good)' : 'var(--status-alarm)';
   } catch(e) {
     status.textContent = 'Error: '+e.message;

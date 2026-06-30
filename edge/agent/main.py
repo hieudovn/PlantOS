@@ -15,7 +15,7 @@ from publisher import MQTTPublisher
 from sync import StoreAndForward
 from health import HealthReporter
 from metadata import MetadataManager
-from web import setup as web_setup, run_server, set_modbus_collector, set_metadata
+from web import setup as web_setup, run_server, set_modbus_collector, set_opcua_collector, set_metadata
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
 logger = logging.getLogger("edge-agent")
@@ -89,6 +89,12 @@ class EdgeAgent:
         self.modbus = ModbusCollector(modbus_cfg, self.buffer)
         set_modbus_collector(self.modbus)
 
+        # OPC UA collector (for Virtual Factory integration)
+        from collectors.opcua import OpcUaCollector
+        opcua_cfg = self.cfg.get("opcua", {})
+        self.opcua_collector = OpcUaCollector(opcua_cfg, self.buffer)
+        set_opcua_collector(self.opcua_collector)
+
         logger.info(f"Agent {self.node_id} started with {len(self.generators)} signals")
 
     async def run(self):
@@ -104,6 +110,7 @@ class EdgeAgent:
         asyncio.create_task(self.health.run(lambda: self.sync.get_backlog()))
         asyncio.create_task(self._periodic_metadata_sync())
         asyncio.create_task(self.modbus.start())
+        asyncio.create_task(self.opcua_collector.start())
 
         while True:
             # Generate measurements
@@ -139,6 +146,17 @@ class EdgeAgent:
                 self.buffer.cleanup_retention()
 
             await asyncio.sleep(self.interval)
+
+
+    def get_opcua_status(self) -> dict:
+        if not hasattr(self, 'opcua_collector'):
+            return {"enabled": False}
+        return {
+            "enabled": self.opcua_collector._enabled,
+            "connected": self.opcua_collector.connected,
+            "endpoint": self.opcua_collector.config.get("endpoint", ""),
+            "signal_count": len(self.opcua_collector.mapper.node_ids),
+        }
 
 
 if __name__ == "__main__":
