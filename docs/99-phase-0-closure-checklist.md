@@ -4,7 +4,15 @@
 
 Phase 0 closes when PlantOS has enough foundation, design and governance documentation to start AI-assisted implementation without losing architectural control.
 
-## 2. Documents completed
+## 2. Phase 0 status
+
+```text
+Status: CLOSED / READY FOR PHASE 1
+Decision record: docs/adr/ADR-0001-mvp-technology-decisions.md
+Confirmed by Product Owner / Solution Architect: 2026-06-30
+```
+
+## 3. Documents completed
 
 Phase 0 foundation documents:
 
@@ -29,9 +37,10 @@ Phase 0 foundation documents:
 - [x] `docs/80-working-rules.md`
 - [x] `docs/90-roadmap.md`
 - [x] `docs/adr/ADR-0000-template.md`
+- [x] `docs/adr/ADR-0001-mvp-technology-decisions.md`
 - [x] `.github/copilot-instructions.md`
 
-## 3. Architecture principles locked
+## 4. Architecture principles locked
 
 - [x] PlantOS is an Industrial Operational Platform, not only IIoT dashboard.
 - [x] PlantOS has built-in time-series/historian capability but is not only a Historian.
@@ -44,7 +53,7 @@ Phase 0 foundation documents:
 - [x] Low-code/rule/flow must be governed, versioned and auditable.
 - [x] Virtual Factory must use the same data model as real plant data.
 
-## 4. MVP scope locked
+## 5. MVP scope locked
 
 MVP includes:
 
@@ -74,105 +83,53 @@ MVP excludes:
 - [x] Advanced APM analytics.
 - [x] Production-grade edge manager.
 
-## 5. Decisions requiring confirmation before coding
+## 6. MVP decisions accepted
 
-The following decisions should be confirmed by the Product Owner / Solution Architect before Phase 1 coding starts.
+The Product Owner / Solution Architect confirmed the following decisions on 2026-06-30. Details are recorded in `docs/adr/ADR-0001-mvp-technology-decisions.md`.
 
 ### Decision 1: Backend framework
 
-Current recommendation:
+Accepted:
 
 ```text
 FastAPI + Python
 ```
 
-Reason:
-
-- fast API development,
-- strong data modeling with Pydantic,
-- suitable for AI-assisted development,
-- easy integration with simulator and analytics later.
-
-Alternative:
-
-```text
-NestJS + TypeScript
-```
-
-Decision needed: accept FastAPI or switch to NestJS.
-
 ### Decision 2: First TSDB
 
-Current recommendation:
+Accepted:
 
 ```text
 TDengine
 ```
 
-Reason:
-
-- industrial/time-series orientation,
-- strong candidate for built-in operational historian,
-- SQL-like query model.
-
-Alternative:
-
-```text
-VictoriaMetrics
-```
-
-Decision needed: use TDengine for MVP unless later ADR changes it.
-
 ### Decision 3: First ingestion path
 
-Current recommendation:
+Accepted:
 
 ```text
 HTTP ingestion first, MQTT path second
 ```
 
-Reason:
-
-- faster validation,
-- simpler debugging,
-- avoids building MQTT subscriber before core API works.
-
-Alternative:
-
-```text
-MQTT-first ingestion
-```
-
-Decision needed: accept HTTP-first or force MQTT-first.
-
 ### Decision 4: Frontend stack
 
-Current recommendation:
+Accepted:
 
 ```text
 React + TypeScript + Vite + Tailwind + shadcn/ui + ECharts
 ```
 
-Decision needed: accept this stack.
-
 ### Decision 5: MVP data type scope
 
-Current recommendation:
+Accepted:
 
 ```text
 numeric + boolean-like signals first
 ```
 
-Reason:
-
-- enough for trend, diagram, GIS and alarm demo,
-- avoids early complexity of mixed string/blob time-series storage.
-
-Decision needed: accept numeric/boolean MVP scope.
-
 ### Decision 6: Demo plant scenario
 
-Current recommendation:
+Accepted:
 
 ```text
 Process line + electrical subsystem
@@ -188,11 +145,9 @@ Assets:
 - FEEDER-01,
 - BREAKER-01.
 
-Decision needed: accept this demo scenario or replace with another industry scenario.
+## 7. Phase 1 recommended task sequence
 
-## 6. Phase 1 recommended task sequence
-
-After confirmation, assign AI/Codex tasks in this sequence:
+Assign AI/Codex tasks in this sequence:
 
 1. Create repository structure.
 2. Add Docker Compose skeleton.
@@ -213,17 +168,21 @@ After confirmation, assign AI/Codex tasks in this sequence:
 17. Add README run instructions.
 18. Validate MVP acceptance criteria.
 
-## 7. Go / No-Go checklist
+## 8. Go / No-Go checklist
 
 Before coding starts:
 
-- [ ] Product Owner confirms pending decisions.
-- [ ] Codex/AI task prompt references constitution and working rules.
-- [ ] Phase 1 tasks are assigned sequentially.
-- [ ] AI is instructed to update docs when architecture changes.
-- [ ] Any major deviation must create an ADR.
+- [x] Product Owner confirms pending decisions.
+- [x] Codex/AI task prompt references constitution and working rules.
+- [x] Phase 1 tasks are assigned sequentially.
+- [x] AI is instructed to update docs when architecture changes.
+- [x] Any major deviation must create an ADR.
 
-## 8. Recommended Phase 1 master prompt
+```text
+Go decision: YES — Phase 1 implementation may start.
+```
+
+## 9. Recommended Phase 1 master prompt
 
 ```text
 You are working on PlantOS.
@@ -243,6 +202,7 @@ Before making changes, read:
 - docs/19-deployment-design.md
 - docs/80-working-rules.md
 - docs/99-phase-0-closure-checklist.md
+- docs/adr/ADR-0001-mvp-technology-decisions.md
 
 Your task:
 [insert specific Phase 1 task]
@@ -256,6 +216,7 @@ Constraints:
 - Prefer simple working implementation over over-engineering.
 - Add tests or validation steps.
 - Update documentation if the implementation changes design.
+- Any major deviation must create an ADR.
 
 Expected output:
 - plan,
