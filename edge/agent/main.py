@@ -14,6 +14,7 @@ from buffer import DuckDBBuffer
 from publisher import MQTTPublisher
 from sync import StoreAndForward
 from health import HealthReporter
+from web import setup as web_setup, run_server
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
 logger = logging.getLogger("edge-agent")
@@ -74,9 +75,15 @@ class EdgeAgent:
         # Signal generators
         self.generators = [SignalGenerator(s) for s in self.cfg["signals"]]
 
+        # Setup web server
+        web_setup(self.buffer, self.mqtt, self.sync, self.cfg)
+
         logger.info(f"Agent {self.node_id} started with {len(self.generators)} signals")
 
     async def run(self):
+        # Start web server as background task
+        asyncio.create_task(run_server(port=8001))
+
         asyncio.create_task(self.health.run(lambda: self.sync.get_backlog()))
 
         while True:
