@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     TDENGINE_HOST: str = "localhost"
     TDENGINE_PORT: int = 6041
     TDENGINE_DATABASE: str = "plantos_ts"
+    TDENGINE_USER: str = "root"
+    TDENGINE_PASSWORD: str = "taosdata"
+    TDENGINE_TIMEOUT: int = 10  # connection timeout in seconds
 
     # EMQX
     EMQX_HOST: str = "localhost"
