@@ -1,0 +1,138 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PlantOS Edge — Protocol Setup</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0f172a;color:#e2e8f0;font-family:monospace;padding:20px}
+  h1{font-size:18px;margin-bottom:16px;border-bottom:1px solid #1e293b;padding-bottom:8px}
+  h2{font-size:14px;margin:16px 0 8px}
+  .card{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;margin-bottom:12px}
+  .row{display:flex;gap:12px;margin-bottom:8px;align-items:center}
+  label{font-size:11px;color:#94a3b8;min-width:80px}
+  input,select{background:#0f172a;border:1px solid #334155;border-radius:4px;color:#e2e8f0;padding:6px 10px;font-size:12px;font-family:monospace}
+  input{width:160px}input[type=number]{width:100px}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  th{text-align:left;padding:6px 8px;background:#0f172a;color:#94a3b8;border-bottom:1px solid #334155}
+  td{padding:4px 8px;border-bottom:1px solid #1e293b}
+  td input{width:100%}
+  .btn{padding:6px 14px;border-radius:4px;border:none;cursor:pointer;font-size:12px;font-family:monospace}
+  .btn-primary{background:#3b82f6;color:#fff}.btn-primary:hover{background:#2563eb}
+  .btn-success{background:#22c55e;color:#fff}.btn-danger{background:#ef4444;color:#fff}
+  .badge{padding:2px 8px;border-radius:4px;font-size:10px}
+  .badge.on{background:#166534;color:#22c55e}.badge.off{background:#7f1d1d;color:#ef4444}
+  #result{margin-top:12px;font-size:12px;padding:8px;border-radius:4px;display:none}
+  #result.ok{background:#166534;color:#22c55e;display:block}
+  #result.err{background:#7f1d1d;color:#ef4444;display:block}
+  #msg{font-size:10px;color:#475569;margin-top:12px}
+</style></head><body>
+<h1>&#9881; PlantOS Edge — Protocol Setup</h1>
+
+<div id="status-card" class="card">
+  <h2>Connection Status</h2>
+  <div class="row"><label>Modbus:</label><span id="conn-status" class="badge off">Checking...</span></div>
+  <div class="row"><label>Host:</label><span id="conn-host" style="font-size:12px">—</span></div>
+  <div class="row"><label>Tags:</label><span id="conn-tags" style="font-size:12px">—</span></div>
+</div>
+
+<div class="card">
+  <h2>Modbus Connection</h2>
+  <div class="row"><label>Host:</label><input id="host" value="127.0.0.1" /></div>
+  <div class="row"><label>Port:</label><input id="port" type="number" value="502" /></div>
+  <div class="row"><label>Unit ID:</label><input id="unit" type="number" value="1" /></div>
+  <div class="row"><label>Poll (ms):</label><input id="poll" type="number" value="1000" /></div>
+  <div class="row">
+    <button class="btn btn-primary" onclick="testConnection()">Test Connection</button>
+    <span id="test-result"></span>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Tag Mapping</h2>
+  <table><thead><tr><th>Register</th><th>Type</th><th>Data Type</th><th>Signal ID</th><th>Scale</th><th>Offset</th></tr></thead>
+  <tbody id="tag-table"></tbody></table>
+  <div style="margin-top:8px">
+    <button class="btn btn-success" onclick="addTag()">+ Add Tag</button>
+  </div>
+</div>
+
+<div id="result"></div>
+<div id="msg"></div>
+
+<script>
+const API = '';
+
+async function loadStatus() {
+  try {
+    const r = await fetch(API+'/api/protocols/status').then(r=>r.json());
+    const m = r.modbus || {};
+    document.getElementById('conn-status').textContent = m.connected ? 'ON' : 'OFF';
+    document.getElementById('conn-status').className = 'badge ' + (m.connected ? 'on' : 'off');
+    document.getElementById('conn-host').textContent = m.host || '—';
+    document.getElementById('conn-tags').textContent = m.tags || '—';
+  } catch(e) { console.error(e); }
+}
+
+async function testConnection() {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Testing...';
+  document.getElementById('test-result').textContent = '';
+  try {
+    const r = await fetch(API+'/api/protocols/status').then(r=>r.json());
+    const ok = r.modbus && r.modbus.connected;
+    document.getElementById('test-result').textContent = ok ? 'Connected' : 'Not connected';
+    document.getElementById('test-result').style.color = ok ? '#22c55e' : '#ef4444';
+    loadStatus();
+  } catch(e) {
+    document.getElementById('test-result').textContent = 'Error: '+e.message;
+    document.getElementById('test-result').style.color = '#ef4444';
+  }
+  btn.disabled = false; btn.textContent = 'Test Connection';
+}
+
+const defaultTags = [
+  {reg:40001, type:'holding', datatype:'float', signal:'PUMP-101.discharge_pressure', scale:1, offset:0},
+  {reg:40002, type:'holding', datatype:'float', signal:'PUMP-101.flow_rate', scale:0.1, offset:0},
+  {reg:1, type:'coil', datatype:'bool', signal:'PUMP-101.running_status', scale:1, offset:0},
+];
+
+function renderTags(tags) {
+  const tb = document.getElementById('tag-table');
+  tb.innerHTML = tags.map((t,i) => '<tr>'+
+    '<td><input type="number" value="'+t.reg+'" data-idx="'+i+'" data-field="reg"/></td>'+
+    '<td><select data-idx="'+i+'" data-field="type"><option value="holding"'+(t.type==='holding'?' selected':'')+'>Holding</option><option value="coil"'+(t.type==='coil'?' selected':'')+'>Coil</option></select></td>'+
+    '<td><select data-idx="'+i+'" data-field="datatype"><option value="float"'+(t.datatype==='float'?' selected':'')+'>Float32</option><option value="int"'+(t.datatype==='int'?' selected':'')+'>Int16</option></select></td>'+
+    '<td><input value="'+t.signal+'" data-idx="'+i+'" data-field="signal"/></td>'+
+    '<td><input type="number" step="0.1" value="'+t.scale+'" data-idx="'+i+'" data-field="scale"/></td>'+
+    '<td><input type="number" step="0.1" value="'+t.offset+'" data-idx="'+i+'" data-field="offset"/></td>'+
+    '<td><button class="btn btn-danger" onclick="removeTag('+i+')">&times;</button></td></tr>'
+  ).join('');
+}
+let tags = [...defaultTags];
+renderTags(tags);
+
+function addTag() {
+  tags.push({reg:0, type:'holding', datatype:'float', signal:'', scale:1, offset:0});
+  renderTags(tags);
+}
+function removeTag(i) {
+  tags.splice(i,1); renderTags(tags);
+}
+
+function saveConfig() {
+  const cfg = {
+    host: document.getElementById('host').value,
+    port: parseInt(document.getElementById('port').value),
+    unit: parseInt(document.getElementById('unit').value),
+    poll: parseInt(document.getElementById('poll').value),
+    tags: tags.map(t => ({
+      register: t.reg, type: t.type, data_type: t.datatype,
+      signal_id: t.signal, scale: t.scale, offset: t.offset
+    }))
+  };
+  document.getElementById('result').className = 'ok';
+  document.getElementById('result').textContent = 'Config captured (save to config.yaml manually in MVP). Tags: '+cfg.tags.length;
+  document.getElementById('msg').textContent = 'MVP: Copy tags to edge/agent/config.yaml modbus.tags section';
+}
+
+loadStatus(); setInterval(loadStatus, 5000);
+</script></body></html>

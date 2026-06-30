@@ -15,7 +15,7 @@ from publisher import MQTTPublisher
 from sync import StoreAndForward
 from health import HealthReporter
 from metadata import MetadataManager
-from web import setup as web_setup, run_server
+from web import setup as web_setup, run_server, set_modbus_collector
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
 logger = logging.getLogger("edge-agent")
@@ -82,6 +82,12 @@ class EdgeAgent:
         # Metadata sync
         self.metadata = MetadataManager(self.cfg.get("center_url", "http://localhost:8000"))
 
+        # Modbus collector
+        from collectors.modbus.collector import ModbusCollector
+        modbus_cfg = self.cfg.get("modbus", {})
+        self.modbus = ModbusCollector(modbus_cfg, self.buffer)
+        set_modbus_collector(self.modbus)
+
         logger.info(f"Agent {self.node_id} started with {len(self.generators)} signals")
 
     async def run(self):
@@ -96,6 +102,7 @@ class EdgeAgent:
 
         asyncio.create_task(self.health.run(lambda: self.sync.get_backlog()))
         asyncio.create_task(self._periodic_metadata_sync())
+        asyncio.create_task(self.modbus.start())
 
         while True:
             # Generate measurements

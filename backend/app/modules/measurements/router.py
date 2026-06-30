@@ -69,6 +69,12 @@ async def ingest_measurements(
         ]
         asyncio.create_task(broadcast_measurements(ws_data))
 
+        # Trigger alarm rule evaluation (non-blocking)
+        from app.modules.alarms.service import AlarmEvaluator
+
+        evaluator = AlarmEvaluator()
+        asyncio.create_task(evaluator.evaluate(ws_data))
+
     return result
 
 

@@ -46,3 +46,28 @@ signals:
 publish:
   interval_seconds: 1
   batch_size: 10
+
+# Modbus TCP adapter
+modbus:
+  enabled: false
+  host: 127.0.0.1
+  port: 502
+  unit_id: 1
+  poll_interval_ms: 1000
+  tags:
+    - register: 40001
+      type: holding
+      data_type: float
+      signal_id: PUMP-101.discharge_pressure
+      scale: 1.0
+      offset: 0.0
+    - register: 40002
+      type: holding
+      data_type: float
+      signal_id: PUMP-101.flow_rate
+      scale: 0.1
+      offset: 0.0
+    - register: 00001
+      type: coil
+      data_type: bool
+      signal_id: PUMP-101.running_status

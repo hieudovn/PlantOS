@@ -12,12 +12,18 @@ _buffer = None
 _publisher = None
 _sync_manager = None
 _config = None
+_modbus_collector = None
 
 
 def setup(buffer, publisher, sync_mgr, config):
     global _buffer, _publisher, _sync_manager, _config
     _buffer = buffer
     _publisher = publisher
+
+
+def set_modbus_collector(collector):
+    global _modbus_collector
+    _modbus_collector = collector
     _sync_manager = sync_mgr
     _config = config
 
@@ -139,13 +145,32 @@ load(); setInterval(load, 5000);
     return web.Response(text=html, content_type="text/html")
 
 
+async def handle_protocol_status(request):
+    """Return protocol connection status."""
+    return web.json_response({
+        "modbus": {
+            "enabled": _modbus_collector is not None,
+            "connected": _modbus_collector.connected if _modbus_collector else False,
+            "host": _modbus_collector.config.get("host") if _modbus_collector else None,
+            "tags": len(_modbus_collector.mapper.tags) if _modbus_collector else 0,
+        }
+    })
+
+
+async def handle_setup_page(request):
+    """Serve protocol setup page."""
+    return web.FileResponse("templates/setup.html")
+
+
 def create_app():
     app = web.Application()
     app.router.add_get("/", handle_index)
+    app.router.add_get("/setup", handle_setup_page)
     app.router.add_get("/api/status", handle_status)
     app.router.add_get("/api/measurements/latest", handle_latest)
     app.router.add_get("/api/measurements/recent", handle_recent)
     app.router.add_get("/api/config", handle_config)
+    app.router.add_get("/api/protocols/status", handle_protocol_status)
     return app
 
 
