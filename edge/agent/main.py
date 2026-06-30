@@ -15,7 +15,7 @@ from publisher import MQTTPublisher
 from sync import StoreAndForward
 from health import HealthReporter
 from metadata import MetadataManager
-from web import setup as web_setup, run_server, set_modbus_collector
+from web import setup as web_setup, run_server, set_modbus_collector, set_metadata
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
 logger = logging.getLogger("edge-agent")
@@ -81,6 +81,7 @@ class EdgeAgent:
 
         # Metadata sync
         self.metadata = MetadataManager(self.cfg.get("center_url", "http://localhost:8000"))
+        set_metadata(self.metadata)
 
         # Modbus collector
         from collectors.modbus.collector import ModbusCollector
