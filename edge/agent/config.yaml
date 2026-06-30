@@ -1,5 +1,6 @@
 edge_node_id: edge-agent-01
 plant_id: DEMO-PLANT
+center_url: http://localhost:8000
 
 # DuckDB local buffer
 buffer:

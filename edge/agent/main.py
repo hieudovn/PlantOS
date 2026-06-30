@@ -14,6 +14,7 @@ from buffer import DuckDBBuffer
 from publisher import MQTTPublisher
 from sync import StoreAndForward
 from health import HealthReporter
+from metadata import MetadataManager
 from web import setup as web_setup, run_server
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
@@ -78,13 +79,23 @@ class EdgeAgent:
         # Setup web server
         web_setup(self.buffer, self.mqtt, self.sync, self.cfg)
 
+        # Metadata sync
+        self.metadata = MetadataManager(self.cfg.get("center_url", "http://localhost:8000"))
+
         logger.info(f"Agent {self.node_id} started with {len(self.generators)} signals")
 
     async def run(self):
+        # Sync metadata on startup (try Center first, fallback to cache)
+        ok = await self.metadata.sync()
+        if not ok:
+            logger.warning("Center unreachable, loading cached metadata")
+            self.metadata.load_cache()
+
         # Start web server as background task
         asyncio.create_task(run_server(port=8001))
 
         asyncio.create_task(self.health.run(lambda: self.sync.get_backlog()))
+        asyncio.create_task(self._periodic_metadata_sync())
 
         while True:
             # Generate measurements
@@ -108,6 +119,12 @@ class EdgeAgent:
 
             # Sync backlog to Center via HTTP
             await self.sync.flush(self.batch_size)
+    async def _periodic_metadata_sync(self):
+        """Refresh metadata from Center every 5 minutes."""
+        while True:
+            await asyncio.sleep(300)
+            await self.metadata.sync()
+
 
             # Periodic retention cleanup (every 100 cycles ~ 100s)
             if random.randint(0, 99) == 0:
