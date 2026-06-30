@@ -4,12 +4,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { getAssets } from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AssetFilters } from "./AssetFilters";
+import { AssetTree } from "./AssetTree";
 import { Search } from "lucide-react";
 
 export function AssetTable() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"tree" | "table">("tree");
 
   const params: Record<string, string> = {};
   searchParams.forEach((v, k) => { params[k] = v; });
@@ -46,8 +48,29 @@ export function AssetTable() {
         <AssetFilters />
       </div>
 
+      <div className="flex items-center gap-2 mb-3">
+        <button
+          onClick={() => setViewMode("tree")}
+          className={`px-3 py-1 text-xs rounded ${
+            viewMode === "tree" ? "bg-gray-700 text-white" : "text-gray-500"
+          }`}
+        >
+          🌳 Tree
+        </button>
+        <button
+          onClick={() => setViewMode("table")}
+          className={`px-3 py-1 text-xs rounded ${
+            viewMode === "table" ? "bg-gray-700 text-white" : "text-gray-500"
+          }`}
+        >
+          📋 Table
+        </button>
+      </div>
+
       {isLoading ? (
         <div className="text-gray-500">Loading...</div>
+      ) : viewMode === "tree" ? (
+        <AssetTree />
       ) : (
         <div className="rounded-lg border border-gray-800 overflow-hidden">
           <table className="w-full text-sm">
