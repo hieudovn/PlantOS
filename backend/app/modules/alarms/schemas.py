@@ -76,3 +76,11 @@ class AlarmEventResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class CalcRuleCreate(BaseModel):
+    rule_id: str = Field(..., max_length=128, examples=["feeder-power"])
+    name: str = Field(..., max_length=255)
+    signal_id: str = Field(..., max_length=256)
+    formula: str = Field(..., description="e.g. FEEDER-01.voltage * FEEDER-01.current")
+    interval_seconds: int = 10

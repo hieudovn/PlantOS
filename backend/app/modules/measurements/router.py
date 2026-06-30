@@ -75,6 +75,12 @@ async def ingest_measurements(
         evaluator = AlarmEvaluator()
         asyncio.create_task(evaluator.evaluate(ws_data))
 
+        # Trigger calculated signal evaluation (non-blocking)
+        from app.modules.alarms.calculator import SignalCalculator
+
+        calc = SignalCalculator(historian)
+        asyncio.create_task(calc.evaluate(ws_data))
+
     return result
 
 

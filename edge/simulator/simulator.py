@@ -62,7 +62,7 @@ class SignalGenerator:
 
 
 class Simulator:
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str, scenario: str | None = None):
         with open(config_path) as f:
             self.config = yaml.safe_load(f)
 
@@ -70,7 +70,7 @@ class Simulator:
         self.publish_url = self.config["publish"]["url"]
         self.interval = self.config["publish"]["interval_seconds"]
         self.batch_size = self.config["publish"].get("batch_size", 10)
-        self.scenario = self.config.get("scenario", "normal_operation")
+        self.scenario = scenario or self.config.get("scenario", "normal_operation")
 
         # Apply scenario overrides
         scenario_overrides = self.config.get("scenarios", {}).get(self.scenario, {})
@@ -135,8 +135,6 @@ if __name__ == "__main__":
     parser.add_argument("--scenario", default=None, help="Override scenario (normal_operation, pump_high_pressure, etc.)")
     args = parser.parse_args()
 
-    sim = Simulator(args.config)
-    if args.scenario:
-        sim.scenario = args.scenario
+    sim = Simulator(args.config, scenario=args.scenario)
 
     asyncio.run(sim.run(args.duration))
