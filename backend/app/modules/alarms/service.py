@@ -11,6 +11,10 @@ from app.modules.alarms.repository import AlarmRuleRepository, AlarmEventReposit
 
 
 class AlarmRuleService:
+    def _invalidate_cache(self):
+        """Invalidate the AlarmEvaluator's rule cache so changes take effect."""
+        AlarmEvaluator()._invalidate_cache()
+
     def create_rule(self, data) -> AlarmRule:
         with get_session() as session:
             repo = AlarmRuleRepository(session)
@@ -34,6 +38,7 @@ class AlarmRuleService:
                 status=data.status,
             )
             rule = repo.create(rule)
+            self._invalidate_cache()
             return rule
 
     def get_rule(self, rule_id: str) -> AlarmRule | None:
@@ -51,7 +56,9 @@ class AlarmRuleService:
             if not rule:
                 raise ValueError(f"Rule '{rule_id}' not found")
             update_data = data.model_dump(exclude_unset=True)
-            return repo.update(rule, update_data)
+            result = repo.update(rule, update_data)
+            self._invalidate_cache()
+            return result
 
     def delete_rule(self, rule_id: str):
         with get_session() as session:
@@ -60,6 +67,7 @@ class AlarmRuleService:
             if not rule:
                 raise ValueError(f"Rule '{rule_id}' not found")
             repo.delete(rule)
+            self._invalidate_cache()
 
 
 class AlarmEvaluator:

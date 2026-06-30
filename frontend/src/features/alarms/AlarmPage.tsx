@@ -24,12 +24,19 @@ async function ackAlarm(alarmId: string) {
 
 export function AlarmPage() {
   const [stateFilter, setStateFilter] = useState("");
+  const [severityFilter, setSeverityFilter] = useState("");
+
+  const params: Record<string, string> = {};
+  if (stateFilter) params.state = stateFilter;
+  if (severityFilter) params.severity = severityFilter;
 
   const { data: alarms, isLoading, refetch } = useQuery({
-    queryKey: ["alarms", { state: stateFilter }],
-    queryFn: () => getAlarms(stateFilter ? { state: stateFilter } : undefined),
-    refetchInterval: 5000,
+    queryKey: ["alarms", params],
+    queryFn: () => getAlarms(Object.keys(params).length ? params : undefined),
+    refetchInterval: 10000,
   });
+
+  const activeCount = alarms?.filter((a: any) => a.state === "active").length || 0;
 
   return (
     <div className="space-y-4">
@@ -46,7 +53,25 @@ export function AlarmPage() {
             <option value="acknowledged">Acknowledged</option>
             <option value="cleared">Cleared</option>
           </select>
-          <span className="text-sm text-gray-500">{alarms?.length || 0} alarms</span>
+          <select
+            value={severityFilter}
+            onChange={e => setSeverityFilter(e.target.value)}
+            className="bg-gray-900 border border-gray-700 rounded px-3 py-1.5 text-sm"
+          >
+            <option value="">All Severities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+          <span className="text-sm text-gray-500">
+            {alarms?.length || 0} alarms
+            {activeCount > 0 && (
+              <span className="ml-2 text-red-400 font-medium">
+                ({activeCount} active)
+              </span>
+            )}
+          </span>
         </div>
       </div>
 

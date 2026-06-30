@@ -1,6 +1,7 @@
 """Alarm Rule Engine — FastAPI router."""
 
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
 
 from app.modules.alarms.schemas import (
     AlarmRuleCreate,
@@ -15,9 +16,22 @@ from app.modules.alarms.service import (
     list_alarms,
     acknowledge_alarm,
 )
+from app.modules.alarms.notify import NotificationService
 
 router = APIRouter()
 rule_service = AlarmRuleService()
+_notify_service = NotificationService()
+
+
+class WebhookCreate(BaseModel):
+    url: str
+
+
+@router.post("/notifications/webhook")
+def add_webhook(data: WebhookCreate):
+    """Register a webhook URL for alarm notifications."""
+    _notify_service.add_webhook(data.url)
+    return {"status": "ok", "webhooks": len(_notify_service._webhooks)}
 
 
 # ---- Alarm Rules CRUD ----

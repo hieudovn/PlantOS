@@ -151,6 +151,13 @@ python -m pytest tests/ -v
 - **UX Polish** — Chart state persistence, tab rename, chart type selector
 - **Diagram Enhancement** — Click element → asset detail, state-driven colors, hover tooltip
 
+## Phase 4 Features
+
+- **Alarm Rule Engine** — Threshold-based alarm rules, form-based editor
+- **Alarm State Machine** — Active → Acknowledged → Cleared lifecycle
+- **Calculated Signals** — Virtual signals via formula (e.g., power = V × I)
+- **Notification Service** — Webhook dispatch for alarm events
+
 ## Known Limitations (Phase 2 Backlog)
 
 | # | Issue | Severity | Plan |
