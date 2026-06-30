@@ -1,0 +1,1629 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\dotru\AppData\Local\Programs\Python\Python311\python.exe
+cachedir: .pytest_cache
+rootdir: D:\Project\Github\PlantOS\backend
+configfile: pyproject.toml
+plugins: anyio-4.14.0, asyncio-1.4.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 14 items
+
+tests/test_asset_api.py::test_create_plant FAILED                        [  7%]
+tests/test_asset_api.py::test_create_plant_duplicate FAILED              [ 14%]
+tests/test_asset_api.py::test_list_plants FAILED                         [ 21%]
+tests/test_asset_api.py::test_get_plant_not_found FAILED                 [ 28%]
+tests/test_asset_api.py::test_create_area FAILED                         [ 35%]
+tests/test_asset_api.py::test_create_area_plant_not_found FAILED         [ 42%]
+tests/test_asset_api.py::test_create_asset ERROR                         [ 50%]
+tests/test_asset_api.py::test_get_asset ERROR                            [ 57%]
+tests/test_asset_api.py::test_get_asset_not_found FAILED                 [ 64%]
+tests/test_asset_api.py::test_list_assets ERROR                          [ 71%]
+tests/test_asset_api.py::test_list_assets_filter_type ERROR              [ 78%]
+tests/test_asset_api.py::test_update_asset ERROR                         [ 85%]
+tests/test_asset_api.py::test_create_asset_duplicate ERROR               [ 92%]
+tests/test_asset_api.py::test_health_still_works PASSED                  [100%]
+
+=================================== ERRORS ====================================
+_____________________ ERROR at setup of test_create_asset _____________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:129: in setup_plant_area
+    await client.post("/api/v1/plants", json={"plant_id": "DEMO-PLANT", "name": "DP"})
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('DEMO-PLANT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+______________________ ERROR at setup of test_get_asset _______________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:129: in setup_plant_area
+    await client.post("/api/v1/plants", json={"plant_id": "DEMO-PLANT", "name": "DP"})
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('DEMO-PLANT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_____________________ ERROR at setup of test_list_assets ______________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:129: in setup_plant_area
+    await client.post("/api/v1/plants", json={"plant_id": "DEMO-PLANT", "name": "DP"})
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('DEMO-PLANT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_______________ ERROR at setup of test_list_assets_filter_type ________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:129: in setup_plant_area
+    await client.post("/api/v1/plants", json={"plant_id": "DEMO-PLANT", "name": "DP"})
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('DEMO-PLANT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_____________________ ERROR at setup of test_update_asset _____________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:129: in setup_plant_area
+    await client.post("/api/v1/plants", json={"plant_id": "DEMO-PLANT", "name": "DP"})
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('DEMO-PLANT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+________________ ERROR at setup of test_create_asset_duplicate ________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:129: in setup_plant_area
+    await client.post("/api/v1/plants", json={"plant_id": "DEMO-PLANT", "name": "DP"})
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('DEMO-PLANT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+================================== FAILURES ===================================
+______________________________ test_create_plant ______________________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:57: in test_create_plant
+    resp = await client.post(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('DEMO-PLANT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_________________________ test_create_plant_duplicate _________________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:73: in test_create_plant_duplicate
+    await client.post("/api/v1/plants", json={"plant_id": "DUP", "name": "X"})
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('DUP',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+______________________________ test_list_plants _______________________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:80: in test_list_plants
+    await client.post("/api/v1/plants", json={"plant_id": "P1", "name": "P1"})
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('P1',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+__________________________ test_get_plant_not_found ___________________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:89: in test_get_plant_not_found
+    resp = await client.get("/api/v1/plants/NONEXISTENT")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1768: in get
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:41: in get_plant
+    return plant_service.get_plant(plant_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:91: in get_plant
+    plant = repo.get_by_id(plant_id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('NONEXISTENT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+______________________________ test_create_area _______________________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:97: in test_create_area
+    await client.post("/api/v1/plants", json={"plant_id": "DEMO-PLANT", "name": "X"})
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:28: in create_plant
+    return plant_service.create_plant(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:76: in create_plant
+    if repo.get_by_id(data.plant_id):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('DEMO-PLANT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+______________________ test_create_area_plant_not_found _______________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: plants
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:112: in test_create_area_plant_not_found
+    resp = await client.post(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1859: in post
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:51: in create_area
+    return area_service.create_area(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:109: in create_area
+    plant = plant_repo.get_by_id(data.plant_id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:22: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: plants
+E   [SQL: SELECT plants.id, plants.plant_id, plants.name, plants.location, plants.timezone, plants.status, plants.created_at, plants.updated_at 
+E   FROM plants 
+E   WHERE plants.plant_id = ?]
+E   [parameters: ('NOPLANT',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+__________________________ test_get_asset_not_found ___________________________
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: assets
+
+The above exception was the direct cause of the following exception:
+tests\test_asset_api.py:175: in test_get_asset_not_found
+    resp = await client.get("/api/v1/assets/NOEXIST")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1768: in get
+    return await self.request(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1629: in send
+    response = await self._send_handling_auth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\httpx\_transports\asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2531: in app
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1711: in _handle_selected
+    await route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1700: in handle
+    await self.original_router.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:2586: in handle
+    await included_router._handle_selected(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1720: in _handle_selected
+    await original_route.handle(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:1239: in handle
+    await app(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:150: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:136: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:690: in app
+    raw_response = await run_endpoint_function(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py:346: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2592: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:1029: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\router.py:97: in get_asset
+    return asset_service.get_asset(asset_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\service.py:189: in get_asset
+    asset = repo.get_by_id(asset_id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+app\modules\assets\repository.py:63: in get_by_id
+    return self.session.scalar(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2421: in scalar
+    return self._execute_internal(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2271: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\dotru\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: assets
+E   [SQL: SELECT assets.id, assets.asset_id, assets.asset_code, assets.name, assets.asset_type, assets.area_id_fk, assets.parent_asset_id_fk, assets.criticality, assets.lifecycle_status, assets.location_lat, assets.location_lng, assets.manufacturer, assets.model, assets.created_at, assets.updated_at 
+E   FROM assets 
+E   WHERE assets.asset_id = ?]
+E   [parameters: ('NOEXIST',)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+=========================== short test summary info ===========================
+FAILED tests/test_asset_api.py::test_create_plant - sqlalchemy.exc.Operationa...
+FAILED tests/test_asset_api.py::test_create_plant_duplicate - sqlalchemy.exc....
+FAILED tests/test_asset_api.py::test_list_plants - sqlalchemy.exc.Operational...
+FAILED tests/test_asset_api.py::test_get_plant_not_found - sqlalchemy.exc.Ope...
+FAILED tests/test_asset_api.py::test_create_area - sqlalchemy.exc.Operational...
+FAILED tests/test_asset_api.py::test_create_area_plant_not_found - sqlalchemy...
+FAILED tests/test_asset_api.py::test_get_asset_not_found - sqlalchemy.exc.Ope...
+ERROR tests/test_asset_api.py::test_create_asset - sqlalchemy.exc.Operational...
+ERROR tests/test_asset_api.py::test_get_asset - sqlalchemy.exc.OperationalErr...
+ERROR tests/test_asset_api.py::test_list_assets - sqlalchemy.exc.OperationalE...
+ERROR tests/test_asset_api.py::test_list_assets_filter_type - sqlalchemy.exc....
+ERROR tests/test_asset_api.py::test_update_asset - sqlalchemy.exc.Operational...
+ERROR tests/test_asset_api.py::test_create_asset_duplicate - sqlalchemy.exc.O...
+=================== 7 failed, 1 passed, 6 errors in 11.32s ====================

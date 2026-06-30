@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api import v1_router
 from app.core.config import settings
 from app.db import get_engine, dispose_engine
 
@@ -23,6 +24,8 @@ app = FastAPI(
     version=settings.APP_VERSION,
     lifespan=lifespan,
 )
+
+app.include_router(v1_router)
 
 
 @app.get("/health")
