@@ -1,0 +1,140 @@
+# Demo Plant Configuration for Edge Simulator
+# See docs/18-edge-simulator-design.md
+
+plant: DEMO-PLANT
+edge_node_id: edge-sim-01
+
+publish:
+  mode: http
+  url: http://localhost:8000/api/v1/measurements/ingest
+  interval_seconds: 1
+  batch_size: 10
+
+scenario: normal_operation  # normal_operation | pump_high_pressure | motor_high_temperature | breaker_trip
+
+signals:
+  # PUMP-101 — Process
+  - signal_id: PUMP-101.discharge_pressure
+    data_type: float
+    min: 5.0
+    max: 9.0
+    noise: 0.2
+    pattern: sine  # sine | random_walk | step
+
+  - signal_id: PUMP-101.flow_rate
+    data_type: float
+    min: 80.0
+    max: 120.0
+    noise: 1.0
+    pattern: sine
+
+  - signal_id: PUMP-101.running_status
+    data_type: bool
+    pattern: steady
+    steady_value: true
+
+  - signal_id: PUMP-101.vibration_rms
+    data_type: float
+    min: 1.0
+    max: 3.0
+    noise: 0.1
+    pattern: random_walk
+
+  # MOTOR-101
+  - signal_id: MOTOR-101.motor_current
+    data_type: float
+    min: 40.0
+    max: 60.0
+    noise: 0.5
+    pattern: sine
+
+  - signal_id: MOTOR-101.motor_temperature
+    data_type: float
+    min: 50.0
+    max: 70.0
+    noise: 0.3
+    pattern: random_walk
+
+  - signal_id: MOTOR-101.running_status
+    data_type: bool
+    pattern: steady
+    steady_value: true
+
+  # TANK-101
+  - signal_id: TANK-101.tank_level
+    data_type: float
+    min: 20.0
+    max: 80.0
+    noise: 0.5
+    pattern: random_walk
+
+  - signal_id: TANK-101.temperature
+    data_type: float
+    min: 20.0
+    max: 30.0
+    noise: 0.1
+    pattern: sine
+
+  # VALVE-101
+  - signal_id: VALVE-101.valve_position
+    data_type: float
+    min: 0.0
+    max: 100.0
+    noise: 2.0
+    pattern: step
+    step_values: [45.0, 60.0, 75.0]
+    step_interval: 30  # seconds
+
+  # TRANSFORMER-01
+  - signal_id: TRANSFORMER-01.temperature
+    data_type: float
+    min: 40.0
+    max: 65.0
+    noise: 0.2
+    pattern: random_walk
+
+  # FEEDER-01
+  - signal_id: FEEDER-01.current
+    data_type: float
+    min: 100.0
+    max: 200.0
+    noise: 2.0
+    pattern: sine
+
+  - signal_id: FEEDER-01.power
+    data_type: float
+    min: 20.0
+    max: 50.0
+    noise: 1.0
+    pattern: sine
+
+  # BREAKER-01
+  - signal_id: BREAKER-01.breaker_status
+    data_type: bool
+    pattern: steady
+    steady_value: true
+
+  - signal_id: BREAKER-01.voltage
+    data_type: float
+    min: 21.0
+    max: 23.0
+    noise: 0.05
+    pattern: sine
+
+scenarios:
+  normal_operation: {}
+  pump_high_pressure:
+    PUMP-101.discharge_pressure:
+      min: 9.0
+      max: 14.0
+      noise: 0.5
+  motor_high_temperature:
+    MOTOR-101.motor_temperature:
+      min: 75.0
+      max: 95.0
+      noise: 0.8
+  breaker_trip:
+    BREAKER-01.breaker_status:
+      pattern: step
+      step_values: [true, false]
+      step_interval: 60
