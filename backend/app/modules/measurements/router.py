@@ -1,6 +1,5 @@
 """Measurement API — FastAPI router."""
 
-import asyncio
 from fastapi import APIRouter, HTTPException, Query, Depends
 
 from app.modules.historian.interface import HistorianInterface
@@ -54,9 +53,9 @@ async def ingest_measurements(
     service = MeasurementService(historian)
     result = await service.ingest(data)
 
-    # Broadcast accepted measurements via WebSocket (non-blocking)
+    # Dispatch side-effects via EventDispatcher (in-process pub/sub)
     if result.accepted > 0:
-        from app.api.ws import broadcast_measurements
+        from app.core.events import dispatch
 
         ws_data = [
             {
@@ -67,19 +66,7 @@ async def ingest_measurements(
             }
             for m in data.measurements
         ]
-        asyncio.create_task(broadcast_measurements(ws_data))
-
-        # Trigger alarm rule evaluation (non-blocking)
-        from app.modules.alarms.service import AlarmEvaluator
-
-        evaluator = AlarmEvaluator()
-        asyncio.create_task(evaluator.evaluate(ws_data))
-
-        # Trigger calculated signal evaluation (non-blocking)
-        from app.modules.alarms.calculator import SignalCalculator
-
-        calc = SignalCalculator(historian)
-        asyncio.create_task(calc.evaluate(ws_data))
+        await dispatch("measurements.ingested", {"measurements": ws_data})
 
     return result
 

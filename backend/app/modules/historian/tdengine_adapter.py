@@ -23,9 +23,23 @@ class TDengineHistorianAdapter(HistorianInterface):
         self._conn = None
         self._cursor = None
         self._connected = False
+        self._child_tables: set[str] = set()  # Cache known child tables
 
     async def connect(self) -> bool:
-        """Establish WebSocket connection to TDengine and ensure DB/supertable exist."""
+        """Establish WebSocket connection to TDengine and ensure DB/supertable exist.
+
+        In non-dev mode, HISTORIAN_MODE=tdengine will fail if TDengine is unavailable.
+        HISTORIAN_MODE=stub is only allowed in development.
+        """
+        from app.core.config import settings
+
+        mode = settings.HISTORIAN_MODE
+        if mode == "stub" and not settings.DEBUG:
+            logger.error(
+                "HISTORIAN_MODE=stub is only allowed in dev (DEBUG=true). "
+                "Set HISTORIAN_MODE=tdengine for non-dev environments."
+            )
+            return False
         try:
             from taosws import connect
 
@@ -111,22 +125,36 @@ class TDengineHistorianAdapter(HistorianInterface):
         rejected = 0
         errors = []
 
+        # Group by signal_id for batch insert
+        groups: dict[str, list[Measurement]] = {}
         for m in measurements:
+            groups.setdefault(m.signal_id, []).append(m)
+
+        for signal_id, batch in groups.items():
             try:
-                safe_name = self._safe_name(m.signal_id)
-                await self._ensure_child_table(m.signal_id)
-                ts_str = m.timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-                val_str = "NULL" if m.value is None else str(m.value)
-                sql = (
-                    f"INSERT INTO d_{safe_name} VALUES "
-                    f"('{ts_str}', {val_str}, "
-                    f"'{m.quality.value}', '{m.source}')"
-                )
+                safe_name = self._safe_name(signal_id)
+
+                # Ensure child table exists (cached)
+                if safe_name not in self._child_tables:
+                    await self._ensure_child_table(signal_id)
+                    self._child_tables.add(safe_name)
+
+                # Batch INSERT: multiple VALUES in one SQL
+                values = []
+                for m in batch:
+                    ts_str = m.timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                    val_str = "NULL" if m.value is None else str(m.value)
+                    values.append(
+                        f"('{ts_str}', {val_str}, "
+                        f"'{m.quality.value}', '{m.source}')"
+                    )
+
+                sql = f"INSERT INTO d_{safe_name} VALUES {', '.join(values)}"
                 self._cursor.execute(sql)
-                accepted += 1
+                accepted += len(batch)
             except Exception as e:
-                rejected += 1
-                errors.append(str(e))
+                rejected += len(batch)
+                errors.append(f"{signal_id}: {e}")
 
         return WriteResult(accepted=accepted, rejected=rejected, errors=errors)
 

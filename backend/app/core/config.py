@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     EMQX_HOST: str = "localhost"
     EMQX_MQTT_PORT: int = 1883
 
+    # Historian
+    HISTORIAN_MODE: str = "tdengine"  # "tdengine" | "stub"
+
     @property
     def DATABASE_URL(self) -> str:
         """Construct PostgreSQL connection URL from settings."""
