@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 class OpcUaCollector:
     """Polls OPC UA server periodically, maps values, writes to local buffer."""
 
-    def __init__(self, config: dict, buffer, mapper=None):
+    def __init__(self, config: dict, buffer):
         self.config = config
         self.buffer = buffer
         self.client = OpcUaClient(
             endpoint=config.get("endpoint", "opc.tcp://127.0.0.1:4840"),
             timeout=config.get("timeout", 5.0),
         )
-        self.mapper = mapper or OpcUaMapper(config.get("tags", []))
+        self.mapper = OpcUaMapper(config.get("tags", []))
         self.interval = config.get("poll_interval_ms", 1000) / 1000
         self._enabled = config.get("enabled", False)
         self._task: asyncio.Task | None = None

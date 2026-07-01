@@ -1,7 +1,18 @@
 import { useWorkspace } from "@/lib/WorkspaceContext";
+import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 export function Topbar() {
   const { plantId, setPlantId, plants } = useWorkspace();
+  const navigate = useNavigate();
+  const username = localStorage.getItem("plantos_user") || "";
+  const isLoggedIn = !!localStorage.getItem("plantos_token");
+
+  const handleLogout = () => {
+    localStorage.removeItem("plantos_token");
+    localStorage.removeItem("plantos_user");
+    navigate("/login");
+  };
 
   return (
     <header className="h-14 border-b border-gray-800 flex items-center justify-between px-6 bg-gray-900/50">
@@ -17,7 +28,22 @@ export function Topbar() {
           ))}
         </select>
       </div>
-      <div className="text-xs text-gray-600">MVP Preview</div>
+      <div className="flex items-center gap-3">
+        {isLoggedIn && (
+          <>
+            <span className="text-xs text-gray-500">{username}</span>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-400 transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Logout
+            </button>
+          </>
+        )}
+        <span className="text-xs text-gray-600">MVP Preview</span>
+      </div>
     </header>
   );
 }

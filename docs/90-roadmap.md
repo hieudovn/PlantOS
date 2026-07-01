@@ -139,15 +139,17 @@ Success criteria:
 
 ## Phase 5: MES and Virtual Factory integration
 
-Status: ✅ CLOSED — 4 tasks + 2 ADRs
+Status: ✅ CLOSED — 5 tasks + 2 ADRs + VPS Deploy
 - 5-01: CDM Events (StateEvent, DowntimeEvent, ProductionEvent) + Historian Hardening + EventDispatcher + UNS Governance
 - 5-02: OPC UA Collector + Virtual Factory Compressor Train Integration (26 signals, 7 assets, 6 sub-systems)
 - 5-03: Frontend Multi-Workspace (VF-DEMO ↔ DEMO-PLANT switcher)
 - 5-04: Manifest-Driven Architecture (Integration Data Contract, single source of truth)
+- 5-05: Signal Realtime Column + Historian Cross-Workspace Fix
 - ADR-0004: OPC UA → CDM Mapping
 - ADR-0005: Integration Data Contract
 
 Integration verified: VF Compressor Train → OPC UA :4840 → Edge Agent → Center → PlantOS UI
+VPS Deployed: http://103.97.132.249 (Nginx + Docker Compose + Edge Agent + VF)
 
 Goal: make PlantOS the operational foundation for MES and simulation.
 
@@ -171,9 +173,11 @@ Success criteria:
 
 ## Phase 6: Industrial hardening
 
+Status: 🔜 NEXT — planned for 2026-07-02+
+
 Goal: prepare for pilot or customer-facing demo.
 
-Deliverables:
+Priority deliverables:
 
 - authentication and authorization,
 - user and role management,

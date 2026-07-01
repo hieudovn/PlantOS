@@ -178,9 +178,15 @@ async def handle_setup_page(request):
     return web.FileResponse("templates/setup.html")
 
 
+async def handle_logout(request):
+    """Serve logout page."""
+    return web.FileResponse("templates/logout.html")
+
+
 def create_app():
     app = web.Application()
     app.router.add_get("/", handle_index)
+    app.router.add_get("/logout", handle_logout)
     app.router.add_get("/setup", handle_setup_page)
     app.router.add_get("/api/status", handle_status)
     app.router.add_get("/api/measurements/latest", handle_latest)

@@ -45,7 +45,12 @@
   .info-row:last-child{border-bottom:none}
   .info-row .label{color:var(--text-muted)}.info-row .value{color:var(--text-primary);font-family:var(--font-mono)}
 </style></head><body>
-<div class="header"><h1>&#127963; PlantOS Edge Agent</h1><span style="font-size:12px;color:var(--text-muted)">v0.2.0</span></div>
+<div class="header"><h1>&#127963; PlantOS Edge Agent</h1>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="font-size:12px;color:var(--text-muted)">v0.2.0</span>
+    <a href="/logout" style="font-size:11px;color:var(--text-dim);text-decoration:none;display:flex;align-items:center;gap:4px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;transition:color 0.2s" onmouseover="this.style.color='var(--status-alarm)'" onmouseout="this.style.color='var(--text-dim)'">&#128682; Logout</a>
+  </div>
+</div>
 <div class="tabs">
   <div class="tab active" onclick="switchTab('dashboard')">&#128202; Dashboard</div>
   <div class="tab" onclick="switchTab('assets')">&#127963; Assets</div>

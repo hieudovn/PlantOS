@@ -7,10 +7,11 @@ logger = logging.getLogger(__name__)
 
 
 class StoreAndForward:
-    def __init__(self, buffer, ingest_url: str, edge_node_id: str):
+    def __init__(self, buffer, ingest_url: str, edge_node_id: str, api_key: str = ""):
         self.buffer = buffer
         self.ingest_url = ingest_url
         self.edge_node_id = edge_node_id
+        self.api_key = api_key
 
     async def flush(self, batch_size: int = 100) -> int:
         """Flush unsynced data to Center. Returns number of synced points."""
@@ -20,10 +21,11 @@ class StoreAndForward:
 
         try:
             async with httpx.AsyncClient(timeout=10) as client:
+                headers = {"X-API-Key": self.api_key} if self.api_key else {}
                 resp = await client.post(self.ingest_url, json={
                     "source": self.edge_node_id,
                     "measurements": unsynced,
-                })
+                }, headers=headers)
                 if resp.status_code in (200, 201):
                     data = resp.json()
                     synced = data.get("accepted", 0)

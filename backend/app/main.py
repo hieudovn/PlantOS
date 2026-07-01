@@ -12,6 +12,8 @@ from app.api.ws import router as ws_router, broadcast_measurements
 from app.core.config import settings
 from app.core.events import subscribe
 from app.db import get_engine, dispose_engine
+from app.middleware.auth import AuthMiddleware
+from app.modules.auth.router import router as auth_router
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +80,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Auth middleware — protects all /api/v1/* routes except /auth/login
+app.add_middleware(AuthMiddleware)
+
+app.include_router(auth_router, prefix="/api/v1", tags=["Auth"])
 app.include_router(v1_router)
 app.include_router(ws_router)
 

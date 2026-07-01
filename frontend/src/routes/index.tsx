@@ -9,6 +9,8 @@ import { DiagramPage } from "@/features/visualization/DiagramPage";
 import { GisMapPage } from "@/features/visualization/GisMapPage";
 import { EdgeFleetPage } from "@/features/edge-fleet/EdgeFleetPage";
 import { AlarmPage } from "@/features/alarms/AlarmPage";
+import { LoginPage } from "@/features/auth/LoginPage";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -24,8 +26,16 @@ function PlaceholderPage({ title }: { title: string }) {
 
 export const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
     path: "/",
-    element: <Shell />,
+    element: (
+      <ProtectedRoute>
+        <Shell />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <OverviewPage /> },
       { path: "assets", element: <AssetTable /> },

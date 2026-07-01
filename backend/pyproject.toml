@@ -17,6 +17,9 @@ dependencies = [
     "psycopg2-binary>=2.9.10",
     "taos-ws-py>=0.6.0",
     "tzdata>=2024.0",
+    "pyjwt>=2.9.0",
+    "passlib[bcrypt]>=1.7.4",
+    "bcrypt>=4.0.0,<4.1.0",
 ]
 
 [project.optional-dependencies]

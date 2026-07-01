@@ -36,10 +36,6 @@ def build_sync_manifest() -> dict:
                     "data_type": s.data_type,
                     "engineering_unit": s.engineering_unit,
                     "uns_path": s.uns_path,
-                    "source": {
-                        "source_type": s.source_type,
-                        "source_ref": s.source_ref,
-                    } if s.source_type else None,
                 }
                 for s in signals
             ],

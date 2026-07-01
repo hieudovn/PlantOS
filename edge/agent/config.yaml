@@ -1,6 +1,7 @@
 edge_node_id: edge-agent-01
-plant_id: DEMO-PLANT
+plant_id: VF-DEMO
 center_url: http://localhost:8000
+api_key: plantos-edge-key-2026
 
 # DuckDB local buffer
 buffer:
@@ -22,26 +23,8 @@ heartbeat:
   url: http://localhost:8000/api/v1/edge-nodes/heartbeat
   interval_seconds: 10
 
-# Signal generation (same signals as simulator)
-signals:
-  - signal_id: PUMP-101.discharge_pressure
-    data_type: float
-    min: 5.0
-    max: 9.0
-    noise: 0.2
-    pattern: sine
-  - signal_id: PUMP-101.flow_rate
-    data_type: float
-    min: 80.0
-    max: 120.0
-    noise: 1.0
-    pattern: sine
-  - signal_id: MOTOR-101.motor_current
-    data_type: float
-    min: 40.0
-    max: 60.0
-    noise: 0.5
-    pattern: sine
+# Signal generation (only for testing — remove in production)
+signals: []
 
 publish:
   interval_seconds: 10     # 10s sampling cycle (was 1s)

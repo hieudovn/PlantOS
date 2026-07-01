@@ -41,6 +41,36 @@
 | Phase 5-02 | OPC UA Collector + Virtual Factory Integration (Compressor Train) | ✅ CLOSED |
 | Phase 5-03 | Frontend Multi-Workspace (VF-DEMO ↔ DEMO-PLANT) | ✅ CLOSED |
 | Phase 5-04 | Manifest-Driven Seed + Edge OPC UA Binding | ✅ CLOSED |
+| Phase 5-05 | Signal Realtime + Historian Cross-Workspace Fix | ✅ CLOSED |
+
+### VPS Deployed (2026-07-01)
+
+| Service | Port | URL |
+|---|---|---|
+| Nginx reverse proxy | 80 | http://103.97.132.249 |
+| Backend API | 8000 | http://103.97.132.249:8000 |
+| Edge Dashboard | 8001 | http://103.97.132.249:8001 |
+| VF OPC UA Server | 4840 | opc.tcp://103.97.132.249:4840 |
+
+### VPS Architecture
+
+```
+Nginx :80
+  ├── /            → frontend/dist (static build)
+  ├── /api/*       → backend :8000
+  └── /ws/*        → backend :8000 (WebSocket)
+
+Docker Compose:
+  ├── postgres:16  :5432
+  ├── tdengine      :6041
+  ├── emqx:5.7      :1883
+  ├── backend       :8000
+  └── frontend      :5173 (dev, not used publicly)
+
+Native (systemd-ready):
+  ├── Edge Agent    :8001
+  └── Virtual Factory :4840 (OPC UA)
+```
 
 ### Running Services (Local)
 

@@ -32,6 +32,12 @@ class Settings(BaseSettings):
     # Historian
     HISTORIAN_MODE: str = "tdengine"  # "tdengine" | "stub"
 
+    # Authentication
+    JWT_SECRET: str = "plantos-dev-secret-change-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_HOURS: int = 24
+    API_KEYS: str = ""  # comma-separated: "key1,key2"
+
     @property
     def DATABASE_URL(self) -> str:
         """Construct PostgreSQL connection URL from settings."""
