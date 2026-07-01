@@ -44,7 +44,7 @@ signals:
     pattern: sine
 
 publish:
-  interval_seconds: 1
+  interval_seconds: 10     # 10s sampling cycle (was 1s)
   batch_size: 10
 
 # OPC UA collector (Virtual Factory Compressor Train)

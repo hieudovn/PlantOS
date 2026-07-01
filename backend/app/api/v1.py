@@ -23,9 +23,9 @@ router.include_router(events_router, tags=["Events"])
 @router.post("/seed/vf-demo", tags=["Seed"])
 def seed_vf_demo():
     """Seed Virtual Factory Compressor Train plant assets and signals."""
-    from app.seed.vf_demo_plant import seed_vf_demo_plant
+    from app.seed.vf_demo_plant import seed_from_manifest
     try:
-        results = seed_vf_demo_plant()
+        results = seed_from_manifest()
         return {"status": "ok", **results}
     except Exception as e:
         return {"status": "error", "message": str(e)}

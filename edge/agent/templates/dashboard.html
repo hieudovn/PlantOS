@@ -54,10 +54,8 @@
 
 <div id="tab-dashboard" class="content active">
   <div class="grid" id="stats"></div>
-  <div class="section-title">&#128200; Signal Values <span class="count" id="signal-cards-count"></span></div>
-  <div class="grid" id="signal-cards" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))"></div>
-  <div class="section-title">&#128200; Latest Values <span class="count" id="signal-count"></span></div>
-  <table><thead><tr><th>Signal ID</th><th>Value</th><th>Quality</th><th>Timestamp</th></tr></thead><tbody id="latest"></tbody></table>
+  <div class="section-title">&#128200; Signal Values <span class="count" id="signal-count"></span></div>
+  <table><thead><tr><th>Name</th><th>Signal ID</th><th>Asset</th><th>Value</th><th>Status</th><th>Time</th></tr></thead><tbody id="signal-table"></tbody></table>
   <div id="updated">Auto-refresh: 5s</div>
 </div>
 
@@ -140,31 +138,23 @@ async function loadDashboard() {
       <div class="card"><div class="label">DB Size</div><div class="value">${(s.duckdb.db_size_mb||0).toFixed(2)} MB</div></div>`;
     document.getElementById('footer-info').textContent = 'Agent: '+(s.node_id||'unknown')+' | Synced: '+(s.duckdb.total_rows||0)+' rows';
     const l = await fetch('/api/measurements/latest').then(r=>r.json());
-    // Latest values table
-    document.getElementById('latest').innerHTML = (l||[]).map(m=>
-      '<tr><td>'+m.signal_id+'</td><td>'+(m.value!=null?m.value:'&mdash;')+'</td>'+
-      '<td><span class="badge '+(m.quality||'').toLowerCase()+'">'+(m.quality||'&mdash;')+'</span></td>'+
-      '<td style="color:var(--text-dim)">'+(m.timestamp?new Date(m.timestamp).toLocaleTimeString():'&mdash;')+'</td></tr>'
-    ).join('');
+    // Signal value table — compact, all info in one place
+    document.getElementById('signal-table').innerHTML = (l||[]).map(m => {
+      const parts = (m.signal_id||'').split('.');
+      const asset = parts.length > 1 ? parts[0] : '';
+      const sig = parts.length > 1 ? parts.slice(1).join('.') : parts[0];
+      const v = m.value;
+      const valStr = v != null ? (typeof v === 'number' ? (Number.isInteger(v) ? v : v.toFixed(2)) : v) : '\u2014';
+      return '<tr>'+
+        '<td style="font-family:var(--font-sans);font-weight:500">'+(sig||'')+'</td>'+
+        '<td style="font-size:10px">'+m.signal_id+'</td>'+
+        '<td style="color:var(--text-muted);font-size:10px">'+(asset||'\u2014')+'</td>'+
+        '<td style="font-weight:600">'+valStr+'</td>'+
+        '<td><span class="badge '+(m.quality||'').toLowerCase()+'">'+(m.quality||'UNKNOWN')+'</span></td>'+
+        '<td style="color:var(--text-dim);font-size:10px">'+(m.timestamp?new Date(m.timestamp).toLocaleTimeString():'\u2014')+'</td>'+
+        '</tr>';
+    }).join('');
     document.getElementById('signal-count').textContent = '| '+(l||[]).length+' signals';
-    // Signal value cards
-    const cardsEl = document.getElementById('signal-cards');
-    if (cardsEl) {
-      cardsEl.innerHTML = (l||[]).map(m => {
-        const parts = (m.signal_id||'').split('.');
-        const asset = parts.length > 1 ? parts[0] : '';
-        const sig = parts.length > 1 ? parts.slice(1).join('.') : parts[0];
-        const v = m.value;
-        const valStr = v != null ? (typeof v === 'number' ? (Number.isInteger(v) ? v : v.toFixed(1)) : v) : '\u2014';
-        return '<div class="card" style="position:relative">'+
-          '<div style="font-size:11px;font-weight:600;color:var(--text-primary)">'+(asset||'?')+'</div>'+
-          '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">'+(sig||'')+'</div>'+
-          '<div style="font-size:20px;font-weight:700;font-family:var(--font-mono);margin:4px 0">'+valStr+'</div>'+
-          '<div><span class="badge '+(m.quality||'').toLowerCase()+'">'+(m.quality||'UNKNOWN')+'</span></div>'+
-          '</div>';
-      }).join('');
-      document.getElementById('signal-cards-count').textContent = '| '+(l||[]).length+' signals';
-    }
     document.getElementById('updated').textContent = 'Updated: '+new Date().toLocaleTimeString();
   } catch(e) { console.error(e); }
 }

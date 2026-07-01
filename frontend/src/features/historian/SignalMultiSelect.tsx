@@ -8,7 +8,11 @@ type Props = { selected: string[]; onChange: (ids: string[]) => void };
 export function SignalMultiSelect({ selected, onChange }: Props) {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
-  const { data: signals } = useQuery({ queryKey: ["signals-all"], queryFn: () => getSignals() });
+  const { data: signals } = useQuery({
+    queryKey: ["signals-all-hist"],
+    queryFn: () => getSignals(),
+    staleTime: 30000,
+  });
 
   const filtered = useMemo(() => {
     if (!signals) return [];

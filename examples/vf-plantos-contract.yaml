@@ -1,0 +1,419 @@
+# =============================================================================
+# Integration Data Contract: Virtual Factory ↔ PlantOS
+# =============================================================================
+# Single source of truth for asset model, signal definitions, and OPC UA binding.
+# Used by BOTH Virtual Factory and PlantOS to generate their configs.
+#
+# When you change a signal here, run:
+#   PlantOS: re-seed Center + restart Edge
+#   VF:      validate config with validate-contract.py
+# =============================================================================
+
+contract:
+  version: "1.0"
+  description: "Compressor Train Analytics Benchmark"
+  vf_plant_config: "configs/plants/compressor_train_benchmark_01.yaml"
+
+# ---------------------------------------------------------------------------
+# Plant & Areas (PlantOS CDM)
+# ---------------------------------------------------------------------------
+plant:
+  plant_id: VF-DEMO
+  plant_code: VF-DEMO
+  name: Virtual Factory Demo Plant
+  description: Compressor Train Analytics Benchmark
+
+areas:
+  - area_id: COMPRESSOR-AREA
+    area_code: COMPRESSOR-AREA
+    name: Compressor Area
+    plant_id: VF-DEMO
+
+# ---------------------------------------------------------------------------
+# Asset Tree (PlantOS CDM)
+# ---------------------------------------------------------------------------
+assets:
+  # Root
+  - asset_id: COMP01
+    asset_code: COMP01
+    name: Compressor Train A
+    asset_type: compressor_train
+    parent_asset_id: null
+    area_id: COMPRESSOR-AREA
+    criticality: critical
+
+  # Sub-system: Motor
+  - asset_id: COMP01-MOTOR
+    asset_code: COMP01-MOTOR
+    name: Drive Motor
+    asset_type: motor
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: critical
+
+  # Sub-system: Compressor Core
+  - asset_id: COMP01-CORE
+    asset_code: COMP01-CORE
+    name: Compressor Core
+    asset_type: compressor
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: critical
+
+  # Sub-system: Bearings
+  - asset_id: COMP01-BEARINGS
+    asset_code: COMP01-BEARINGS
+    name: Bearings Assembly
+    asset_type: bearing_assembly
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: high
+
+  # Sub-system: Lube Oil
+  - asset_id: COMP01-LUBE
+    asset_code: COMP01-LUBE
+    name: Lube Oil System
+    asset_type: lubrication_system
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: high
+
+  # Sub-system: Cooling
+  - asset_id: COMP01-COOLING
+    asset_code: COMP01-COOLING
+    name: Cooling Water System
+    asset_type: cooling_system
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: medium
+
+  # Sub-system: Seal Gas
+  - asset_id: COMP01-SEAL
+    asset_code: COMP01-SEAL
+    name: Seal Gas System
+    asset_type: seal_system
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: high
+
+# ---------------------------------------------------------------------------
+# Signals — đầy đủ thông tin cho cả VF & PlantOS
+# ---------------------------------------------------------------------------
+signals:
+  # === Compressor Core (7) ===
+  - signal_id: COMP01-CORE.suction_pressure
+    asset_id: COMP01-CORE
+    signal_name: suction_pressure
+    display_name: Suction Pressure
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kPa
+    opcua_node_id: ns=2;s=COMP01_SUCTION_PRESSURE
+    scale: 1.0
+    vf_internal_ref: COMP01.suction_pressure_kpa
+    vf_sensor_id: PT101
+
+  - signal_id: COMP01-CORE.discharge_pressure
+    asset_id: COMP01-CORE
+    signal_name: discharge_pressure
+    display_name: Discharge Pressure
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kPa
+    opcua_node_id: ns=2;s=COMP01_DISCHARGE_PRESSURE
+    scale: 1.0
+    vf_internal_ref: COMP01.discharge_pressure_kpa
+    vf_sensor_id: PT102
+
+  - signal_id: COMP01-CORE.flow_rate
+    asset_id: COMP01-CORE
+    signal_name: flow_rate
+    display_name: Flow Rate
+    signal_type: measurement
+    data_type: float
+    engineering_unit: m3/h
+    opcua_node_id: ns=2;s=COMP01_FLOW
+    scale: 3600.0       # m3/s → m3/h
+    vf_internal_ref: COMP01.flow_m3_s
+    vf_sensor_id: FT101
+
+  - signal_id: COMP01-CORE.suction_temp
+    asset_id: COMP01-CORE
+    signal_name: suction_temp
+    display_name: Suction Temperature
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_SUCTION_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.suction_temperature_c
+    vf_sensor_id: TT101
+
+  - signal_id: COMP01-CORE.discharge_temp
+    asset_id: COMP01-CORE
+    signal_name: discharge_temp
+    display_name: Discharge Temperature
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_DISCHARGE_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.discharge_temperature_c
+    vf_sensor_id: TT102
+
+  - signal_id: COMP01-CORE.speed
+    asset_id: COMP01-CORE
+    signal_name: speed
+    display_name: Rotational Speed
+    signal_type: measurement
+    data_type: float
+    engineering_unit: RPM
+    opcua_node_id: ns=2;s=COMP01_SPEED
+    scale: 1.0
+    vf_internal_ref: COMP01.speed_rpm
+    vf_sensor_id: ST101
+
+  - signal_id: COMP01-CORE.power
+    asset_id: COMP01-CORE
+    signal_name: power
+    display_name: Power Consumption
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kW
+    opcua_node_id: ns=2;s=COMP01_POWER
+    scale: 1.0
+    vf_internal_ref: COMP01.power_consumed_kw
+    vf_sensor_id: PT105
+
+  # === Motor (7) ===
+  - signal_id: COMP01-MOTOR.current
+    asset_id: COMP01-MOTOR
+    signal_name: current
+    display_name: Motor Current
+    signal_type: measurement
+    data_type: float
+    engineering_unit: A
+    opcua_node_id: ns=2;s=COMP01_MOTOR_CURRENT
+    scale: 1.0
+    vf_internal_ref: COMP01.motor.current_a
+    vf_sensor_id: CT101
+
+  - signal_id: COMP01-MOTOR.power
+    asset_id: COMP01-MOTOR
+    signal_name: power
+    display_name: Motor Power
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kW
+    opcua_node_id: ns=2;s=COMP01_MOTOR_POWER
+    scale: 1.0
+    vf_internal_ref: COMP01.motor.power_kw
+    vf_sensor_id: PT103
+
+  - signal_id: COMP01-MOTOR.winding_temp
+    asset_id: COMP01-MOTOR
+    signal_name: winding_temp
+    display_name: Winding Temperature
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_MOTOR_WINDING_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.motor.winding_temp_c
+    vf_sensor_id: TT103
+
+  - signal_id: COMP01-MOTOR.bearing_de_temp
+    asset_id: COMP01-MOTOR
+    signal_name: bearing_de_temp
+    display_name: Motor DE Bearing Temp
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_MOTOR_BRG_DE_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.motor.bearing_de_temp_c
+    vf_sensor_id: TT104
+
+  - signal_id: COMP01-MOTOR.bearing_nde_temp
+    asset_id: COMP01-MOTOR
+    signal_name: bearing_nde_temp
+    display_name: Motor NDE Bearing Temp
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_MOTOR_BRG_NDE_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.motor.bearing_nde_temp_c
+    vf_sensor_id: TT105
+
+  - signal_id: COMP01-MOTOR.vibration_de
+    asset_id: COMP01-MOTOR
+    signal_name: vibration_de
+    display_name: Motor DE Vibration
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    opcua_node_id: ns=2;s=COMP01_MOTOR_VIB_DE
+    scale: 1.0
+    vf_internal_ref: COMP01.motor.vibration_de_mm_s
+    vf_sensor_id: VT101
+
+  - signal_id: COMP01-MOTOR.vibration_nde
+    asset_id: COMP01-MOTOR
+    signal_name: vibration_nde
+    display_name: Motor NDE Vibration
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    opcua_node_id: ns=2;s=COMP01_MOTOR_VIB_NDE
+    scale: 1.0
+    vf_internal_ref: COMP01.motor.vibration_nde_mm_s
+    vf_sensor_id: VT102
+
+  # === Bearings (6) ===
+  - signal_id: COMP01-BEARINGS.de_temp
+    asset_id: COMP01-BEARINGS
+    signal_name: de_temp
+    display_name: DE Bearing Temperature
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_BRG_DE_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.bearing_de_temp_c
+    vf_sensor_id: TT106
+
+  - signal_id: COMP01-BEARINGS.nde_temp
+    asset_id: COMP01-BEARINGS
+    signal_name: nde_temp
+    display_name: NDE Bearing Temperature
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_BRG_NDE_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.bearing_nde_temp_c
+    vf_sensor_id: TT107
+
+  - signal_id: COMP01-BEARINGS.thrust_temp
+    asset_id: COMP01-BEARINGS
+    signal_name: thrust_temp
+    display_name: Thrust Bearing Temperature
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_BRG_THRUST_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.bearing_thrust_temp_c
+    vf_sensor_id: TT108
+
+  - signal_id: COMP01-BEARINGS.vibration_de
+    asset_id: COMP01-BEARINGS
+    signal_name: vibration_de
+    display_name: DE Vibration
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    opcua_node_id: ns=2;s=COMP01_VIB_DE
+    scale: 1.0
+    vf_internal_ref: COMP01.vibration_de_mm_s
+    vf_sensor_id: VT103
+
+  - signal_id: COMP01-BEARINGS.vibration_nde
+    asset_id: COMP01-BEARINGS
+    signal_name: vibration_nde
+    display_name: NDE Vibration
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    opcua_node_id: ns=2;s=COMP01_VIB_NDE
+    scale: 1.0
+    vf_internal_ref: COMP01.vibration_nde_mm_s
+    vf_sensor_id: VT104
+
+  - signal_id: COMP01-BEARINGS.vibration_axial
+    asset_id: COMP01-BEARINGS
+    signal_name: vibration_axial
+    display_name: Axial Vibration
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    opcua_node_id: ns=2;s=COMP01_VIB_AXIAL
+    scale: 1.0
+    vf_internal_ref: COMP01.vibration_axial_mm_s
+    vf_sensor_id: VT105
+
+  # === Lube Oil (3) ===
+  - signal_id: COMP01-LUBE.pressure
+    asset_id: COMP01-LUBE
+    signal_name: pressure
+    display_name: Lube Oil Pressure
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kPa
+    opcua_node_id: ns=2;s=COMP01_LO_PRESS
+    scale: 1.0
+    vf_internal_ref: COMP01.lube_oil.pressure_kpa
+    vf_sensor_id: PT104
+
+  - signal_id: COMP01-LUBE.temperature
+    asset_id: COMP01-LUBE
+    signal_name: temperature
+    display_name: Lube Oil Temperature
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_LO_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.lube_oil.temperature_c
+    vf_sensor_id: TT109
+
+  - signal_id: COMP01-LUBE.filter_dp
+    asset_id: COMP01-LUBE
+    signal_name: filter_dp
+    display_name: Filter Differential Pressure
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kPa
+    opcua_node_id: ns=2;s=COMP01_LO_FILTER_DP
+    scale: 1.0
+    vf_internal_ref: COMP01.lube_oil.filter_dp_kpa
+    vf_sensor_id: PDT101
+
+  # === Cooling (2) ===
+  - signal_id: COMP01-COOLING.supply_temp
+    asset_id: COMP01-COOLING
+    signal_name: supply_temp
+    display_name: Cooling Water Supply Temp
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_CW_SUPPLY_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.cooling.supply_temp_c
+    vf_sensor_id: TT110
+
+  - signal_id: COMP01-COOLING.return_temp
+    asset_id: COMP01-COOLING
+    signal_name: return_temp
+    display_name: Cooling Water Return Temp
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    opcua_node_id: ns=2;s=COMP01_CW_RETURN_TEMP
+    scale: 1.0
+    vf_internal_ref: COMP01.cooling.return_temp_c
+    vf_sensor_id: TT111
+
+  # === Seal Gas (1) ===
+  - signal_id: COMP01-SEAL.flow_rate
+    asset_id: COMP01-SEAL
+    signal_name: flow_rate
+    display_name: Seal Gas Flow
+    signal_type: measurement
+    data_type: float
+    engineering_unit: Nm3/h
+    opcua_node_id: ns=2;s=COMP01_SEAL_FLOW
+    scale: 1.0
+    vf_internal_ref: COMP01.seal_gas.flow_nm3_h
+    vf_sensor_id: FT102

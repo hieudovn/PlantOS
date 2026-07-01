@@ -47,6 +47,7 @@ export function HistorianPage() {
 
   const [from, setFrom] = useState(saved?.from ?? fmt(today));
   const [to, setTo] = useState(saved?.to ?? fmt(now));
+  const [preset, setPreset] = useState<string | null>(saved?.preset ?? null);
   const [panels, setPanels] = useState<Panel[]>(saved?.panels ?? defaultPanels);
   const [active, setActive] = useState(saved?.active ?? 0);
   const [chartType, setChartType] = useState(saved?.chartType ?? "line");
@@ -54,10 +55,38 @@ export function HistorianPage() {
   const [editValue, setEditValue] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
 
+  // Apply a time range preset: update from/to relative to now
+  const applyPreset = (p: string | null) => {
+    setPreset(p);
+    if (p) {
+      const n = new Date();
+      const toStr = fmt(n);
+      const dur: Record<string, number> = {
+        "10m": 10 * 60 * 1000,
+        "30m": 30 * 60 * 1000,
+        "1h": 60 * 60 * 1000,
+        "6h": 6 * 60 * 60 * 1000,
+        "12h": 12 * 60 * 60 * 1000,
+      };
+      const ms = dur[p];
+      if (ms) {
+        setFrom(fmt(new Date(n.getTime() - ms)));
+        setTo(toStr);
+      }
+    }
+  };
+
+  // Auto-refresh from/to when a preset is active (every 10s)
+  useEffect(() => {
+    if (!preset) return;
+    const id = setInterval(() => applyPreset(preset), 10000);
+    return () => clearInterval(id);
+  }, [preset]);
+
   // Auto-save state to localStorage
   useEffect(() => {
-    saveState({ from, to, panels, active, chartType });
-  }, [from, to, panels, active, chartType]);
+    saveState({ from, to, preset, panels, active, chartType });
+  }, [from, to, preset, panels, active, chartType]);
 
   // Focus edit input when tab editing starts
   useEffect(() => {
@@ -120,7 +149,7 @@ export function HistorianPage() {
           <input
             type="datetime-local"
             value={from}
-            onChange={e => setFrom(e.target.value)}
+            onChange={e => { setFrom(e.target.value); setPreset(null); }}
             className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
           />
         </div>
@@ -129,9 +158,43 @@ export function HistorianPage() {
           <input
             type="datetime-local"
             value={to}
-            onChange={e => setTo(e.target.value)}
+            onChange={e => { setTo(e.target.value); setPreset(null); }}
             className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
           />
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Range</label>
+          <div className="flex gap-1">
+            {[
+              { key: "10m", label: "10p" },
+              { key: "30m", label: "30p" },
+              { key: "1h", label: "1h" },
+              { key: "6h", label: "6h" },
+              { key: "12h", label: "12h" },
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => applyPreset(key)}
+                className={`px-2 py-1.5 text-xs rounded transition-colors ${
+                  preset === key
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+            {preset && (
+              <button
+                onClick={() => applyPreset(null)}
+                className="px-2 py-1.5 text-xs rounded bg-gray-800 text-gray-500 hover:text-white"
+                title="Custom range"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Chart Type</label>
@@ -149,6 +212,12 @@ export function HistorianPage() {
         <span className="text-xs text-gray-600">
           {panels.reduce((s, p) => s + p.signalIds.length, 0)} signals
         </span>
+        {preset && (
+          <span className="flex items-center gap-1.5 text-xs text-green-400 font-medium">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            Live
+          </span>
+        )}
       </div>
 
       <div className="flex border-b border-gray-800 gap-1">

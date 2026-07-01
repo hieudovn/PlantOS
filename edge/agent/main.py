@@ -89,8 +89,9 @@ class EdgeAgent:
         self.modbus = ModbusCollector(modbus_cfg, self.buffer)
         set_modbus_collector(self.modbus)
 
-        # OPC UA collector (for Virtual Factory integration)
+        # OPC UA collector — build mapper from Center manifest if available
         from collectors.opcua import OpcUaCollector
+        from collectors.opcua.mapper import OpcUaMapper
         opcua_cfg = self.cfg.get("opcua", {})
         self.opcua_collector = OpcUaCollector(opcua_cfg, self.buffer)
         set_opcua_collector(self.opcua_collector)
@@ -103,6 +104,26 @@ class EdgeAgent:
         if not ok:
             logger.warning("Center unreachable, loading cached metadata")
             self.metadata.load_cache()
+
+        # Rebuild OPC UA mapper from synced manifest (overrides config.yaml tags)
+        manifest = self.metadata.manifest
+        manifest_mapper = None
+        if manifest and manifest.get("signals"):
+            from collectors.opcua.mapper import OpcUaMapper
+            manifest_mapper = OpcUaMapper.from_manifest(manifest)
+
+        # Fallback: load YAML contract directly if Center manifest has no OPC UA bindings
+        if not manifest_mapper or not manifest_mapper.mappings:
+            contract_path = Path("../../examples/vf-plantos-contract.yaml").resolve()
+            if contract_path.exists():
+                import yaml
+                with open(contract_path) as f:
+                    contract = yaml.safe_load(f)
+                manifest_mapper = OpcUaMapper.from_manifest(contract)
+
+        if manifest_mapper and manifest_mapper.mappings:
+            self.opcua_collector.mapper = manifest_mapper
+            logger.info(f"OPC UA mapper ready: {len(manifest_mapper.mappings)} signals")
 
         # Start web server as background task
         asyncio.create_task(run_server(port=8001))

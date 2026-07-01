@@ -30,9 +30,11 @@ Deliverables:
 - working rules for human and AI development,
 - initial repo structure.
 
-Status: started.
+Status: ✅ CLOSED — Phase 0 complete, see docs/99-phase-0-closure-checklist.md
 
 ## Phase 1: MVP data backbone
+
+Status: ✅ CLOSED — 18 tasks, Docker Compose, FastAPI, PostgreSQL, TDengine, Asset/Signal/Measurement APIs, Seed data, Simulator, Frontend shell, Trend, Diagram, GIS
 
 Goal: prove PlantOS can collect, normalize, store and expose operational data.
 
@@ -60,6 +62,8 @@ Success criteria:
 
 ## Phase 2: Edge runtime MVP
 
+Status: ✅ CLOSED — 5 tasks, Edge Agent (DuckDB, MQTT, sync), Asset Tree, WebSocket real-time, Diagram wrap-up
+
 Goal: create first usable edge-center flow.
 
 Deliverables:
@@ -81,6 +85,8 @@ Success criteria:
 - edge identity and configuration are tracked.
 
 ## Phase 3: Visualization MVP
+
+Status: ✅ CLOSED — 3 tasks, Edge Web UI (port 8001), Bi-directional Asset Sync, Modbus TCP Adapter
 
 Goal: deliver the first PlantOS user-facing product experience.
 
@@ -108,6 +114,8 @@ Success criteria:
 
 ## Phase 4: Rule, alarm and governed low-code
 
+Status: ✅ CLOSED — 3 tasks, Alarm Rule Engine (threshold, state machine), Calculated Signals, Alarm UI + Notification
+
 Goal: add configurable operational intelligence without breaking architecture.
 
 Deliverables:
@@ -130,6 +138,16 @@ Success criteria:
 - rules cannot create unmanaged tags/topics or bypass registry.
 
 ## Phase 5: MES and Virtual Factory integration
+
+Status: ✅ CLOSED — 4 tasks + 2 ADRs
+- 5-01: CDM Events (StateEvent, DowntimeEvent, ProductionEvent) + Historian Hardening + EventDispatcher + UNS Governance
+- 5-02: OPC UA Collector + Virtual Factory Compressor Train Integration (26 signals, 7 assets, 6 sub-systems)
+- 5-03: Frontend Multi-Workspace (VF-DEMO ↔ DEMO-PLANT switcher)
+- 5-04: Manifest-Driven Architecture (Integration Data Contract, single source of truth)
+- ADR-0004: OPC UA → CDM Mapping
+- ADR-0005: Integration Data Contract
+
+Integration verified: VF Compressor Train → OPC UA :4840 → Edge Agent → Center → PlantOS UI
 
 Goal: make PlantOS the operational foundation for MES and simulation.
 
