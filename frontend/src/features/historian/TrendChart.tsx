@@ -48,6 +48,13 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
     return <div className="text-gray-500 py-8">Loading...</div>;
   }
 
+  const toLocalTs = (ts: string): string => {
+    // Timestamps from API have "Z" suffix but are actually server local time.
+    // Replace "Z" with "+07:00" so ECharts displays correct Vietnam time.
+    if (ts.endsWith("Z")) return ts.slice(0, -1) + "+07:00";
+    return ts;
+  };
+
   const series: any[] = [];
   signalIds.forEach((sid, i) => {
     const data = queries[i]?.data;
@@ -59,7 +66,7 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
     series.push({
       name: sid,
       type: echartsType,
-      data: good.map((p: any) => [p.timestamp, p.value]),
+      data: good.map((p: any) => [toLocalTs(p.timestamp), p.value]),
       smooth: false,
       symbol: chartType === "scatter" ? "circle" : chartType === "bar" ? "none" : "circle",
       symbolSize: chartType === "scatter" ? 8 : 4,
@@ -75,7 +82,7 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
       series.push({
         name: `${sid} (bad)`,
         type: "scatter",
-        data: bad.map((p: any) => [p.timestamp, p.value]),
+        data: bad.map((p: any) => [toLocalTs(p.timestamp), p.value]),
         symbolSize: 8,
         itemStyle: { color: COLORS[i % COLORS.length], opacity: 0.4 },
       });

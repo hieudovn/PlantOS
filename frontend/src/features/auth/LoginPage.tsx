@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,11 +20,7 @@ export function LoginPage() {
       const data = await res.json();
       localStorage.setItem("plantos_token", data.access_token);
       localStorage.setItem("plantos_user", data.username);
-      // Dispatch event so WorkspaceContext refreshes
-      window.dispatchEvent(new Event("auth-login"));
-      // Redirect to intended page or home
-      const from = (location.state as any)?.from || "/";
-      navigate(from, { replace: true });
+      window.location.href = "/";
     } catch (err: any) {
       setError(err.message);
     }

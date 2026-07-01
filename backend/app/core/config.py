@@ -35,7 +35,8 @@ class Settings(BaseSettings):
     # Authentication
     JWT_SECRET: str = "plantos-dev-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
-    JWT_EXPIRE_HOURS: int = 24
+    JWT_EXPIRE_HOURS: int = 1       # 1 hour (was 24)
+    JWT_REFRESH_THRESHOLD_MINUTES: int = 30  # Refresh when < 30 min remaining
     API_KEYS: str = ""  # comma-separated: "key1,key2"
 
     @property

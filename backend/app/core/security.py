@@ -27,3 +27,14 @@ def decode_access_token(token: str) -> dict | None:
         return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
     except jwt.PyJWTError:
         return None
+
+
+def should_refresh_token(payload: dict) -> bool:
+    """Return True if token should be refreshed (expiring soon)."""
+    exp = payload.get("exp")
+    if not exp:
+        return False
+    expire_time = datetime.fromtimestamp(exp, tz=timezone.utc)
+    remaining = expire_time - datetime.now(timezone.utc)
+    threshold = timedelta(minutes=settings.JWT_REFRESH_THRESHOLD_MINUTES)
+    return remaining < threshold

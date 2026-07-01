@@ -173,18 +173,27 @@ Success criteria:
 
 ## Phase 6: Industrial hardening
 
-Status: 🔜 NEXT — planned for 2026-07-02+
+Status: � IN PROGRESS — 2026-07-01+
 
 Goal: prepare for pilot or customer-facing demo.
 
-Priority deliverables:
+Completed:
+- 6-01: JWT Authentication + API Key (login, logout, ProtectedRoute, middleware)
+- 6-01-ext: Edge Sync Pipeline Fix (OPC UA 26 tags, dead unsynced cleanup, main loop sleep)
 
-- authentication and authorization,
+In Progress (prompts ready for Coder):
+- 6-02: Systemd Services (Edge Agent + Virtual Factory auto-start/restart) — `docs/prompts/phase6-task02-systemd-services.md`
+- 6-03: Database Backup (PostgreSQL dump + TDengine taosdump, daily cron) — `docs/prompts/phase6-task03-database-backup.md`
+- 6-04: Fix Heartbeat Auth (API key for edge-nodes/heartbeat) — `docs/prompts/phase6-task04-heartbeat-auth.md`
+- 6-05: JWT Token Refresh (sliding expiration, 1h expiry + auto-refresh) — `docs/prompts/phase6-task05-token-refresh.md`
+- 6-06: Fix Timestamp to Real UTC (Edge → UTC, restore toUTC in TrendChart) — `docs/prompts/phase6-task06-timestamp-utc.md`
+- 6-07: Dead Letter Queue for Sync (skip unsyncable rows after 3 retries) — `docs/prompts/phase6-task07-dead-letter-queue.md`
+
+Remaining (planned):
 - user and role management,
 - tenant/site management,
 - license model draft,
 - deployment templates,
-- backup/restore strategy,
 - logging/observability,
 - API documentation,
 - security baseline,

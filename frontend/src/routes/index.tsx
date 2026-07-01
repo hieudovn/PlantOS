@@ -10,7 +10,6 @@ import { GisMapPage } from "@/features/visualization/GisMapPage";
 import { EdgeFleetPage } from "@/features/edge-fleet/EdgeFleetPage";
 import { AlarmPage } from "@/features/alarms/AlarmPage";
 import { LoginPage } from "@/features/auth/LoginPage";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -31,11 +30,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: (
-      <ProtectedRoute>
-        <Shell />
-      </ProtectedRoute>
-    ),
+    element: <Shell />,
     children: [
       { index: true, element: <OverviewPage /> },
       { path: "assets", element: <AssetTable /> },

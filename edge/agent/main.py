@@ -73,7 +73,8 @@ class EdgeAgent:
 
         # Health reporter
         self.health = HealthReporter(
-            self.cfg["heartbeat"]["url"], self.node_id, self.cfg["heartbeat"]["interval_seconds"]
+            self.cfg["heartbeat"]["url"], self.node_id, self.cfg["heartbeat"]["interval_seconds"],
+            api_key=self.cfg.get("api_key", ""),
         )
 
         # Signal generators

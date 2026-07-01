@@ -221,6 +221,53 @@ CREATE INDEX idx_measurements_signal_ts ON measurements(signal_id, ts);
 
 DuckDB chỉ dùng trên Edge — không thay thế TDengine trên Center.
 
+### 13.1 Edge sync pipeline
+
+Edge Agent syncs buffered measurements to Center via HTTP POST to the backend ingest API (`/api/v1/measurements/ingest`).
+
+```text
+DuckDB: [m1, m2, m3, ..., mN]
+   │
+   ▼
+sync.flush(100) → get_unsynced → HTTP POST /ingest
+   │
+   ▼
+Backend validates signal_id against PostgreSQL
+   │
+   ├── signal exists → accepted += 1
+   └── signal not found → rejected += 1
+   │
+   ▼
+Backend responds: {"accepted": N, "rejected": M}
+   │
+   ▼
+Edge Agent:
+   ├── accepted > 0 → mark_synced(accepted)
+   └── rejected > 0 → increment_retry_count(rejected)
+```
+
+### 13.2 Dead Letter Queue
+
+Sync pipeline former behavior: khi oldest rows bị reject (signal không tồn tại trong PostgreSQL), sync **block hoàn toàn** vì `mark_synced(0)` không skip rows — retry vô hạn.
+
+**Giải pháp Dead Letter Queue:**
+
+- Thêm column `retry_count INTEGER DEFAULT 0` trong DuckDB schema.
+- Mỗi lần flush bị reject → `retry_count` của các row đó tăng lên 1.
+- Sau `MAX_RETRIES = 3` lần, row bị **skip** (đánh dấu `synced = TRUE`) và log WARNING `"Dead letter: skipped N rows after 3 retries"`.
+- Rows mới không bị ảnh hưởng bởi dead letters — sync tiếp tục chạy bình thường.
+
+```text
+DuckDB: [old_reject_1(rc=3), old_reject_2(rc=3), ..., good_1(rc=0), good_2(rc=0)]
+                │                                  │
+                ▼                                  ▼
+        skip_dead_letters()                 get_unsynced()
+        → synced=TRUE (skip)                → [good_1, good_2]
+                                                    │
+                                                    ▼
+                                            HTTP POST /ingest → accepted=2 ✅
+```
+
 ## 14. ADR required
 
 Before implementation, create ADRs for:

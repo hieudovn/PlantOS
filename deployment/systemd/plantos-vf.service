@@ -1,0 +1,26 @@
+[Unit]
+Description=PlantOS Virtual Factory (OPC UA Simulator)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=plantos
+Group=plantos
+Environment=PATH=/home/plantos/.local/bin:/usr/bin:/usr/local/bin
+ExecStart=/home/plantos/.local/bin/virtual-factory serve \
+  --config /opt/virtual-factory/configs/plants/compressor_train_benchmark_01.yaml \
+  --host 0.0.0.0 \
+  --port 8002 \
+  --auto-start \
+  --opcua-endpoint opc.tcp://0.0.0.0:4840
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/plantos/vf.log
+StandardError=append:/var/log/plantos/vf.log
+
+KillSignal=SIGTERM
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

@@ -10,14 +10,21 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
+
+  // Sliding expiration: update token if server returned a new one
+  const newToken = res.headers.get("X-New-Token");
+  if (newToken) {
+    localStorage.setItem("plantos_token", newToken);
+  }
+
   if (res.status === 401) {
     localStorage.removeItem("plantos_token");
-    localStorage.removeItem("plantos_user");
-    // Redirect to login — hard reload clears stale React state
+    // Avoid redirect loop: only redirect if not already on login page
     if (!window.location.pathname.startsWith("/login")) {
       window.location.href = "/login";
     }
-    throw new Error("Authentication required");
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || `API ${res.status}`);
   }
   return res.json();
 }
@@ -48,3 +55,6 @@ export const getHistory = (params: Record<string, string>) => {
   const qs = "?" + new URLSearchParams(params).toString();
   return fetchAPI<any>(`/api/v1/measurements/history${qs}`);
 };
+
+// ---- System Metrics ----
+export const getSystemMetrics = () => fetchAPI<any>("/api/v1/system/metrics");

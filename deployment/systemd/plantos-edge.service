@@ -1,0 +1,23 @@
+[Unit]
+Description=PlantOS Edge Agent
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=plantos
+Group=plantos
+WorkingDirectory=/opt/plantos/edge/agent
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 -u main.py
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/plantos/edge.log
+StandardError=append:/var/log/plantos/edge.log
+
+# Graceful shutdown
+KillSignal=SIGTERM
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

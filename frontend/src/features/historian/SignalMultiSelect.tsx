@@ -30,6 +30,9 @@ export function SignalMultiSelect({ selected, onChange }: Props) {
     } else {
       onChange([...selected, id]);
     }
+    // Auto-close dropdown after selection so chart updates immediately
+    setOpen(false);
+    setSearch("");
   };
 
   const remove = (id: string) => onChange(selected.filter(x => x !== id));
@@ -52,31 +55,34 @@ export function SignalMultiSelect({ selected, onChange }: Props) {
           value={search}
           onChange={e => { setSearch(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
+          onKeyDown={e => { if (e.key === "Escape") { setOpen(false); setSearch(""); } }}
           className="w-full bg-gray-900 border border-gray-700 rounded pl-10 pr-3 py-2 text-sm"
         />
       </div>
       {open && (
-        <div className="absolute z-50 mt-1 w-full bg-gray-900 border border-gray-700 rounded-lg shadow-xl max-h-64 overflow-auto">
-          {filtered.length === 0 ? (
-            <div className="px-3 py-4 text-sm text-gray-500 text-center">No signals found</div>
-          ) : (
-            filtered.map((s: any) => (
-              <label key={s.signal_id} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-800 cursor-pointer text-sm">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(s.signal_id)}
-                  onChange={() => toggle(s.signal_id)}
-                  className="rounded"
-                />
-                <span className="font-mono text-xs text-gray-400">{s.asset_id}</span>
-                <span>{s.display_name || s.signal_name}</span>
-                <span className="text-gray-600 text-xs ml-auto">{s.engineering_unit || "—"}</span>
-              </label>
-            ))
-          )}
-        </div>
+        <>
+          <div className="absolute z-50 mt-1 w-full bg-gray-900 border border-gray-700 rounded-lg shadow-xl max-h-64 overflow-auto">
+            {filtered.length === 0 ? (
+              <div className="px-3 py-4 text-sm text-gray-500 text-center">No signals found</div>
+            ) : (
+              filtered.map((s: any) => (
+                <label key={s.signal_id} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-800 cursor-pointer text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(s.signal_id)}
+                    onChange={() => toggle(s.signal_id)}
+                    className="rounded"
+                  />
+                  <span className="font-mono text-xs text-gray-400">{s.asset_id}</span>
+                  <span>{s.display_name || s.signal_name}</span>
+                  <span className="text-gray-600 text-xs ml-auto">{s.engineering_unit || "—"}</span>
+                </label>
+              ))
+            )}
+          </div>
+          <div className="fixed inset-0 z-40" onClick={() => { setOpen(false); setSearch(""); }} />
+        </>
       )}
-      {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
     </div>
   );
 }

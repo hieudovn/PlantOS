@@ -3,16 +3,10 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from app.core.security import decode_access_token
+from app.core.security import decode_access_token, should_refresh_token, create_access_token
 from app.core.config import settings
 
-PUBLIC_PATHS = [
-    "/health",
-    "/api/v1/auth/login",
-    "/docs",
-    "/openapi.json",
-    "/api/v1/edge/sync/manifest",   # Edge Agent metadata bootstrap
-]
+PUBLIC_PATHS = ["/health", "/api/v1/auth/login", "/docs", "/openapi.json"]
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -41,7 +35,16 @@ class AuthMiddleware(BaseHTTPMiddleware):
             payload = decode_access_token(token)
             if payload:
                 request.state.user = payload
-                return await call_next(request)
+
+                # Sliding expiration: issue new token if expiring soon
+                new_token = None
+                if should_refresh_token(payload):
+                    new_token = create_access_token(payload["sub"], payload["username"])
+
+                response = await call_next(request)
+                if new_token:
+                    response.headers["X-New-Token"] = new_token
+                return response
 
         return JSONResponse(
             status_code=401,
