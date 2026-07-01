@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plantos.avenue.dev/schemas/integration-contract-v2.schema.json",
+  "title": "PlantOS Integration Contract",
+  "description": "Schema for PlantOS Integration Contract v2.0 — validates plant model, asset hierarchy, signal definitions, and optional bindings/simulation extensions.",
+  "type": "object",
+  "required": ["contract", "source", "plant", "areas", "assets", "signals", "uns", "import_recommendation"],
+  "properties": {
+
+    "contract": {
+      "type": "object",
+      "required": ["version", "schema_version", "description"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+          "description": "Semantic version of this contract instance"
+        },
+        "schema_version": {
+          "type": "string",
+          "const": "2.0",
+          "description": "Which version of this JSON Schema to validate against"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable description of the plant/process"
+        }
+      }
+    },
+
+    "source": {
+      "type": "object",
+      "required": ["system_type", "system_name", "generated_by", "generated_at"],
+      "properties": {
+        "system_type": {
+          "type": "string",
+          "enum": ["virtual_factory", "opcua", "scada", "manual", "csv", "engineering_tool"],
+          "description": "Type of system that generated this contract"
+        },
+        "system_name": { "type": "string", "minLength": 1 },
+        "owner": { "type": "string" },
+        "generated_by": { "type": "string", "minLength": 1 },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp"
+        }
+      }
+    },
+
+    "plant": {
+      "type": "object",
+      "required": ["plant_id", "plant_code", "name", "timezone"],
+      "properties": {
+        "plant_id": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9-]*$",
+          "description": "Unique plant identifier, uppercase with hyphens"
+        },
+        "plant_code": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "timezone": {
+          "type": "string",
+          "description": "IANA timezone, e.g. Asia/Ho_Chi_Minh"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive"],
+          "default": "active"
+        }
+      }
+    },
+
+    "areas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["area_id", "area_code", "name", "plant_id"],
+        "properties": {
+          "area_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9-]*$"
+          },
+          "area_code": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "plant_id": { "type": "string" }
+        }
+      }
+    },
+
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["asset_id", "asset_code", "name", "asset_type", "area_id"],
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9-]*$"
+          },
+          "asset_code": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "asset_type": { "type": "string", "minLength": 1 },
+          "parent_asset_id": {
+            "type": ["string", "null"],
+            "default": null
+          },
+          "area_id": { "type": "string" },
+          "criticality": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"],
+            "default": "medium"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "deprecated"],
+            "default": "active"
+          }
+        }
+      }
+    },
+
+    "signals": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["signal_id", "asset_id", "signal_name", "display_name", "signal_type", "data_type", "engineering_unit"],
+        "properties": {
+          "signal_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9-]*\\.[a-z][a-z0-9_]*$",
+            "description": "Format: {ASSET_ID}.{signal_name}"
+          },
+          "asset_id": { "type": "string" },
+          "signal_name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "display_name": { "type": "string", "minLength": 1 },
+          "signal_type": {
+            "type": "string",
+            "enum": ["measurement", "status", "setpoint", "command"],
+            "default": "measurement"
+          },
+          "data_type": {
+            "type": "string",
+            "enum": ["float", "bool", "int", "string"],
+            "default": "float"
+          },
+          "engineering_unit": { "type": "string", "minLength": 1 },
+          "scale": { "type": "number", "default": 1.0 },
+          "offset": { "type": "number", "default": 0.0 },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "deprecated"],
+            "default": "active"
+          }
+        }
+      }
+    },
+
+    "uns": {
+      "type": "object",
+      "required": ["namespace_root", "path_template"],
+      "properties": {
+        "namespace_root": { "type": "string", "minLength": 1 },
+        "path_template": { "type": "string", "minLength": 1 },
+        "normalize_case": {
+          "type": "string",
+          "enum": ["lower", "upper", "preserve"],
+          "default": "lower"
+        },
+        "separator": {
+          "type": "string",
+          "default": "/"
+        }
+      }
+    },
+
+    "import_recommendation": {
+      "type": "object",
+      "required": ["suggested_mode", "reason"],
+      "properties": {
+        "suggested_mode": {
+          "type": "string",
+          "enum": ["validate_only", "preview", "apply"]
+        },
+        "reason": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "bindings": {
+      "type": "object",
+      "properties": {
+        "opcua": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["signal_id", "node_id"],
+            "properties": {
+              "signal_id": { "type": "string" },
+              "node_id": {
+                "type": "string",
+                "pattern": "^ns=\\d+;s=[A-Z][A-Z0-9_]*$"
+              },
+              "scale": { "type": "number", "default": 1.0 },
+              "offset": { "type": "number", "default": 0.0 }
+            }
+          }
+        }
+      }
+    },
+
+    "simulation": {
+      "type": "object",
+      "properties": {
+        "behaviors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["signal_id", "pattern"],
+            "properties": {
+              "signal_id": { "type": "string" },
+              "pattern": {
+                "type": "string",
+                "enum": ["sine", "random_walk", "ramp", "step", "degradation"]
+              },
+              "mid": { "type": "number" },
+              "amplitude": { "type": "number" },
+              "noise": { "type": "number" },
+              "frequency_hz": { "type": "number" },
+              "step_size": { "type": "number" },
+              "bounds_min": { "type": "number" },
+              "bounds_max": { "type": "number" },
+              "unit": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "extensions": {
+      "type": "object",
+      "description": "Arbitrary key-value extensions for source-system-specific metadata"
+    }
+  }
+}

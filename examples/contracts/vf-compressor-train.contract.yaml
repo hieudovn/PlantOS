@@ -1,0 +1,682 @@
+# =============================================================================
+# PlantOS Integration Contract v2.0 — Virtual Factory Compressor Train
+# =============================================================================
+# This is the canonical example contract. It defines:
+#   CORE:   plant, areas, assets, signals → PlantOS Center seed
+#   EXT:    bindings.opcua → PlantOS Edge OPC UA mapper
+#   EXT:    simulation.behaviors → Virtual Factory simulator config
+# =============================================================================
+
+contract:
+  version: "2.0"
+  schema_version: "2.0"
+  description: "Compressor Train Analytics Benchmark — 7 assets, 26 signals"
+
+source:
+  system_type: virtual_factory
+  system_name: "Virtual Factory v2.1"
+  owner: "Avenue Engineering"
+  generated_by: "PlantOS PM Designer"
+  generated_at: "2026-07-01T00:00:00Z"
+
+# =========================================================================
+# Plant & Areas
+# =========================================================================
+plant:
+  plant_id: VF-DEMO
+  plant_code: VF-DEMO
+  name: "Virtual Factory Demo Plant"
+  description: "Compressor Train Analytics Benchmark"
+  timezone: "Asia/Ho_Chi_Minh"
+  status: active
+
+areas:
+  - area_id: COMPRESSOR-AREA
+    area_code: COMPRESSOR-AREA
+    name: "Compressor Area"
+    plant_id: VF-DEMO
+
+# =========================================================================
+# Asset Hierarchy
+# =========================================================================
+assets:
+  # --- Root ---
+  - asset_id: COMP01
+    asset_code: COMP01
+    name: "Compressor Train A"
+    asset_type: compressor_train
+    parent_asset_id: null
+    area_id: COMPRESSOR-AREA
+    criticality: critical
+    status: active
+
+  # --- Motor ---
+  - asset_id: COMP01-MOTOR
+    asset_code: COMP01-MOTOR
+    name: "Drive Motor"
+    asset_type: motor
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: critical
+    status: active
+
+  # --- Compressor Core ---
+  - asset_id: COMP01-CORE
+    asset_code: COMP01-CORE
+    name: "Compressor Core"
+    asset_type: compressor
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: critical
+    status: active
+
+  # --- Bearings ---
+  - asset_id: COMP01-BEARINGS
+    asset_code: COMP01-BEARINGS
+    name: "Bearings Assembly"
+    asset_type: bearing_assembly
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: high
+    status: active
+
+  # --- Lube Oil ---
+  - asset_id: COMP01-LUBE
+    asset_code: COMP01-LUBE
+    name: "Lube Oil System"
+    asset_type: lubrication_system
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: high
+    status: active
+
+  # --- Cooling ---
+  - asset_id: COMP01-COOLING
+    asset_code: COMP01-COOLING
+    name: "Cooling Water System"
+    asset_type: cooling_system
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: medium
+    status: active
+
+  # --- Seal Gas ---
+  - asset_id: COMP01-SEAL
+    asset_code: COMP01-SEAL
+    name: "Seal Gas System"
+    asset_type: seal_system
+    parent_asset_id: COMP01
+    area_id: COMPRESSOR-AREA
+    criticality: high
+    status: active
+
+# =========================================================================
+# Signals — Core operational model (26 signals)
+# =========================================================================
+signals:
+  # === Compressor Core (7) ===
+  - signal_id: COMP01-CORE.suction_pressure
+    asset_id: COMP01-CORE
+    signal_name: suction_pressure
+    display_name: "Suction Pressure"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kPa
+    status: active
+
+  - signal_id: COMP01-CORE.discharge_pressure
+    asset_id: COMP01-CORE
+    signal_name: discharge_pressure
+    display_name: "Discharge Pressure"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kPa
+    status: active
+
+  - signal_id: COMP01-CORE.flow_rate
+    asset_id: COMP01-CORE
+    signal_name: flow_rate
+    display_name: "Flow Rate"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: m3/h
+    status: active
+
+  - signal_id: COMP01-CORE.suction_temp
+    asset_id: COMP01-CORE
+    signal_name: suction_temp
+    display_name: "Suction Temperature"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-CORE.discharge_temp
+    asset_id: COMP01-CORE
+    signal_name: discharge_temp
+    display_name: "Discharge Temperature"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-CORE.speed
+    asset_id: COMP01-CORE
+    signal_name: speed
+    display_name: "Rotational Speed"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: RPM
+    status: active
+
+  - signal_id: COMP01-CORE.power
+    asset_id: COMP01-CORE
+    signal_name: power
+    display_name: "Power Consumption"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kW
+    status: active
+
+  # === Motor (7) ===
+  - signal_id: COMP01-MOTOR.current
+    asset_id: COMP01-MOTOR
+    signal_name: current
+    display_name: "Motor Current"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: A
+    status: active
+
+  - signal_id: COMP01-MOTOR.power
+    asset_id: COMP01-MOTOR
+    signal_name: power
+    display_name: "Motor Power"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kW
+    status: active
+
+  - signal_id: COMP01-MOTOR.winding_temp
+    asset_id: COMP01-MOTOR
+    signal_name: winding_temp
+    display_name: "Winding Temperature"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-MOTOR.bearing_de_temp
+    asset_id: COMP01-MOTOR
+    signal_name: bearing_de_temp
+    display_name: "Motor DE Bearing Temp"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-MOTOR.bearing_nde_temp
+    asset_id: COMP01-MOTOR
+    signal_name: bearing_nde_temp
+    display_name: "Motor NDE Bearing Temp"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-MOTOR.vibration_de
+    asset_id: COMP01-MOTOR
+    signal_name: vibration_de
+    display_name: "Motor DE Vibration"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    status: active
+
+  - signal_id: COMP01-MOTOR.vibration_nde
+    asset_id: COMP01-MOTOR
+    signal_name: vibration_nde
+    display_name: "Motor NDE Vibration"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    status: active
+
+  # === Bearings (6) ===
+  - signal_id: COMP01-BEARINGS.de_temp
+    asset_id: COMP01-BEARINGS
+    signal_name: de_temp
+    display_name: "DE Bearing Temperature"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-BEARINGS.nde_temp
+    asset_id: COMP01-BEARINGS
+    signal_name: nde_temp
+    display_name: "NDE Bearing Temperature"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-BEARINGS.thrust_temp
+    asset_id: COMP01-BEARINGS
+    signal_name: thrust_temp
+    display_name: "Thrust Bearing Temperature"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-BEARINGS.vibration_de
+    asset_id: COMP01-BEARINGS
+    signal_name: vibration_de
+    display_name: "DE Vibration"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    status: active
+
+  - signal_id: COMP01-BEARINGS.vibration_nde
+    asset_id: COMP01-BEARINGS
+    signal_name: vibration_nde
+    display_name: "NDE Vibration"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    status: active
+
+  - signal_id: COMP01-BEARINGS.vibration_axial
+    asset_id: COMP01-BEARINGS
+    signal_name: vibration_axial
+    display_name: "Axial Vibration"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: mm/s
+    status: active
+
+  # === Lube Oil (3) ===
+  - signal_id: COMP01-LUBE.pressure
+    asset_id: COMP01-LUBE
+    signal_name: pressure
+    display_name: "Lube Oil Pressure"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kPa
+    status: active
+
+  - signal_id: COMP01-LUBE.temperature
+    asset_id: COMP01-LUBE
+    signal_name: temperature
+    display_name: "Lube Oil Temperature"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-LUBE.filter_dp
+    asset_id: COMP01-LUBE
+    signal_name: filter_dp
+    display_name: "Filter Differential Pressure"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: kPa
+    status: active
+
+  # === Cooling (2) ===
+  - signal_id: COMP01-COOLING.supply_temp
+    asset_id: COMP01-COOLING
+    signal_name: supply_temp
+    display_name: "Cooling Water Supply Temp"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  - signal_id: COMP01-COOLING.return_temp
+    asset_id: COMP01-COOLING
+    signal_name: return_temp
+    display_name: "Cooling Water Return Temp"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: degC
+    status: active
+
+  # === Seal Gas (1) ===
+  - signal_id: COMP01-SEAL.flow_rate
+    asset_id: COMP01-SEAL
+    signal_name: flow_rate
+    display_name: "Seal Gas Flow"
+    signal_type: measurement
+    data_type: float
+    engineering_unit: Nm3/h
+    status: active
+
+# =========================================================================
+# UNS Policy
+# =========================================================================
+uns:
+  namespace_root: avenue
+  path_template: "{namespace_root}/{plant_id}/{area_id}/{asset_id}/{signal_name}"
+  normalize_case: lower
+  separator: "/"
+
+# =========================================================================
+# Import Recommendation (hint only — actual policy set by API caller)
+# =========================================================================
+import_recommendation:
+  suggested_mode: apply
+  reason: "Initial seed of Virtual Factory Demo Plant"
+  notes: "New plant, no existing data. Safe to apply."
+
+# =========================================================================
+# EXTENSIONS
+# =========================================================================
+
+# --- OPC UA Bindings (consumed by PlantOS Edge Agent) ---
+bindings:
+  opcua:
+    # Compressor Core
+    - signal_id: COMP01-CORE.suction_pressure
+      node_id: ns=2;s=COMP01_SUCTION_PRESSURE
+    - signal_id: COMP01-CORE.discharge_pressure
+      node_id: ns=2;s=COMP01_DISCHARGE_PRESSURE
+    - signal_id: COMP01-CORE.flow_rate
+      node_id: ns=2;s=COMP01_FLOW
+      scale: 3600.0
+    - signal_id: COMP01-CORE.suction_temp
+      node_id: ns=2;s=COMP01_SUCTION_TEMP
+    - signal_id: COMP01-CORE.discharge_temp
+      node_id: ns=2;s=COMP01_DISCHARGE_TEMP
+    - signal_id: COMP01-CORE.speed
+      node_id: ns=2;s=COMP01_SPEED
+    - signal_id: COMP01-CORE.power
+      node_id: ns=2;s=COMP01_POWER
+    # Motor
+    - signal_id: COMP01-MOTOR.current
+      node_id: ns=2;s=COMP01_MOTOR_CURRENT
+    - signal_id: COMP01-MOTOR.power
+      node_id: ns=2;s=COMP01_MOTOR_POWER
+    - signal_id: COMP01-MOTOR.winding_temp
+      node_id: ns=2;s=COMP01_MOTOR_WINDING_TEMP
+    - signal_id: COMP01-MOTOR.bearing_de_temp
+      node_id: ns=2;s=COMP01_MOTOR_BRG_DE_TEMP
+    - signal_id: COMP01-MOTOR.bearing_nde_temp
+      node_id: ns=2;s=COMP01_MOTOR_BRG_NDE_TEMP
+    - signal_id: COMP01-MOTOR.vibration_de
+      node_id: ns=2;s=COMP01_MOTOR_VIB_DE
+    - signal_id: COMP01-MOTOR.vibration_nde
+      node_id: ns=2;s=COMP01_MOTOR_VIB_NDE
+    # Bearings
+    - signal_id: COMP01-BEARINGS.de_temp
+      node_id: ns=2;s=COMP01_BRG_DE_TEMP
+    - signal_id: COMP01-BEARINGS.nde_temp
+      node_id: ns=2;s=COMP01_BRG_NDE_TEMP
+    - signal_id: COMP01-BEARINGS.thrust_temp
+      node_id: ns=2;s=COMP01_BRG_THRUST_TEMP
+    - signal_id: COMP01-BEARINGS.vibration_de
+      node_id: ns=2;s=COMP01_VIB_DE
+    - signal_id: COMP01-BEARINGS.vibration_nde
+      node_id: ns=2;s=COMP01_VIB_NDE
+    - signal_id: COMP01-BEARINGS.vibration_axial
+      node_id: ns=2;s=COMP01_VIB_AXIAL
+    # Lube Oil
+    - signal_id: COMP01-LUBE.pressure
+      node_id: ns=2;s=COMP01_LO_PRESS
+    - signal_id: COMP01-LUBE.temperature
+      node_id: ns=2;s=COMP01_LO_TEMP
+    - signal_id: COMP01-LUBE.filter_dp
+      node_id: ns=2;s=COMP01_LO_FILTER_DP
+    # Cooling
+    - signal_id: COMP01-COOLING.supply_temp
+      node_id: ns=2;s=COMP01_CW_SUPPLY_TEMP
+    - signal_id: COMP01-COOLING.return_temp
+      node_id: ns=2;s=COMP01_CW_RETURN_TEMP
+    # Seal Gas
+    - signal_id: COMP01-SEAL.flow_rate
+      node_id: ns=2;s=COMP01_SEAL_FLOW
+
+# --- Simulation Behaviors (consumed by Virtual Factory only) ---
+simulation:
+  behaviors:
+    COMP01.suction_pressure_kpa:
+      signal_id: COMP01-CORE.suction_pressure
+      pattern: sine
+      mid: 120.0
+      amplitude: 5.0
+      noise: 0.5
+      frequency_hz: 0.02
+      unit: kPa
+    COMP01.discharge_pressure_kpa:
+      signal_id: COMP01-CORE.discharge_pressure
+      pattern: sine
+      mid: 800.0
+      amplitude: 30.0
+      noise: 2.0
+      frequency_hz: 0.02
+      unit: kPa
+    COMP01.flow_m3_s:
+      signal_id: COMP01-CORE.flow_rate
+      pattern: sine
+      mid: 0.015
+      amplitude: 0.002
+      noise: 0.0005
+      frequency_hz: 0.01
+      unit: m3/s
+    COMP01.suction_temperature_c:
+      signal_id: COMP01-CORE.suction_temp
+      pattern: random_walk
+      step_size: 0.1
+      bounds_min: 20.0
+      bounds_max: 35.0
+      unit: degC
+    COMP01.discharge_temperature_c:
+      signal_id: COMP01-CORE.discharge_temp
+      pattern: sine
+      mid: 95.0
+      amplitude: 8.0
+      noise: 1.0
+      frequency_hz: 0.02
+      unit: degC
+    COMP01.speed_rpm:
+      signal_id: COMP01-CORE.speed
+      pattern: step
+      states: [800, 3500, 3500, 800]
+      hold_time_per_step: [30, 3600, 30, 10]
+      unit: RPM
+    COMP01.power_consumed_kw:
+      signal_id: COMP01-CORE.power
+      pattern: sine
+      mid: 450.0
+      amplitude: 30.0
+      noise: 5.0
+      frequency_hz: 0.02
+      unit: kW
+    COMP01.motor.current_a:
+      signal_id: COMP01-MOTOR.current
+      pattern: sine
+      mid: 85.0
+      amplitude: 10.0
+      noise: 2.0
+      frequency_hz: 0.02
+      unit: A
+    COMP01.motor.power_kw:
+      signal_id: COMP01-MOTOR.power
+      pattern: sine
+      mid: 420.0
+      amplitude: 25.0
+      noise: 3.0
+      frequency_hz: 0.02
+      unit: kW
+    COMP01.motor.winding_temp_c:
+      signal_id: COMP01-MOTOR.winding_temp
+      pattern: degradation
+      baseline: 65.0
+      drift_rate: 0.005
+      spike_probability: 0.02
+      spike_magnitude: 5.0
+      unit: degC
+    COMP01.motor.bearing_de_temp_c:
+      signal_id: COMP01-MOTOR.bearing_de_temp
+      pattern: degradation
+      baseline: 55.0
+      drift_rate: 0.003
+      spike_probability: 0.03
+      spike_magnitude: 3.0
+      unit: degC
+    COMP01.motor.bearing_nde_temp_c:
+      signal_id: COMP01-MOTOR.bearing_nde_temp
+      pattern: degradation
+      baseline: 52.0
+      drift_rate: 0.003
+      spike_probability: 0.03
+      spike_magnitude: 3.0
+      unit: degC
+    COMP01.motor.vibration_de_mm_s:
+      signal_id: COMP01-MOTOR.vibration_de
+      pattern: degradation
+      baseline: 2.0
+      drift_rate: 0.001
+      spike_probability: 0.05
+      spike_magnitude: 0.5
+      unit: mm/s
+    COMP01.motor.vibration_nde_mm_s:
+      signal_id: COMP01-MOTOR.vibration_nde
+      pattern: degradation
+      baseline: 1.8
+      drift_rate: 0.001
+      spike_probability: 0.05
+      spike_magnitude: 0.4
+      unit: mm/s
+    COMP01.bearing_de_temp_c:
+      signal_id: COMP01-BEARINGS.de_temp
+      pattern: degradation
+      baseline: 58.0
+      drift_rate: 0.004
+      spike_probability: 0.03
+      spike_magnitude: 4.0
+      unit: degC
+    COMP01.bearing_nde_temp_c:
+      signal_id: COMP01-BEARINGS.nde_temp
+      pattern: degradation
+      baseline: 55.0
+      drift_rate: 0.004
+      spike_probability: 0.03
+      spike_magnitude: 3.5
+      unit: degC
+    COMP01.bearing_thrust_temp_c:
+      signal_id: COMP01-BEARINGS.thrust_temp
+      pattern: degradation
+      baseline: 60.0
+      drift_rate: 0.002
+      spike_probability: 0.02
+      spike_magnitude: 5.0
+      unit: degC
+    COMP01.vibration_de_mm_s:
+      signal_id: COMP01-BEARINGS.vibration_de
+      pattern: degradation
+      baseline: 2.2
+      drift_rate: 0.0015
+      spike_probability: 0.04
+      spike_magnitude: 0.6
+      unit: mm/s
+    COMP01.vibration_nde_mm_s:
+      signal_id: COMP01-BEARINGS.vibration_nde
+      pattern: degradation
+      baseline: 2.0
+      drift_rate: 0.0015
+      spike_probability: 0.04
+      spike_magnitude: 0.5
+      unit: mm/s
+    COMP01.vibration_axial_mm_s:
+      signal_id: COMP01-BEARINGS.vibration_axial
+      pattern: degradation
+      baseline: 1.5
+      drift_rate: 0.0008
+      spike_probability: 0.03
+      spike_magnitude: 0.3
+      unit: mm/s
+    COMP01.lube_oil.pressure_kpa:
+      signal_id: COMP01-LUBE.pressure
+      pattern: sine
+      mid: 250.0
+      amplitude: 15.0
+      noise: 2.0
+      frequency_hz: 0.01
+      unit: kPa
+    COMP01.lube_oil.temperature_c:
+      signal_id: COMP01-LUBE.temperature
+      pattern: sine
+      mid: 45.0
+      amplitude: 3.0
+      noise: 0.5
+      frequency_hz: 0.01
+      unit: degC
+    COMP01.lube_oil.filter_dp_kpa:
+      signal_id: COMP01-LUBE.filter_dp
+      pattern: degradation
+      baseline: 15.0
+      drift_rate: 0.01
+      spike_probability: 0.02
+      spike_magnitude: 8.0
+      unit: kPa
+    COMP01.cooling.supply_temp_c:
+      signal_id: COMP01-COOLING.supply_temp
+      pattern: sine
+      mid: 28.0
+      amplitude: 2.0
+      noise: 0.3
+      frequency_hz: 0.005
+      unit: degC
+    COMP01.cooling.return_temp_c:
+      signal_id: COMP01-COOLING.return_temp
+      pattern: sine
+      mid: 35.0
+      amplitude: 3.0
+      noise: 0.5
+      frequency_hz: 0.005
+      unit: degC
+    COMP01.seal_gas.flow_nm3_h:
+      signal_id: COMP01-SEAL.flow_rate
+      pattern: sine
+      mid: 50.0
+      amplitude: 5.0
+      noise: 1.0
+      frequency_hz: 0.01
+      unit: Nm3/h
+
+# --- Custom Extensions ---
+extensions:
+  vf_sensor_refs:
+    COMP01-CORE.suction_pressure: PT101
+    COMP01-CORE.discharge_pressure: PT102
+    COMP01-CORE.flow_rate: FT101
+    COMP01-CORE.suction_temp: TT101
+    COMP01-CORE.discharge_temp: TT102
+    COMP01-CORE.speed: ST101
+    COMP01-CORE.power: PT105
+    COMP01-MOTOR.current: CT101
+    COMP01-MOTOR.power: PT103
+    COMP01-MOTOR.winding_temp: TT103
+    COMP01-MOTOR.bearing_de_temp: TT104
+    COMP01-MOTOR.bearing_nde_temp: TT105
+    COMP01-MOTOR.vibration_de: VT101
+    COMP01-MOTOR.vibration_nde: VT102
+    COMP01-BEARINGS.de_temp: TT106
+    COMP01-BEARINGS.nde_temp: TT107
+    COMP01-BEARINGS.thrust_temp: TT108
+    COMP01-BEARINGS.vibration_de: VT103
+    COMP01-BEARINGS.vibration_nde: VT104
+    COMP01-BEARINGS.vibration_axial: VT105
+    COMP01-LUBE.pressure: PT104
+    COMP01-LUBE.temperature: TT109
+    COMP01-LUBE.filter_dp: PDT101
+    COMP01-COOLING.supply_temp: TT110
+    COMP01-COOLING.return_temp: TT111
+    COMP01-SEAL.flow_rate: FT102
+  visualization:
+    diagram_bindings:
+      - "pid-process.binding.yaml"
+      - "one-line-electrical.binding.yaml"
