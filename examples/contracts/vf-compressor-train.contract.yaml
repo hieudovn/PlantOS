@@ -1,5 +1,5 @@
 # =============================================================================
-# PlantOS Integration Contract v2.0 — Virtual Factory Compressor Train
+# PlantOS Operational Model Import Contract v2.0 — Virtual Factory Compressor Train
 # =============================================================================
 # This is the canonical example contract. It defines:
 #   CORE:   plant, areas, assets, signals → PlantOS Center seed

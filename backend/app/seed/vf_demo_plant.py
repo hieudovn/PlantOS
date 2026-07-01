@@ -1,4 +1,11 @@
-"""Seed data for Virtual Factory Compressor Train plant assets and signals."""
+"""Seed data for Virtual Factory Compressor Train plant assets and signals.
+
+Loads from contract v2 YAML (preferred) or falls back to v1, then to hardcoded data.
+"""
+
+from pathlib import Path
+
+import yaml
 
 VF_PLANT = {
     "plant_id": "VF-DEMO",
@@ -152,6 +159,29 @@ VF_SIGNALS = [
 ]
 
 
+def load_contract():
+    """Load contract v2 or fallback to v1, then to hardcoded data."""
+    # Try v2 path
+    v2_path = Path("examples/contracts/vf-compressor-train.contract.yaml")
+    v1_path = Path("examples/vf-plantos-contract.yaml")
+
+    if v2_path.exists():
+        with open(v2_path) as f:
+            contract = yaml.safe_load(f)
+        version = contract.get("contract", {}).get("version", "")
+        if version.startswith("2"):
+            return contract, 2
+
+    # Try v1 path
+    if v1_path.exists():
+        with open(v1_path) as f:
+            contract = yaml.safe_load(f)
+        return contract, 1
+
+    # Fallback to hardcoded data
+    return None, 0
+
+
 def seed_vf_demo_plant():
     """Seed Virtual Factory Compressor Train demo plant.
 
@@ -170,11 +200,122 @@ def seed_vf_demo_plant():
 
     results = {"plants": 0, "areas": 0, "assets": 0, "signals": 0, "skipped": 0}
 
+    contract, version = load_contract()
+
+    if version == 2:
+        _seed_v2(plant_svc, area_svc, asset_svc, signal_svc, results, contract)
+    elif version == 1:
+        _seed_v1(plant_svc, area_svc, asset_svc, signal_svc, results, contract)
+    else:
+        _seed_hardcoded(plant_svc, area_svc, asset_svc, signal_svc, results)
+
+    return results
+
+
+def _seed_v2(plant_svc, area_svc, asset_svc, signal_svc, results, contract):
+    """Seed from contract v2 format."""
+    plant_data = contract["plant"]
+    areas_data = contract["areas"]
+    assets_data = contract["assets"]
+    signals_data = contract["signals"]
+    bindings = contract.get("bindings", {})
+    opcua_bindings = {b["signal_id"]: b["node_id"] for b in bindings.get("opcua", [])}
+
     # Plant
     try:
         plant_svc.create_plant(PlantCreate(
-            plant_id=VF_PLANT["plant_id"],
-            name=VF_PLANT["name"],
+            plant_id=plant_data["plant_id"],
+            name=plant_data["name"],
+            timezone=plant_data.get("timezone", "UTC"),
+            status=plant_data.get("status", "active"),
+        ))
+        results["plants"] += 1
+    except ValueError:
+        results["skipped"] += 1
+
+    # Areas
+    for area in areas_data:
+        try:
+            area_svc.create_area(AreaCreate(
+                area_id=area["area_id"],
+                plant_id=area["plant_id"],
+                name=area["name"],
+                area_type=None,
+                status="active",
+            ))
+            results["areas"] += 1
+        except ValueError:
+            results["skipped"] += 1
+
+    # Assets
+    for asset in assets_data:
+        try:
+            loc = None
+            asset_svc.create_asset(AssetCreate(
+                asset_id=asset["asset_id"],
+                asset_code=asset.get("asset_code", ""),
+                name=asset["name"],
+                asset_type=asset["asset_type"],
+                parent_asset_id=asset.get("parent_asset_id"),
+                plant_id=asset.get("area_id"),  # area_id used to resolve plant via area
+                area_id=asset.get("area_id"),
+                criticality=asset.get("criticality", "medium"),
+                location=loc,
+            ))
+            results["assets"] += 1
+        except ValueError:
+            results["skipped"] += 1
+
+    # Signals
+    for sig in signals_data:
+        try:
+            sid = sig["signal_id"]
+            node_id = opcua_bindings.get(sid)
+            source = SourceInfo(
+                source_type="opcua" if node_id else "simulator",
+                source_ref=node_id or "",
+            )
+            signal_svc.create_signal(SignalCreate(
+                signal_id=sid,
+                asset_id=sig["asset_id"],
+                signal_name=sig["signal_name"],
+                display_name=sig.get("display_name"),
+                signal_type=sig.get("signal_type", "measurement"),
+                data_type=sig.get("data_type", "float"),
+                engineering_unit=sig.get("engineering_unit"),
+                source=source,
+            ))
+            results["signals"] += 1
+        except ValueError:
+            results["skipped"] += 1
+
+
+def _seed_v1(plant_svc, area_svc, asset_svc, signal_svc, results, contract):
+    """Seed from v1 contract format (examples/vf-plantos-contract.yaml)."""
+    # v1 has flat structure: plant, areas, assets, signals keys
+    plant_data = contract.get("plant", VF_PLANT)
+    areas_data = contract.get("areas", [VF_AREA])
+    assets_data = contract.get("assets", VF_ASSETS)
+    signals_data = contract.get("signals", VF_SIGNALS)
+
+    _seed_from_dicts(plant_svc, area_svc, asset_svc, signal_svc, results,
+                     plant_data, areas_data, assets_data, signals_data)
+
+
+def _seed_hardcoded(plant_svc, area_svc, asset_svc, signal_svc, results):
+    """Fallback: seed from hardcoded constants."""
+    _seed_from_dicts(plant_svc, area_svc, asset_svc, signal_svc, results,
+                     VF_PLANT, [VF_AREA], VF_ASSETS, VF_SIGNALS)
+
+
+def _seed_from_dicts(plant_svc, area_svc, asset_svc, signal_svc, results,
+                     plant_data, areas_data, assets_data, signals_data):
+    """Core seed logic — shared across v1 and hardcoded paths."""
+    # Plant
+    try:
+        plant_svc.create_plant(PlantCreate(
+            plant_id=plant_data["plant_id"],
+            name=plant_data["name"],
             timezone="UTC",
             status="active",
         ))
@@ -183,20 +324,21 @@ def seed_vf_demo_plant():
         results["skipped"] += 1
 
     # Area
-    try:
-        area_svc.create_area(AreaCreate(
-            area_id=VF_AREA["area_id"],
-            plant_id=VF_AREA["plant_id"],
-            name=VF_AREA["name"],
-            area_type=None,
-            status="active",
-        ))
-        results["areas"] += 1
-    except ValueError:
-        results["skipped"] += 1
+    for area in areas_data:
+        try:
+            area_svc.create_area(AreaCreate(
+                area_id=area["area_id"],
+                plant_id=area["plant_id"],
+                name=area["name"],
+                area_type=None,
+                status="active",
+            ))
+            results["areas"] += 1
+        except ValueError:
+            results["skipped"] += 1
 
     # Assets
-    for a in VF_ASSETS:
+    for a in assets_data:
         try:
             loc = Location(lat=a.get("location", {}).get("lat"), lng=a.get("location", {}).get("lng")) if a.get("location") else None
             asset_svc.create_asset(AssetCreate(
@@ -215,7 +357,7 @@ def seed_vf_demo_plant():
             results["skipped"] += 1
 
     # Signals
-    for s in VF_SIGNALS:
+    for s in signals_data:
         try:
             src = s.get("source")
             source = SourceInfo(
@@ -235,5 +377,3 @@ def seed_vf_demo_plant():
             results["signals"] += 1
         except ValueError:
             results["skipped"] += 1
-
-    return results

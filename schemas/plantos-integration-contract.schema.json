@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://plantos.avenue.dev/schemas/integration-contract-v2.schema.json",
-  "title": "PlantOS Integration Contract",
-  "description": "Schema for PlantOS Integration Contract v2.0 — validates plant model, asset hierarchy, signal definitions, and optional bindings/simulation extensions.",
+  "$id": "https://plantos.avenue.dev/schemas/operational-model-import-contract-v2.schema.json",
+  "title": "PlantOS Operational Model Import Contract",
+  "description": "Import contract for industrial asset models, aligned with PlantOS CDM (Canonical Data Model).",
   "type": "object",
   "required": ["contract", "source", "plant", "areas", "assets", "signals", "uns", "import_recommendation"],
   "properties": {

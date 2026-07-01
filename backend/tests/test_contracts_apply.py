@@ -153,3 +153,125 @@ class TestApplySafety:
         )
         assert result.success is False
         assert any("orphaned_action='delete' requires" in e for e in result.errors)
+
+
+# =========================================================================
+# Advanced tests — Phase 7.1 hardening
+# =========================================================================
+
+
+def _make_contract(plant_id, asset_count=1, signal_count=1):
+    """Helper: create a contract dict with N assets and M signals."""
+    areas = [{"area_id": f"{plant_id}-AREA", "area_code": f"{plant_id}A",
+              "name": "Test Area", "plant_id": plant_id}]
+    assets = []
+    signals = []
+    for i in range(asset_count):
+        aid = f"{plant_id}-ASSET{i}"
+        assets.append({
+            "asset_id": aid, "asset_code": aid, "name": f"Asset {i}",
+            "asset_type": "pump", "area_id": f"{plant_id}-AREA",
+        })
+        for j in range(signal_count // asset_count):
+            signals.append({
+                "signal_id": f"{aid}.sig{j}", "asset_id": aid,
+                "signal_name": f"sig{j}", "display_name": f"Signal {j}",
+                "signal_type": "measurement", "data_type": "float",
+                "engineering_unit": "RPM",
+            })
+    return {
+        "contract": {"version": "2.0", "schema_version": "2.0", "description": "Test"},
+        "source": {"system_type": "manual", "system_name": "Test",
+                   "generated_by": "Tester", "generated_at": "2026-07-01T00:00:00Z"},
+        "plant": {"plant_id": plant_id, "plant_code": plant_id,
+                  "name": plant_id, "timezone": "UTC"},
+        "areas": areas, "assets": assets, "signals": signals,
+        "uns": {"namespace_root": "test", "path_template": "{ns}/{pid}/{sn}"},
+        "import_recommendation": {"suggested_mode": "apply", "reason": "test"},
+    }
+
+
+def _make_hierarchy_contract():
+    """Helper: contract with 3-level asset hierarchy."""
+    return {
+        "contract": {"version": "2.0", "schema_version": "2.0", "description": "Hierarchy test"},
+        "source": {"system_type": "manual", "system_name": "Test",
+                   "generated_by": "Tester", "generated_at": "2026-07-01T00:00:00Z"},
+        "plant": {"plant_id": "HIER-TEST", "plant_code": "HT",
+                  "name": "Hierarchy Test", "timezone": "UTC"},
+        "areas": [{"area_id": "HT-AREA", "area_code": "HTA",
+                   "name": "Area", "plant_id": "HIER-TEST"}],
+        "assets": [
+            {"asset_id": "HT-ROOT", "asset_code": "HTR", "name": "Root",
+             "asset_type": "production_line", "area_id": "HT-AREA",
+             "parent_asset_id": None},
+            {"asset_id": "HT-CHILD1", "asset_code": "HTC1", "name": "Child 1",
+             "asset_type": "motor", "area_id": "HT-AREA",
+             "parent_asset_id": "HT-ROOT"},
+            {"asset_id": "HT-CHILD2", "asset_code": "HTC2", "name": "Child 2",
+             "asset_type": "pump", "area_id": "HT-AREA",
+             "parent_asset_id": "HT-ROOT"},
+        ],
+        "signals": [
+            {"signal_id": "HT-ROOT.status", "asset_id": "HT-ROOT",
+             "signal_name": "status", "display_name": "Status",
+             "signal_type": "status", "data_type": "bool", "engineering_unit": ""},
+            {"signal_id": "HT-CHILD1.speed", "asset_id": "HT-CHILD1",
+             "signal_name": "speed", "display_name": "Speed",
+             "signal_type": "measurement", "data_type": "float",
+             "engineering_unit": "RPM"},
+        ],
+        "uns": {"namespace_root": "test", "path_template": "{ns}/{pid}/{sn}"},
+        "import_recommendation": {"suggested_mode": "apply", "reason": "test"},
+    }
+
+
+class TestApplyAdvanced:
+    """Advanced hardening tests — Phase 7.1."""
+
+    def test_apply_idempotent_with_skip(self):
+        """Apply same contract twice with skip — second should skip all."""
+        rand_id = "IDEM" + "".join(random.choices(string.ascii_uppercase, k=4))
+        contract = _make_contract(rand_id)
+        policy = {**SAFE_POLICY, "on_conflict": "skip"}
+
+        r1 = apply_contract(contract, policy)
+        assert r1.success
+        total1 = sum(len(v) for v in r1.created.values())
+        assert total1 >= 4  # plant + area + asset + signal
+
+        r2 = apply_contract(contract, policy)
+        assert r2.success
+        total2_created = sum(len(v) for v in r2.created.values())
+        total2_skipped = sum(len(v) for v in r2.skipped.values())
+        assert total2_created == 0  # Nothing new
+        assert total2_skipped >= 4  # All skipped
+
+    def test_multi_level_asset_hierarchy(self):
+        """Apply contract with 3-level asset tree."""
+        contract = _make_hierarchy_contract()
+        result = apply_contract(contract, SAFE_POLICY)
+        assert result.success
+        assets_created = result.created["assets"]
+        assert len(assets_created) >= 3  # parent + 2 children
+
+    def test_orphan_report(self):
+        """Apply then preview with smaller contract → orphans detected."""
+        rand_id = "ORPH" + "".join(random.choices(string.ascii_uppercase, k=4))
+        # Step 1: Apply full contract (2 signals)
+        full = _make_contract(rand_id, signal_count=2)
+        r1 = apply_contract(full, SAFE_POLICY)
+        assert r1.success
+
+        # Step 2: Preview with smaller contract (1 signal)
+        small = _make_contract(rand_id, signal_count=1)
+        from app.modules.contracts.preview import preview_contract
+        preview = preview_contract(small)
+        assert len(preview.signals.orphans) >= 1  # Second signal orphaned
+
+    def test_smoke_large_contract(self):
+        """Validate a contract with 50+ signals."""
+        contract = _make_contract("SMOKE", asset_count=10, signal_count=50)
+        from app.modules.contracts.validator import validate_contract
+        result = validate_contract(contract)
+        assert result.valid is True

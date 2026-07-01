@@ -1,4 +1,4 @@
-# ADR-0006: Integration Contract v2 & Model Importer Architecture
+# ADR-0006: Operational Model Import Contract v2 & Model Importer Architecture
 
 ## Status
 

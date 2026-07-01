@@ -1,13 +1,14 @@
-# PlantOS Integration Contract — Specification v2.0
+# PlantOS Operational Model Import Contract — Specification v2.0
 
 > **Status:** Proposed | **Replaces:** v1.0 (examples/vf-plantos-contract.yaml)  
-> **ADR:** ADR-0006 — Integration Contract v2 & Model Importer Architecture
+> **ADR:** ADR-0006 — Operational Model Import Contract v2 & Model Importer Architecture  
+> **Aligned with PlantOS CDM (Canonical Data Model)**
 
 ---
 
 ## 1. Purpose
 
-The PlantOS Integration Contract is the **single source of truth** for industrial asset models shared between:
+The PlantOS Operational Model Import Contract is the **single source of truth** for industrial asset models shared between:
 
 | Consumer | What it reads |
 |---|---|
