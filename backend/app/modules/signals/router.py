@@ -28,8 +28,9 @@ def list_signals(
     asset_id: str | None = Query(None),
     signal_type: str | None = Query(None),
     data_type: str | None = Query(None),
+    plant_id: str | None = Query(None),
 ):
-    return signal_service.list_signals(asset_id, signal_type, data_type)
+    return signal_service.list_signals(asset_id, signal_type, data_type, plant_id)
 
 
 @router.get("/signals/{signal_id}", response_model=SignalResponse)

@@ -1,0 +1,206 @@
+# =============================================================================
+# WTP-DEMO-01 Process Diagram — SVG Bindings
+# =============================================================================
+# Maps SVG element IDs to PlantOS signals for live data display.
+# Format based on docs/17-visualization-binding-spec.md
+# =============================================================================
+# NOTE: Some bindings use format/unit configurations that require
+# visualization-sdk v0.3+. Current version may fall back to defaults.
+# =============================================================================
+
+bindings:
+  # --- Stage 1: INTAKE-AREA ---
+  - binding_id: wtp-raw-turbidity
+    binding_type: asset_signal
+    selector: "#raw-turbidity-value"
+    asset_id: RAW-WATER-QUALITY-STATION-101
+    signal_name: raw_turbidity
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: NTU
+
+  - binding_id: wtp-raw-ph
+    binding_type: asset_signal
+    selector: "#raw-ph-value"
+    asset_id: RAW-WATER-QUALITY-STATION-101
+    signal_name: raw_ph
+    mode: realtime
+    display:
+      format: "0.1"
+      unit: ""
+
+  - binding_id: wtp-rwp-flow
+    binding_type: asset_signal
+    selector: "#rwp-flow-value"
+    asset_id: RWP-101
+    signal_name: flow_rate
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: m3/h
+
+  # --- Stage 2: CHEMICAL-DOSING-AREA ---
+  - binding_id: wtp-coag-level
+    binding_type: asset_signal
+    selector: "#coag-level-value"
+    asset_id: COAG-TANK-101
+    signal_name: level
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: "%"
+
+  - binding_id: wtp-chlorine-level
+    binding_type: asset_signal
+    selector: "#chlorine-level-value"
+    asset_id: CHLORINE-TANK-101
+    signal_name: level
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: "%"
+
+  - binding_id: wtp-chemical-cost
+    binding_type: asset_signal
+    selector: "#chemical-cost-value"
+    asset_id: CHEMICAL-CONSUMPTION-STATION-101
+    signal_name: chemical_cost_per_m3
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: VND/m3
+
+  - binding_id: wtp-coag-flow
+    binding_type: asset_signal
+    selector: "#coag-flow-value"
+    asset_id: COAG-PUMP-101
+    signal_name: flow_rate
+    mode: realtime
+    display:
+      format: "0.1"
+      unit: L/min
+
+  # --- Stage 3: CLARIFICATION-AREA ---
+  - binding_id: wtp-settled-turbidity
+    binding_type: asset_signal
+    selector: "#settled-turbidity-value"
+    asset_id: CLARIFIER-101
+    signal_name: settled_turbidity
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: NTU
+
+  - binding_id: wtp-clarifier-efficiency
+    binding_type: asset_signal
+    selector: "#clarifier-efficiency-value"
+    asset_id: CLARIFIER-QUALITY-STATION-101
+    signal_name: clarifier_efficiency_index
+    mode: realtime
+    display:
+      format: "0.2"
+
+  # --- Stage 4: FILTRATION-AREA ---
+  - binding_id: wtp-filter101-dp
+    binding_type: asset_signal
+    selector: "#filter101-dp-value"
+    asset_id: FILTER-101
+    signal_name: filter_dp
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: kPa
+
+  - binding_id: wtp-filter102-dp
+    binding_type: asset_signal
+    selector: "#filter102-dp-value"
+    asset_id: FILTER-102
+    signal_name: filter_dp
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: kPa
+
+  - binding_id: wtp-filtered-turbidity
+    binding_type: asset_signal
+    selector: "#filtered-turbidity-value"
+    asset_id: FILTER-QUALITY-STATION-101
+    signal_name: filtered_turbidity
+    mode: realtime
+    display:
+      format: "0.2"
+      unit: NTU
+
+  # --- Stage 5: DISINFECTION-CLEARWATER-AREA ---
+  - binding_id: wtp-free-chlorine
+    binding_type: asset_signal
+    selector: "#free-chlorine-value"
+    asset_id: DISINFECTION-QUALITY-STATION-101
+    signal_name: free_chlorine
+    mode: realtime
+    display:
+      format: "0.1"
+      unit: mg/L
+
+  - binding_id: wtp-contact-time
+    binding_type: asset_signal
+    selector: "#contact-time-value"
+    asset_id: CONTACT-TANK-101
+    signal_name: contact_time
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: min
+
+  # --- Stage 6: CLEAR WATER ---
+  - binding_id: wtp-quality-index
+    binding_type: asset_signal
+    selector: "#quality-index-value"
+    asset_id: CLEAR-WATER-TANK-101
+    signal_name: quality_index
+    mode: realtime
+    display:
+      format: "0.2"
+
+  # --- Stage 7: DISTRIBUTION-AREA ---
+  - binding_id: wtp-outlet-turbidity
+    binding_type: asset_signal
+    selector: "#outlet-turbidity-value"
+    asset_id: TRANSFER-OUTLET-QUALITY-STATION-101
+    signal_name: outlet_turbidity
+    mode: realtime
+    display:
+      format: "0.2"
+      unit: NTU
+
+  - binding_id: wtp-outlet-chlorine
+    binding_type: asset_signal
+    selector: "#outlet-chlorine-value"
+    asset_id: TRANSFER-OUTLET-QUALITY-STATION-101
+    signal_name: outlet_free_chlorine
+    mode: realtime
+    display:
+      format: "0.1"
+      unit: mg/L
+
+  # --- Stage 8: PLANT-KPI-AREA ---
+  - binding_id: wtp-cost-per-m3
+    binding_type: asset_signal
+    selector: "#cost-per-m3-value"
+    asset_id: PLANT-KPI-101
+    signal_name: cost_per_m3
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: VND/m3
+
+  - binding_id: wtp-production-today
+    binding_type: asset_signal
+    selector: "#production-today-value"
+    asset_id: PLANT-KPI-101
+    signal_name: water_production_today
+    mode: realtime
+    display:
+      format: "0.0"
+      unit: m3

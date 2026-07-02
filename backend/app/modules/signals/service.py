@@ -85,10 +85,11 @@ class SignalService:
         asset_id: str | None = None,
         signal_type: str | None = None,
         data_type: str | None = None,
+        plant_id: str | None = None,
     ) -> list[SignalResponse]:
         with get_session() as session:
             repo = SignalRepository(session)
-            signals = repo.list_all(asset_id, signal_type, data_type)
+            signals = repo.list_all(asset_id, signal_type, data_type, plant_id)
             return [_signal_to_response(s) for s in signals]
 
     def update_signal(self, signal_id: str, data: SignalUpdate) -> SignalResponse:

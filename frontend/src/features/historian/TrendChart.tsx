@@ -60,8 +60,9 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
     const data = queries[i]?.data;
     const points = data?.data || [];
     if (points.length === 0) return;
-    const good = points.filter((p: any) => !p.quality || p.quality === "GOOD");
-    const bad = points.filter((p: any) => p.quality && p.quality !== "GOOD");
+    const VALID_QUALITIES = new Set(["GOOD", "SIMULATED", "ESTIMATED"]);
+    const good = points.filter((p: any) => !p.quality || VALID_QUALITIES.has(p.quality));
+    const bad = points.filter((p: any) => p.quality && !VALID_QUALITIES.has(p.quality));
     const echartsType = chartType === "area" ? "line" : chartType;
     series.push({
       name: sid,
@@ -90,6 +91,14 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
   });
 
   const total = queries.reduce((s, q) => s + (q.data?.data?.length || 0), 0);
+
+  if (series.length === 0 && total === 0 && signalIds.length > 0) {
+    return (
+      <div className="flex items-center justify-center h-48 text-gray-500">
+        No data found for this time range
+      </div>
+    );
+  }
 
   const option = {
     backgroundColor: "transparent",

@@ -67,7 +67,7 @@ export function OverviewPage() {
           />
           <KpiCard
             icon={Database} label="PG Records"
-            value={Object.values(pg.tables || {}).reduce((a: number, b: number) => a + b, 0)}
+            value={(Object.values(pg.tables || {}) as number[]).reduce((a, b) => a + b, 0)}
             sub={Object.entries(pg.tables || {}).map(([k, v]) => `${k}: ${v}`).join(" · ")}
             color="bg-cyan-500/20 text-cyan-400"
           />

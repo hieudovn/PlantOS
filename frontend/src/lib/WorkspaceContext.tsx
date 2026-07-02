@@ -14,44 +14,42 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
 });
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
-  const [plantId, setPlantId] = useState("DEMO-PLANT");
+  const [plantId, setPlantId] = useState(() => {
+    const saved = localStorage.getItem("plantos_plant_id");
+    return saved || "DEMO-PLANT";
+  });
   const [plants, setPlants] = useState<string[]>(["DEMO-PLANT"]);
 
-  // Re-fetch plants when a new auth token appears (user logs in)
-  const [tokenVersion, setTokenVersion] = useState(0);
+  // Fetch plants on mount (does not depend on auth token)
   useEffect(() => {
-    // Listen for auth token changes
-    const check = () => {
-      const t = localStorage.getItem("plantos_token");
-      setTokenVersion(v => t ? v + 1 : 0);
+    const fetchPlants = () => {
+      getPlants()
+        .then((data) => {
+          const ids = data.map((p: any) => p.plant_id);
+          if (ids.length > 0) {
+            setPlants(ids);
+            const saved = localStorage.getItem("plantos_plant_id");
+            if (saved && ids.includes(saved)) {
+              setPlantId(saved);
+            } else {
+              setPlantId(ids[0]);
+            }
+          }
+        })
+        .catch((err) => console.warn("Failed to fetch plants:", err));
     };
-    check();
-    window.addEventListener("storage", check);
-    // Also check after login (custom event)
-    window.addEventListener("auth-login", check);
-    return () => {
-      window.removeEventListener("storage", check);
-      window.removeEventListener("auth-login", check);
-    };
+    fetchPlants();
+    window.addEventListener("auth-login", fetchPlants);
+    return () => window.removeEventListener("auth-login", fetchPlants);
   }, []);
 
-  useEffect(() => {
-    if (!tokenVersion) return; // No token yet
-    getPlants()
-      .then((data) => {
-        const ids = data.map((p: any) => p.plant_id);
-        if (ids.length > 0) {
-          setPlants(ids);
-          if (!ids.includes(plantId)) {
-            setPlantId(ids[0]);
-          }
-        }
-      })
-      .catch(() => {});
-  }, [tokenVersion]); // Re-run when token changes
+  const handleSetPlantId = (id: string) => {
+    setPlantId(id);
+    localStorage.setItem("plantos_plant_id", id);
+  };
 
   return (
-    <WorkspaceContext.Provider value={{ plantId, setPlantId, plants }}>
+    <WorkspaceContext.Provider value={{ plantId, setPlantId: handleSetPlantId, plants }}>
       {children}
     </WorkspaceContext.Provider>
   );

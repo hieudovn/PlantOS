@@ -1,0 +1,2166 @@
+{
+  "contract": {
+    "version": "2.0",
+    "schema_version": "2.0",
+    "description": "WTP-DEMO-01: Water Treatment Plant Reference Model for PlantOS and Virtual Factory. Covers process monitoring, equipment health, water quality chain, energy and chemical consumption monitoring, cost KPIs, and quality traceability.\n"
+  },
+  "source": {
+    "system_type": "virtual_factory",
+    "system_name": "Virtual Factory v2.1",
+    "owner": "Avenue Engineering",
+    "generated_by": "PlantOS Solution Architect",
+    "generated_at": "2026-07-02T00:00:00Z"
+  },
+  "plant": {
+    "plant_id": "WTP-DEMO-01",
+    "plant_code": "WTP01",
+    "name": "Water Treatment Plant Demo 01",
+    "description": "Reference water treatment plant model with process monitoring, equipment health, water quality chain, energy and chemical consumption monitoring, cost KPIs, and quality traceability.\n",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "status": "active"
+  },
+  "areas": [
+    {
+      "area_id": "INTAKE-AREA",
+      "area_code": "INTAKE",
+      "name": "Raw Water Intake Area",
+      "plant_id": "WTP-DEMO-01"
+    },
+    {
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "area_code": "CHEM",
+      "name": "Chemical Dosing Area",
+      "plant_id": "WTP-DEMO-01"
+    },
+    {
+      "area_id": "CLARIFICATION-AREA",
+      "area_code": "CLAR",
+      "name": "Clarification Area",
+      "plant_id": "WTP-DEMO-01"
+    },
+    {
+      "area_id": "FILTRATION-AREA",
+      "area_code": "FILTER",
+      "name": "Filtration Area",
+      "plant_id": "WTP-DEMO-01"
+    },
+    {
+      "area_id": "DISINFECTION-CLEARWATER-AREA",
+      "area_code": "CLEARWATER",
+      "name": "Disinfection and Clear Water Area",
+      "plant_id": "WTP-DEMO-01"
+    },
+    {
+      "area_id": "DISTRIBUTION-AREA",
+      "area_code": "DIST",
+      "name": "Distribution Area",
+      "plant_id": "WTP-DEMO-01"
+    },
+    {
+      "area_id": "ELECTRICAL-UTILITY-AREA",
+      "area_code": "ELEC",
+      "name": "Electrical and Utility Area",
+      "plant_id": "WTP-DEMO-01"
+    },
+    {
+      "area_id": "QUALITY-LAB-AREA",
+      "area_code": "QUALITY",
+      "name": "Quality Lab Area",
+      "plant_id": "WTP-DEMO-01"
+    },
+    {
+      "area_id": "PLANT-KPI-AREA",
+      "area_code": "KPI",
+      "name": "Plant KPI Area",
+      "plant_id": "WTP-DEMO-01"
+    }
+  ],
+  "assets": [
+    {
+      "asset_id": "INTAKE-STRUCTURE-101",
+      "asset_code": "INTAKE101",
+      "name": "Intake Structure 101",
+      "asset_type": "vessel",
+      "parent_asset_id": null,
+      "area_id": "INTAKE-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "SCREEN-101",
+      "asset_code": "SCREEN101",
+      "name": "Bar Screen 101",
+      "asset_type": "filter",
+      "parent_asset_id": "INTAKE-STRUCTURE-101",
+      "area_id": "INTAKE-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "asset_code": "RWQS101",
+      "name": "Raw Water Quality Station 101",
+      "asset_type": "sensor_array",
+      "parent_asset_id": "INTAKE-STRUCTURE-101",
+      "area_id": "INTAKE-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "RAW-WATER-PUMP-STATION-101",
+      "asset_code": "RWPS101",
+      "name": "Raw Water Pump Station 101",
+      "asset_type": "pump",
+      "parent_asset_id": null,
+      "area_id": "INTAKE-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "RWP-101",
+      "asset_code": "RWP101",
+      "name": "Raw Water Pump 101",
+      "asset_type": "pump",
+      "parent_asset_id": "RAW-WATER-PUMP-STATION-101",
+      "area_id": "INTAKE-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "RWP-101-MOTOR",
+      "asset_code": "RWP101M",
+      "name": "RWP-101 Drive Motor",
+      "asset_type": "motor",
+      "parent_asset_id": "RWP-101",
+      "area_id": "INTAKE-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "RWP-102",
+      "asset_code": "RWP102",
+      "name": "Raw Water Pump 102",
+      "asset_type": "pump",
+      "parent_asset_id": "RAW-WATER-PUMP-STATION-101",
+      "area_id": "INTAKE-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "RWP-102-MOTOR",
+      "asset_code": "RWP102M",
+      "name": "RWP-102 Drive Motor",
+      "asset_type": "motor",
+      "parent_asset_id": "RWP-102",
+      "area_id": "INTAKE-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "RAW-WATER-MANIFOLD-101",
+      "asset_code": "RWM101",
+      "name": "Raw Water Manifold 101",
+      "asset_type": "pipeline",
+      "parent_asset_id": "RAW-WATER-PUMP-STATION-101",
+      "area_id": "INTAKE-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "COAGULANT-DOSING-SKID-101",
+      "asset_code": "CDS101",
+      "name": "Coagulant Dosing Skid 101",
+      "asset_type": "pump",
+      "parent_asset_id": null,
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "COAG-TANK-101",
+      "asset_code": "COAGT101",
+      "name": "Coagulant Tank 101",
+      "asset_type": "tank",
+      "parent_asset_id": "COAGULANT-DOSING-SKID-101",
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "COAG-PUMP-101",
+      "asset_code": "COAGP101",
+      "name": "Coagulant Dosing Pump 101",
+      "asset_type": "pump",
+      "parent_asset_id": "COAGULANT-DOSING-SKID-101",
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "COAGULATION-CONTROL-STATION-101",
+      "asset_code": "CCS101",
+      "name": "Coagulation Control Station 101",
+      "asset_type": "sensor_array",
+      "parent_asset_id": "COAGULANT-DOSING-SKID-101",
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "PH-CORRECTION-SKID-101",
+      "asset_code": "PHS101",
+      "name": "pH Correction Skid 101",
+      "asset_type": "pump",
+      "parent_asset_id": null,
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "PH-PUMP-101",
+      "asset_code": "PHP101",
+      "name": "pH Correction Pump 101",
+      "asset_type": "pump",
+      "parent_asset_id": "PH-CORRECTION-SKID-101",
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "CHLORINE-DOSING-SKID-101",
+      "asset_code": "CLDS101",
+      "name": "Chlorine Dosing Skid 101",
+      "asset_type": "pump",
+      "parent_asset_id": null,
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "CHLORINE-TANK-101",
+      "asset_code": "CLT101",
+      "name": "Chlorine Tank 101",
+      "asset_type": "tank",
+      "parent_asset_id": "CHLORINE-DOSING-SKID-101",
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "CHLORINE-PUMP-101",
+      "asset_code": "CLP101",
+      "name": "Chlorine Dosing Pump 101",
+      "asset_type": "pump",
+      "parent_asset_id": "CHLORINE-DOSING-SKID-101",
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "CHEMICAL-CONSUMPTION-STATION-101",
+      "asset_code": "CHC101",
+      "name": "Chemical Consumption Station 101",
+      "asset_type": "sensor_array",
+      "parent_asset_id": null,
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "FLASH-MIXER-101",
+      "asset_code": "FM101",
+      "name": "Flash Mixer 101",
+      "asset_type": "reactor",
+      "parent_asset_id": null,
+      "area_id": "CLARIFICATION-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "FLOCCULATOR-101",
+      "asset_code": "FLOCC101",
+      "name": "Flocculator 101",
+      "asset_type": "reactor",
+      "parent_asset_id": null,
+      "area_id": "CLARIFICATION-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "CLARIFIER-101",
+      "asset_code": "CLAR101",
+      "name": "Clarifier 101",
+      "asset_type": "vessel",
+      "parent_asset_id": null,
+      "area_id": "CLARIFICATION-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "CLARIFIER-SCRAPER-101",
+      "asset_code": "CLARS101",
+      "name": "Clarifier Scraper 101",
+      "asset_type": "gearbox",
+      "parent_asset_id": "CLARIFIER-101",
+      "area_id": "CLARIFICATION-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "SLUDGE-PUMP-101",
+      "asset_code": "SLP101",
+      "name": "Sludge Pump 101",
+      "asset_type": "pump",
+      "parent_asset_id": "CLARIFIER-101",
+      "area_id": "CLARIFICATION-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "CLARIFIER-QUALITY-STATION-101",
+      "asset_code": "CQS101",
+      "name": "Clarifier Quality Station 101",
+      "asset_type": "sensor_array",
+      "parent_asset_id": "CLARIFIER-101",
+      "area_id": "CLARIFICATION-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "FILTER-101",
+      "asset_code": "FIL101",
+      "name": "Multimedia Filter 101",
+      "asset_type": "filter",
+      "parent_asset_id": null,
+      "area_id": "FILTRATION-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "FILTER-102",
+      "asset_code": "FIL102",
+      "name": "Multimedia Filter 102",
+      "asset_type": "filter",
+      "parent_asset_id": null,
+      "area_id": "FILTRATION-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "BACKWASH-PUMP-101",
+      "asset_code": "BWP101",
+      "name": "Backwash Pump 101",
+      "asset_type": "pump",
+      "parent_asset_id": null,
+      "area_id": "FILTRATION-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "FILTER-QUALITY-STATION-101",
+      "asset_code": "FQS101",
+      "name": "Filter Quality Station 101",
+      "asset_type": "sensor_array",
+      "parent_asset_id": null,
+      "area_id": "FILTRATION-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "CONTACT-TANK-101",
+      "asset_code": "CTT101",
+      "name": "Chlorine Contact Tank 101",
+      "asset_type": "tank",
+      "parent_asset_id": null,
+      "area_id": "DISINFECTION-CLEARWATER-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "DISINFECTION-QUALITY-STATION-101",
+      "asset_code": "DQS101",
+      "name": "Disinfection Quality Station 101",
+      "asset_type": "sensor_array",
+      "parent_asset_id": "CONTACT-TANK-101",
+      "area_id": "DISINFECTION-CLEARWATER-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "CLEAR-WATER-TANK-101",
+      "asset_code": "CWT101",
+      "name": "Clear Water Tank 101",
+      "asset_type": "tank",
+      "parent_asset_id": null,
+      "area_id": "DISINFECTION-CLEARWATER-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "CLEAR-WATER-QUALITY-STATION-101",
+      "asset_code": "CWQS101",
+      "name": "Clear Water Quality Station 101",
+      "asset_type": "sensor_array",
+      "parent_asset_id": "CLEAR-WATER-TANK-101",
+      "area_id": "DISINFECTION-CLEARWATER-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "TRANSFER-PUMP-101",
+      "asset_code": "TP101",
+      "name": "Clear Water Transfer Pump 101",
+      "asset_type": "pump",
+      "parent_asset_id": "CLEAR-WATER-TANK-101",
+      "area_id": "DISINFECTION-CLEARWATER-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "HIGH-SERVICE-PUMP-STATION-101",
+      "asset_code": "HSPS101",
+      "name": "High Service Pump Station 101",
+      "asset_type": "pump",
+      "parent_asset_id": null,
+      "area_id": "DISTRIBUTION-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "HSP-101",
+      "asset_code": "HSP101",
+      "name": "High Service Pump 101",
+      "asset_type": "pump",
+      "parent_asset_id": "HIGH-SERVICE-PUMP-STATION-101",
+      "area_id": "DISTRIBUTION-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "HSP-101-MOTOR",
+      "asset_code": "HSP101M",
+      "name": "HSP-101 Drive Motor",
+      "asset_type": "motor",
+      "parent_asset_id": "HSP-101",
+      "area_id": "DISTRIBUTION-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "HSP-102",
+      "asset_code": "HSP102",
+      "name": "High Service Pump 102",
+      "asset_type": "pump",
+      "parent_asset_id": "HIGH-SERVICE-PUMP-STATION-101",
+      "area_id": "DISTRIBUTION-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "HSP-102-MOTOR",
+      "asset_code": "HSP102M",
+      "name": "HSP-102 Drive Motor",
+      "asset_type": "motor",
+      "parent_asset_id": "HSP-102",
+      "area_id": "DISTRIBUTION-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "OUTLET-MANIFOLD-101",
+      "asset_code": "OM101",
+      "name": "Outlet Manifold 101",
+      "asset_type": "pipeline",
+      "parent_asset_id": "HIGH-SERVICE-PUMP-STATION-101",
+      "area_id": "DISTRIBUTION-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "TRANSFER-OUTLET-QUALITY-STATION-101",
+      "asset_code": "TOQS101",
+      "name": "Transfer Outlet Quality Station 101",
+      "asset_type": "sensor_array",
+      "parent_asset_id": "OUTLET-MANIFOLD-101",
+      "area_id": "DISTRIBUTION-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "TRANSFORMER-101",
+      "asset_code": "TX101",
+      "name": "Main Transformer 101",
+      "asset_type": "transformer",
+      "parent_asset_id": null,
+      "area_id": "ELECTRICAL-UTILITY-AREA",
+      "criticality": "critical",
+      "status": "active"
+    },
+    {
+      "asset_id": "MCC-101",
+      "asset_code": "MCC101",
+      "name": "Motor Control Center 101",
+      "asset_type": "motor_control_center",
+      "parent_asset_id": null,
+      "area_id": "ELECTRICAL-UTILITY-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "ENERGY-MONITORING-STATION-101",
+      "asset_code": "EMS101",
+      "name": "Energy Monitoring Station 101",
+      "asset_type": "sensor_array",
+      "parent_asset_id": "MCC-101",
+      "area_id": "ELECTRICAL-UTILITY-AREA",
+      "criticality": "medium",
+      "status": "active"
+    },
+    {
+      "asset_id": "LAB-SAMPLING-STATION-101",
+      "asset_code": "LSS101",
+      "name": "Lab Sampling Station 101",
+      "asset_type": "analyzer",
+      "parent_asset_id": null,
+      "area_id": "QUALITY-LAB-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "QUALITY-TRACEABILITY-ENGINE-101",
+      "asset_code": "QTE101",
+      "name": "Quality Traceability Engine 101",
+      "asset_type": "analyzer",
+      "parent_asset_id": null,
+      "area_id": "QUALITY-LAB-AREA",
+      "criticality": "high",
+      "status": "active"
+    },
+    {
+      "asset_id": "PLANT-KPI-101",
+      "asset_code": "KPI101",
+      "name": "Plant KPI Engine 101",
+      "asset_type": "analyzer",
+      "parent_asset_id": null,
+      "area_id": "PLANT-KPI-AREA",
+      "criticality": "medium",
+      "status": "active"
+    }
+  ],
+  "signals": [
+    {
+      "signal_id": "INTAKE-STRUCTURE-101.raw_water_level",
+      "asset_id": "INTAKE-STRUCTURE-101",
+      "signal_name": "raw_water_level",
+      "display_name": "Raw Water Level",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m",
+      "status": "active"
+    },
+    {
+      "signal_id": "INTAKE-STRUCTURE-101.inlet_valve_position",
+      "asset_id": "INTAKE-STRUCTURE-101",
+      "signal_name": "inlet_valve_position",
+      "display_name": "Inlet Valve Position",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "%",
+      "status": "active"
+    },
+    {
+      "signal_id": "INTAKE-STRUCTURE-101.screen_dp",
+      "asset_id": "INTAKE-STRUCTURE-101",
+      "signal_name": "screen_dp",
+      "display_name": "Bar Screen Differential Pressure",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kPa",
+      "status": "active"
+    },
+    {
+      "signal_id": "SCREEN-101.running_status",
+      "asset_id": "SCREEN-101",
+      "signal_name": "running_status",
+      "display_name": "Screen Running Status",
+      "signal_type": "status",
+      "data_type": "bool",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_turbidity",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_turbidity",
+      "display_name": "Raw Water Turbidity",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "NTU",
+      "status": "active"
+    },
+    {
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_ph",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_ph",
+      "display_name": "Raw Water pH",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_conductivity",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_conductivity",
+      "display_name": "Raw Water Conductivity",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "uS/cm",
+      "status": "active"
+    },
+    {
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_temperature",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_temperature",
+      "display_name": "Raw Water Temperature",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "degC",
+      "status": "active"
+    },
+    {
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_ammonia",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_ammonia",
+      "display_name": "Raw Water Ammonia",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mg/L",
+      "status": "active"
+    },
+    {
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_algae_index",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_algae_index",
+      "display_name": "Raw Water Algae Index",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "RAW-WATER-PUMP-STATION-101.discharge_pressure",
+      "asset_id": "RAW-WATER-PUMP-STATION-101",
+      "signal_name": "discharge_pressure",
+      "display_name": "Pump Station Discharge Pressure",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kPa",
+      "status": "active"
+    },
+    {
+      "signal_id": "RWP-101.flow_rate",
+      "asset_id": "RWP-101",
+      "signal_name": "flow_rate",
+      "display_name": "RWP-101 Flow Rate",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m3/h",
+      "status": "active"
+    },
+    {
+      "signal_id": "RWP-101.running_status",
+      "asset_id": "RWP-101",
+      "signal_name": "running_status",
+      "display_name": "RWP-101 Running Status",
+      "signal_type": "status",
+      "data_type": "bool",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "RWP-101-MOTOR.motor_current",
+      "asset_id": "RWP-101-MOTOR",
+      "signal_name": "motor_current",
+      "display_name": "RWP-101 Motor Current",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "A",
+      "status": "active"
+    },
+    {
+      "signal_id": "RWP-101-MOTOR.power",
+      "asset_id": "RWP-101-MOTOR",
+      "signal_name": "power",
+      "display_name": "RWP-101 Motor Power",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kW",
+      "status": "active"
+    },
+    {
+      "signal_id": "RWP-101-MOTOR.vibration_de",
+      "asset_id": "RWP-101-MOTOR",
+      "signal_name": "vibration_de",
+      "display_name": "RWP-101 DE Vibration",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mm/s",
+      "status": "active"
+    },
+    {
+      "signal_id": "RWP-102.flow_rate",
+      "asset_id": "RWP-102",
+      "signal_name": "flow_rate",
+      "display_name": "RWP-102 Flow Rate",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m3/h",
+      "status": "active"
+    },
+    {
+      "signal_id": "RWP-102-MOTOR.motor_current",
+      "asset_id": "RWP-102-MOTOR",
+      "signal_name": "motor_current",
+      "display_name": "RWP-102 Motor Current",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "A",
+      "status": "active"
+    },
+    {
+      "signal_id": "RAW-WATER-MANIFOLD-101.manifold_pressure",
+      "asset_id": "RAW-WATER-MANIFOLD-101",
+      "signal_name": "manifold_pressure",
+      "display_name": "Raw Water Manifold Pressure",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kPa",
+      "status": "active"
+    },
+    {
+      "signal_id": "COAG-TANK-101.level",
+      "asset_id": "COAG-TANK-101",
+      "signal_name": "level",
+      "display_name": "Coagulant Tank Level",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "%",
+      "status": "active"
+    },
+    {
+      "signal_id": "COAG-TANK-101.temperature",
+      "asset_id": "COAG-TANK-101",
+      "signal_name": "temperature",
+      "display_name": "Coagulant Tank Temperature",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "degC",
+      "status": "active"
+    },
+    {
+      "signal_id": "COAG-PUMP-101.flow_rate",
+      "asset_id": "COAG-PUMP-101",
+      "signal_name": "flow_rate",
+      "display_name": "Coagulant Dosing Flow",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "L/min",
+      "status": "active"
+    },
+    {
+      "signal_id": "COAGULATION-CONTROL-STATION-101.floc_size_index",
+      "asset_id": "COAGULATION-CONTROL-STATION-101",
+      "signal_name": "floc_size_index",
+      "display_name": "Floc Size Index",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "COAGULATION-CONTROL-STATION-101.streaming_current",
+      "asset_id": "COAGULATION-CONTROL-STATION-101",
+      "signal_name": "streaming_current",
+      "display_name": "Streaming Current",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mV",
+      "status": "active"
+    },
+    {
+      "signal_id": "PH-PUMP-101.flow_rate",
+      "asset_id": "PH-PUMP-101",
+      "signal_name": "flow_rate",
+      "display_name": "pH Correction Flow",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "L/min",
+      "status": "active"
+    },
+    {
+      "signal_id": "CHLORINE-TANK-101.level",
+      "asset_id": "CHLORINE-TANK-101",
+      "signal_name": "level",
+      "display_name": "Chlorine Tank Level",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "%",
+      "status": "active"
+    },
+    {
+      "signal_id": "CHLORINE-PUMP-101.flow_rate",
+      "asset_id": "CHLORINE-PUMP-101",
+      "signal_name": "flow_rate",
+      "display_name": "Chlorine Dosing Flow",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "L/min",
+      "status": "active"
+    },
+    {
+      "signal_id": "CHEMICAL-CONSUMPTION-STATION-101.coagulant_dose_rate",
+      "asset_id": "CHEMICAL-CONSUMPTION-STATION-101",
+      "signal_name": "coagulant_dose_rate",
+      "display_name": "Coagulant Dose Rate",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mg/L",
+      "status": "active"
+    },
+    {
+      "signal_id": "FLASH-MIXER-101.mixer_speed",
+      "asset_id": "FLASH-MIXER-101",
+      "signal_name": "mixer_speed",
+      "display_name": "Flash Mixer Speed",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "RPM",
+      "status": "active"
+    },
+    {
+      "signal_id": "FLOCCULATOR-101.flocculator_speed",
+      "asset_id": "FLOCCULATOR-101",
+      "signal_name": "flocculator_speed",
+      "display_name": "Flocculator Speed",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "RPM",
+      "status": "active"
+    },
+    {
+      "signal_id": "CLARIFIER-101.settled_turbidity",
+      "asset_id": "CLARIFIER-101",
+      "signal_name": "settled_turbidity",
+      "display_name": "Settled Water Turbidity",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "NTU",
+      "status": "active"
+    },
+    {
+      "signal_id": "CLARIFIER-101.settled_ph",
+      "asset_id": "CLARIFIER-101",
+      "signal_name": "settled_ph",
+      "display_name": "Settled Water pH",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "CLARIFIER-SCRAPER-101.running_status",
+      "asset_id": "CLARIFIER-SCRAPER-101",
+      "signal_name": "running_status",
+      "display_name": "Scraper Running Status",
+      "signal_type": "status",
+      "data_type": "bool",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "SLUDGE-PUMP-101.running_status",
+      "asset_id": "SLUDGE-PUMP-101",
+      "signal_name": "running_status",
+      "display_name": "Sludge Pump Running Status",
+      "signal_type": "status",
+      "data_type": "bool",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "CLARIFIER-QUALITY-STATION-101.clarifier_efficiency_index",
+      "asset_id": "CLARIFIER-QUALITY-STATION-101",
+      "signal_name": "clarifier_efficiency_index",
+      "display_name": "Clarifier Efficiency Index",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-101.filter_dp",
+      "asset_id": "FILTER-101",
+      "signal_name": "filter_dp",
+      "display_name": "Filter 101 Differential Pressure",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kPa",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-101.effluent_flow",
+      "asset_id": "FILTER-101",
+      "signal_name": "effluent_flow",
+      "display_name": "Filter 101 Effluent Flow",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m3/h",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-101.filter_level",
+      "asset_id": "FILTER-101",
+      "signal_name": "filter_level",
+      "display_name": "Filter 101 Water Level",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-102.filter_dp",
+      "asset_id": "FILTER-102",
+      "signal_name": "filter_dp",
+      "display_name": "Filter 102 Differential Pressure",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kPa",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-102.effluent_flow",
+      "asset_id": "FILTER-102",
+      "signal_name": "effluent_flow",
+      "display_name": "Filter 102 Effluent Flow",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m3/h",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-102.filter_level",
+      "asset_id": "FILTER-102",
+      "signal_name": "filter_level",
+      "display_name": "Filter 102 Water Level",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m",
+      "status": "active"
+    },
+    {
+      "signal_id": "BACKWASH-PUMP-101.running_status",
+      "asset_id": "BACKWASH-PUMP-101",
+      "signal_name": "running_status",
+      "display_name": "Backwash Pump Status",
+      "signal_type": "status",
+      "data_type": "bool",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-QUALITY-STATION-101.filtered_turbidity",
+      "asset_id": "FILTER-QUALITY-STATION-101",
+      "signal_name": "filtered_turbidity",
+      "display_name": "Filtered Water Turbidity",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "NTU",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-QUALITY-STATION-101.filtered_ph",
+      "asset_id": "FILTER-QUALITY-STATION-101",
+      "signal_name": "filtered_ph",
+      "display_name": "Filtered Water pH",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-QUALITY-STATION-101.particle_count_proxy",
+      "asset_id": "FILTER-QUALITY-STATION-101",
+      "signal_name": "particle_count_proxy",
+      "display_name": "Particle Count Proxy",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "cnt/mL",
+      "status": "active"
+    },
+    {
+      "signal_id": "FILTER-QUALITY-STATION-101.filter_run_quality_index",
+      "asset_id": "FILTER-QUALITY-STATION-101",
+      "signal_name": "filter_run_quality_index",
+      "display_name": "Filter Run Quality Index",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "CONTACT-TANK-101.level",
+      "asset_id": "CONTACT-TANK-101",
+      "signal_name": "level",
+      "display_name": "Contact Tank Level",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "%",
+      "status": "active"
+    },
+    {
+      "signal_id": "CONTACT-TANK-101.contact_time",
+      "asset_id": "CONTACT-TANK-101",
+      "signal_name": "contact_time",
+      "display_name": "Contact Time",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "min",
+      "status": "active"
+    },
+    {
+      "signal_id": "DISINFECTION-QUALITY-STATION-101.free_chlorine",
+      "asset_id": "DISINFECTION-QUALITY-STATION-101",
+      "signal_name": "free_chlorine",
+      "display_name": "Free Chlorine Residual",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mg/L",
+      "status": "active"
+    },
+    {
+      "signal_id": "DISINFECTION-QUALITY-STATION-101.total_chlorine",
+      "asset_id": "DISINFECTION-QUALITY-STATION-101",
+      "signal_name": "total_chlorine",
+      "display_name": "Total Chlorine Residual",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mg/L",
+      "status": "active"
+    },
+    {
+      "signal_id": "DISINFECTION-QUALITY-STATION-101.orp",
+      "asset_id": "DISINFECTION-QUALITY-STATION-101",
+      "signal_name": "orp",
+      "display_name": "Oxidation-Reduction Potential",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mV",
+      "status": "active"
+    },
+    {
+      "signal_id": "CLEAR-WATER-TANK-101.level",
+      "asset_id": "CLEAR-WATER-TANK-101",
+      "signal_name": "level",
+      "display_name": "Clear Water Tank Level",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "%",
+      "status": "active"
+    },
+    {
+      "signal_id": "CLEAR-WATER-TANK-101.quality_index",
+      "asset_id": "CLEAR-WATER-TANK-101",
+      "signal_name": "quality_index",
+      "display_name": "Clear Water Quality Index",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "CLEAR-WATER-QUALITY-STATION-101.clear_water_turbidity",
+      "asset_id": "CLEAR-WATER-QUALITY-STATION-101",
+      "signal_name": "clear_water_turbidity",
+      "display_name": "Clear Water Turbidity",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "NTU",
+      "status": "active"
+    },
+    {
+      "signal_id": "TRANSFER-PUMP-101.running_status",
+      "asset_id": "TRANSFER-PUMP-101",
+      "signal_name": "running_status",
+      "display_name": "Transfer Pump Status",
+      "signal_type": "status",
+      "data_type": "bool",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "HIGH-SERVICE-PUMP-STATION-101.discharge_pressure",
+      "asset_id": "HIGH-SERVICE-PUMP-STATION-101",
+      "signal_name": "discharge_pressure",
+      "display_name": "HSP Station Discharge Pressure",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kPa",
+      "status": "active"
+    },
+    {
+      "signal_id": "HSP-101.flow_rate",
+      "asset_id": "HSP-101",
+      "signal_name": "flow_rate",
+      "display_name": "HSP-101 Flow Rate",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m3/h",
+      "status": "active"
+    },
+    {
+      "signal_id": "HSP-101-MOTOR.motor_current",
+      "asset_id": "HSP-101-MOTOR",
+      "signal_name": "motor_current",
+      "display_name": "HSP-101 Motor Current",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "A",
+      "status": "active"
+    },
+    {
+      "signal_id": "HSP-101-MOTOR.power",
+      "asset_id": "HSP-101-MOTOR",
+      "signal_name": "power",
+      "display_name": "HSP-101 Motor Power",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kW",
+      "status": "active"
+    },
+    {
+      "signal_id": "HSP-101-MOTOR.winding_temp",
+      "asset_id": "HSP-101-MOTOR",
+      "signal_name": "winding_temp",
+      "display_name": "HSP-101 Winding Temperature",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "degC",
+      "status": "active"
+    },
+    {
+      "signal_id": "HSP-102.flow_rate",
+      "asset_id": "HSP-102",
+      "signal_name": "flow_rate",
+      "display_name": "HSP-102 Flow Rate",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m3/h",
+      "status": "active"
+    },
+    {
+      "signal_id": "HSP-102-MOTOR.motor_current",
+      "asset_id": "HSP-102-MOTOR",
+      "signal_name": "motor_current",
+      "display_name": "HSP-102 Motor Current",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "A",
+      "status": "active"
+    },
+    {
+      "signal_id": "HSP-102-MOTOR.power",
+      "asset_id": "HSP-102-MOTOR",
+      "signal_name": "power",
+      "display_name": "HSP-102 Motor Power",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kW",
+      "status": "active"
+    },
+    {
+      "signal_id": "OUTLET-MANIFOLD-101.manifold_pressure",
+      "asset_id": "OUTLET-MANIFOLD-101",
+      "signal_name": "manifold_pressure",
+      "display_name": "Outlet Manifold Pressure",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kPa",
+      "status": "active"
+    },
+    {
+      "signal_id": "OUTLET-MANIFOLD-101.manifold_flow",
+      "asset_id": "OUTLET-MANIFOLD-101",
+      "signal_name": "manifold_flow",
+      "display_name": "Outlet Manifold Flow",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m3/h",
+      "status": "active"
+    },
+    {
+      "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity",
+      "asset_id": "TRANSFER-OUTLET-QUALITY-STATION-101",
+      "signal_name": "outlet_turbidity",
+      "display_name": "Outlet Turbidity",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "NTU",
+      "status": "active"
+    },
+    {
+      "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_ph",
+      "asset_id": "TRANSFER-OUTLET-QUALITY-STATION-101",
+      "signal_name": "outlet_ph",
+      "display_name": "Outlet pH",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_free_chlorine",
+      "asset_id": "TRANSFER-OUTLET-QUALITY-STATION-101",
+      "signal_name": "outlet_free_chlorine",
+      "display_name": "Outlet Free Chlorine",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mg/L",
+      "status": "active"
+    },
+    {
+      "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_compliance_status",
+      "asset_id": "TRANSFER-OUTLET-QUALITY-STATION-101",
+      "signal_name": "outlet_compliance_status",
+      "display_name": "Outlet Compliance Status",
+      "signal_type": "measurement",
+      "data_type": "bool",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "TRANSFORMER-101.winding_temp",
+      "asset_id": "TRANSFORMER-101",
+      "signal_name": "winding_temp",
+      "display_name": "Transformer Winding Temperature",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "degC",
+      "status": "active"
+    },
+    {
+      "signal_id": "TRANSFORMER-101.load_percent",
+      "asset_id": "TRANSFORMER-101",
+      "signal_name": "load_percent",
+      "display_name": "Transformer Load",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "%",
+      "status": "active"
+    },
+    {
+      "signal_id": "TRANSFORMER-101.oil_temp",
+      "asset_id": "TRANSFORMER-101",
+      "signal_name": "oil_temp",
+      "display_name": "Transformer Oil Temperature",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "degC",
+      "status": "active"
+    },
+    {
+      "signal_id": "ENERGY-MONITORING-STATION-101.total_active_power",
+      "asset_id": "ENERGY-MONITORING-STATION-101",
+      "signal_name": "total_active_power",
+      "display_name": "Total Active Power",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kW",
+      "status": "active"
+    },
+    {
+      "signal_id": "ENERGY-MONITORING-STATION-101.total_energy_today",
+      "asset_id": "ENERGY-MONITORING-STATION-101",
+      "signal_name": "total_energy_today",
+      "display_name": "Total Energy Today",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kWh",
+      "status": "active"
+    },
+    {
+      "signal_id": "ENERGY-MONITORING-STATION-101.specific_energy_consumption",
+      "asset_id": "ENERGY-MONITORING-STATION-101",
+      "signal_name": "specific_energy_consumption",
+      "display_name": "Specific Energy Consumption",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kWh/m3",
+      "status": "active"
+    },
+    {
+      "signal_id": "ENERGY-MONITORING-STATION-101.energy_cost_per_m3",
+      "asset_id": "ENERGY-MONITORING-STATION-101",
+      "signal_name": "energy_cost_per_m3",
+      "display_name": "Energy Cost per m3",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "VND/m3",
+      "status": "active"
+    },
+    {
+      "signal_id": "ENERGY-MONITORING-STATION-101.peak_demand",
+      "asset_id": "ENERGY-MONITORING-STATION-101",
+      "signal_name": "peak_demand",
+      "display_name": "Peak Demand",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kW",
+      "status": "active"
+    },
+    {
+      "signal_id": "MCC-101.runtime_hours",
+      "asset_id": "MCC-101",
+      "signal_name": "runtime_hours",
+      "display_name": "MCC Cumulative Runtime",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "h",
+      "status": "active"
+    },
+    {
+      "signal_id": "LAB-SAMPLING-STATION-101.cod",
+      "asset_id": "LAB-SAMPLING-STATION-101",
+      "signal_name": "cod",
+      "display_name": "Chemical Oxygen Demand",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mg/L",
+      "status": "active"
+    },
+    {
+      "signal_id": "LAB-SAMPLING-STATION-101.toc",
+      "asset_id": "LAB-SAMPLING-STATION-101",
+      "signal_name": "toc",
+      "display_name": "Total Organic Carbon",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mg/L",
+      "status": "active"
+    },
+    {
+      "signal_id": "QUALITY-TRACEABILITY-ENGINE-101.outlet_quality_risk_score",
+      "asset_id": "QUALITY-TRACEABILITY-ENGINE-101",
+      "signal_name": "outlet_quality_risk_score",
+      "display_name": "Outlet Quality Risk Score",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "QUALITY-TRACEABILITY-ENGINE-101.raw_water_impact_score",
+      "asset_id": "QUALITY-TRACEABILITY-ENGINE-101",
+      "signal_name": "raw_water_impact_score",
+      "display_name": "Raw Water Impact Score",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "QUALITY-TRACEABILITY-ENGINE-101.chemical_dosing_abnormality_score",
+      "asset_id": "QUALITY-TRACEABILITY-ENGINE-101",
+      "signal_name": "chemical_dosing_abnormality_score",
+      "display_name": "Chemical Dosing Abnormality Score",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "QUALITY-TRACEABILITY-ENGINE-101.energy_abnormality_score",
+      "asset_id": "QUALITY-TRACEABILITY-ENGINE-101",
+      "signal_name": "energy_abnormality_score",
+      "display_name": "Energy Abnormality Score",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "QUALITY-TRACEABILITY-ENGINE-101.probable_root_cause_code",
+      "asset_id": "QUALITY-TRACEABILITY-ENGINE-101",
+      "signal_name": "probable_root_cause_code",
+      "display_name": "Probable Root Cause Code",
+      "signal_type": "measurement",
+      "data_type": "int",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "PLANT-KPI-101.water_production_today",
+      "asset_id": "PLANT-KPI-101",
+      "signal_name": "water_production_today",
+      "display_name": "Water Production Today",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m3",
+      "status": "active"
+    },
+    {
+      "signal_id": "PLANT-KPI-101.treatment_yield",
+      "asset_id": "PLANT-KPI-101",
+      "signal_name": "treatment_yield",
+      "display_name": "Treatment Yield",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "%",
+      "status": "active"
+    },
+    {
+      "signal_id": "PLANT-KPI-101.outlet_quality_index",
+      "asset_id": "PLANT-KPI-101",
+      "signal_name": "outlet_quality_index",
+      "display_name": "Outlet Quality Index",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "",
+      "status": "active"
+    },
+    {
+      "signal_id": "PLANT-KPI-101.compliance_rate_today",
+      "asset_id": "PLANT-KPI-101",
+      "signal_name": "compliance_rate_today",
+      "display_name": "Compliance Rate Today",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "%",
+      "status": "active"
+    },
+    {
+      "signal_id": "PLANT-KPI-101.cost_per_m3",
+      "asset_id": "PLANT-KPI-101",
+      "signal_name": "cost_per_m3",
+      "display_name": "Total Cost per m3",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "VND/m3",
+      "status": "active"
+    },
+    {
+      "signal_id": "CHEMICAL-CONSUMPTION-STATION-101.chemical_cost_per_m3",
+      "asset_id": "CHEMICAL-CONSUMPTION-STATION-101",
+      "signal_name": "chemical_cost_per_m3",
+      "display_name": "Chemical Cost per m3",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "VND/m3",
+      "status": "active"
+    },
+    {
+      "signal_id": "CHEMICAL-CONSUMPTION-STATION-101.chlorine_dose_rate",
+      "asset_id": "CHEMICAL-CONSUMPTION-STATION-101",
+      "signal_name": "chlorine_dose_rate",
+      "display_name": "Chlorine Dose Rate",
+      "signal_type": "measurement",
+      "data_type": "float",
+      "engineering_unit": "mg/L",
+      "status": "active"
+    }
+  ],
+  "uns": {
+    "namespace_root": "avenue",
+    "path_template": "{namespace_root}/{plant_id}/{area_id}/{asset_id}/{signal_name}",
+    "normalize_case": "lower",
+    "separator": "/"
+  },
+  "import_recommendation": {
+    "suggested_mode": "validate_only",
+    "reason": "First import \u00e2\u20ac\u201d validate before applying",
+    "notes": "New plant, 9 areas, 47 assets, ~91 signals. Expected all creates."
+  },
+  "bindings": {
+    "opcua": [
+      {
+        "signal_id": "RWP-101.flow_rate",
+        "node_id": "ns=2;s=RWP101_FLOW_RATE",
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      {
+        "signal_id": "RWP-101-MOTOR.motor_current",
+        "node_id": "ns=2;s=RWP101_MOTOR_CURRENT",
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      {
+        "signal_id": "COAG-PUMP-101.flow_rate",
+        "node_id": "ns=2;s=COAGP101_FLOW",
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      {
+        "signal_id": "CLARIFIER-101.settled_turbidity",
+        "node_id": "ns=2;s=CLAR101_SETTLED_TURB",
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      {
+        "signal_id": "FILTER-101.filter_dp",
+        "node_id": "ns=2;s=FIL101_DP",
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      {
+        "signal_id": "FILTER-QUALITY-STATION-101.filtered_turbidity",
+        "node_id": "ns=2;s=FQS101_FILTERED_TURB",
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      {
+        "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity",
+        "node_id": "ns=2;s=TOQS101_OUTLET_TURB",
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      {
+        "signal_id": "HSP-101-MOTOR.motor_current",
+        "node_id": "ns=2;s=HSP101_MOTOR_CURRENT",
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      {
+        "signal_id": "ENERGY-MONITORING-STATION-101.total_active_power",
+        "node_id": "ns=2;s=EMS101_TOTAL_POWER",
+        "scale": 1.0,
+        "offset": 0.0
+      }
+    ]
+  },
+  "simulation": {
+    "default_scenario": "normal_operation",
+    "behaviors": {
+      "INTAKE-STRUCTURE-101.raw_water_level": {
+        "pattern": "sine",
+        "mid": 3.5,
+        "amplitude": 0.3,
+        "noise": 0.05,
+        "signal_id": "INTAKE-STRUCTURE-101.raw_water_level"
+      },
+      "INTAKE-STRUCTURE-101.screen_dp": {
+        "pattern": "random_walk",
+        "mid": 15.0,
+        "amplitude": 3.0,
+        "noise": 1.0,
+        "signal_id": "INTAKE-STRUCTURE-101.screen_dp"
+      },
+      "RAW-WATER-QUALITY-STATION-101.raw_turbidity": {
+        "pattern": "sine",
+        "mid": 45.0,
+        "amplitude": 15.0,
+        "noise": 2.0,
+        "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_turbidity"
+      },
+      "RAW-WATER-QUALITY-STATION-101.raw_ph": {
+        "pattern": "sine",
+        "mid": 7.15,
+        "amplitude": 0.15,
+        "noise": 0.02,
+        "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_ph"
+      },
+      "RAW-WATER-QUALITY-STATION-101.raw_conductivity": {
+        "pattern": "sine",
+        "mid": 350.0,
+        "amplitude": 30.0,
+        "noise": 5.0,
+        "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_conductivity"
+      },
+      "RAW-WATER-QUALITY-STATION-101.raw_temperature": {
+        "pattern": "sine",
+        "mid": 28.0,
+        "amplitude": 2.0,
+        "noise": 0.3,
+        "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_temperature"
+      },
+      "RAW-WATER-QUALITY-STATION-101.raw_ammonia": {
+        "pattern": "sine",
+        "mid": 0.5,
+        "amplitude": 0.2,
+        "noise": 0.05,
+        "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_ammonia"
+      },
+      "RAW-WATER-QUALITY-STATION-101.raw_algae_index": {
+        "pattern": "sine",
+        "mid": 3.0,
+        "amplitude": 1.0,
+        "noise": 0.2,
+        "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_algae_index"
+      },
+      "RWP-101.flow_rate": {
+        "pattern": "sine",
+        "mid": 450.0,
+        "amplitude": 35.0,
+        "noise": 5.0,
+        "signal_id": "RWP-101.flow_rate"
+      },
+      "RWP-101-MOTOR.motor_current": {
+        "pattern": "random_walk",
+        "mid": 95.0,
+        "amplitude": 5.0,
+        "noise": 1.0,
+        "bounds_min": 80.0,
+        "bounds_max": 110.0,
+        "signal_id": "RWP-101-MOTOR.motor_current"
+      },
+      "RWP-101-MOTOR.power": {
+        "pattern": "random_walk",
+        "mid": 45.0,
+        "amplitude": 3.0,
+        "noise": 0.5,
+        "signal_id": "RWP-101-MOTOR.power"
+      },
+      "RWP-101-MOTOR.vibration_de": {
+        "pattern": "random_walk",
+        "mid": 1.2,
+        "amplitude": 0.3,
+        "noise": 0.05,
+        "bounds_min": 0.5,
+        "bounds_max": 3.0,
+        "signal_id": "RWP-101-MOTOR.vibration_de"
+      },
+      "RAW-WATER-MANIFOLD-101.manifold_pressure": {
+        "pattern": "sine",
+        "mid": 250.0,
+        "amplitude": 20.0,
+        "noise": 3.0,
+        "signal_id": "RAW-WATER-MANIFOLD-101.manifold_pressure"
+      },
+      "COAG-TANK-101.level": {
+        "pattern": "sine",
+        "mid": 60.0,
+        "amplitude": 10.0,
+        "noise": 1.0,
+        "signal_id": "COAG-TANK-101.level"
+      },
+      "COAG-PUMP-101.flow_rate": {
+        "pattern": "sine",
+        "mid": 12.0,
+        "amplitude": 2.0,
+        "noise": 0.5,
+        "signal_id": "COAG-PUMP-101.flow_rate"
+      },
+      "COAGULATION-CONTROL-STATION-101.streaming_current": {
+        "pattern": "sine",
+        "mid": -5.0,
+        "amplitude": 1.5,
+        "noise": 0.2,
+        "signal_id": "COAGULATION-CONTROL-STATION-101.streaming_current"
+      },
+      "CHLORINE-TANK-101.level": {
+        "pattern": "sine",
+        "mid": 55.0,
+        "amplitude": 8.0,
+        "noise": 1.0,
+        "signal_id": "CHLORINE-TANK-101.level"
+      },
+      "CHLORINE-PUMP-101.flow_rate": {
+        "pattern": "sine",
+        "mid": 8.0,
+        "amplitude": 1.5,
+        "noise": 0.3,
+        "signal_id": "CHLORINE-PUMP-101.flow_rate"
+      },
+      "CHEMICAL-CONSUMPTION-STATION-101.coagulant_dose_rate": {
+        "pattern": "sine",
+        "mid": 25.0,
+        "amplitude": 5.0,
+        "noise": 1.0,
+        "signal_id": "CHEMICAL-CONSUMPTION-STATION-101.coagulant_dose_rate"
+      },
+      "FLASH-MIXER-101.mixer_speed": {
+        "pattern": "constant",
+        "mid": 300.0,
+        "signal_id": "FLASH-MIXER-101.mixer_speed"
+      },
+      "FLOCCULATOR-101.flocculator_speed": {
+        "pattern": "constant",
+        "mid": 40.0,
+        "signal_id": "FLOCCULATOR-101.flocculator_speed"
+      },
+      "CLARIFIER-101.settled_turbidity": {
+        "pattern": "sine",
+        "mid": 8.0,
+        "amplitude": 2.0,
+        "noise": 0.5,
+        "signal_id": "CLARIFIER-101.settled_turbidity"
+      },
+      "CLARIFIER-101.settled_ph": {
+        "pattern": "sine",
+        "mid": 7.0,
+        "amplitude": 0.1,
+        "noise": 0.02,
+        "signal_id": "CLARIFIER-101.settled_ph"
+      },
+      "FILTER-101.filter_dp": {
+        "pattern": "random_walk",
+        "mid": 45.0,
+        "amplitude": 8.0,
+        "noise": 1.0,
+        "bounds_min": 20.0,
+        "bounds_max": 80.0,
+        "signal_id": "FILTER-101.filter_dp"
+      },
+      "FILTER-101.effluent_flow": {
+        "pattern": "sine",
+        "mid": 200.0,
+        "amplitude": 15.0,
+        "noise": 3.0,
+        "signal_id": "FILTER-101.effluent_flow"
+      },
+      "FILTER-102.filter_dp": {
+        "pattern": "random_walk",
+        "mid": 40.0,
+        "amplitude": 6.0,
+        "noise": 1.0,
+        "bounds_min": 15.0,
+        "bounds_max": 70.0,
+        "signal_id": "FILTER-102.filter_dp"
+      },
+      "FILTER-102.effluent_flow": {
+        "pattern": "sine",
+        "mid": 195.0,
+        "amplitude": 15.0,
+        "noise": 3.0,
+        "signal_id": "FILTER-102.effluent_flow"
+      },
+      "FILTER-QUALITY-STATION-101.filtered_turbidity": {
+        "pattern": "sine",
+        "mid": 0.35,
+        "amplitude": 0.15,
+        "noise": 0.03,
+        "signal_id": "FILTER-QUALITY-STATION-101.filtered_turbidity"
+      },
+      "CONTACT-TANK-101.contact_time": {
+        "pattern": "sine",
+        "mid": 30.0,
+        "amplitude": 5.0,
+        "noise": 1.0,
+        "signal_id": "CONTACT-TANK-101.contact_time"
+      },
+      "DISINFECTION-QUALITY-STATION-101.free_chlorine": {
+        "pattern": "sine",
+        "mid": 0.8,
+        "amplitude": 0.15,
+        "noise": 0.03,
+        "signal_id": "DISINFECTION-QUALITY-STATION-101.free_chlorine"
+      },
+      "DISINFECTION-QUALITY-STATION-101.total_chlorine": {
+        "pattern": "sine",
+        "mid": 1.2,
+        "amplitude": 0.15,
+        "noise": 0.03,
+        "signal_id": "DISINFECTION-QUALITY-STATION-101.total_chlorine"
+      },
+      "DISINFECTION-QUALITY-STATION-101.orp": {
+        "pattern": "sine",
+        "mid": 650.0,
+        "amplitude": 30.0,
+        "noise": 5.0,
+        "signal_id": "DISINFECTION-QUALITY-STATION-101.orp"
+      },
+      "CLEAR-WATER-TANK-101.level": {
+        "pattern": "sine",
+        "mid": 70.0,
+        "amplitude": 8.0,
+        "noise": 1.0,
+        "signal_id": "CLEAR-WATER-TANK-101.level"
+      },
+      "HIGH-SERVICE-PUMP-STATION-101.discharge_pressure": {
+        "pattern": "sine",
+        "mid": 400.0,
+        "amplitude": 25.0,
+        "noise": 5.0,
+        "signal_id": "HIGH-SERVICE-PUMP-STATION-101.discharge_pressure"
+      },
+      "HSP-101.flow_rate": {
+        "pattern": "sine",
+        "mid": 320.0,
+        "amplitude": 25.0,
+        "noise": 5.0,
+        "signal_id": "HSP-101.flow_rate"
+      },
+      "HSP-101-MOTOR.motor_current": {
+        "pattern": "random_walk",
+        "mid": 180.0,
+        "amplitude": 10.0,
+        "noise": 2.0,
+        "bounds_min": 150.0,
+        "bounds_max": 210.0,
+        "signal_id": "HSP-101-MOTOR.motor_current"
+      },
+      "HSP-101-MOTOR.power": {
+        "pattern": "random_walk",
+        "mid": 110.0,
+        "amplitude": 8.0,
+        "noise": 1.0,
+        "signal_id": "HSP-101-MOTOR.power"
+      },
+      "HSP-101-MOTOR.winding_temp": {
+        "pattern": "random_walk",
+        "mid": 75.0,
+        "amplitude": 5.0,
+        "noise": 0.5,
+        "bounds_min": 60.0,
+        "bounds_max": 95.0,
+        "signal_id": "HSP-101-MOTOR.winding_temp"
+      },
+      "OUTLET-MANIFOLD-101.manifold_pressure": {
+        "pattern": "sine",
+        "mid": 380.0,
+        "amplitude": 20.0,
+        "noise": 3.0,
+        "signal_id": "OUTLET-MANIFOLD-101.manifold_pressure"
+      },
+      "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity": {
+        "pattern": "sine",
+        "mid": 0.25,
+        "amplitude": 0.1,
+        "noise": 0.02,
+        "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity"
+      },
+      "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_free_chlorine": {
+        "pattern": "sine",
+        "mid": 0.6,
+        "amplitude": 0.1,
+        "noise": 0.02,
+        "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_free_chlorine"
+      },
+      "TRANSFORMER-101.winding_temp": {
+        "pattern": "random_walk",
+        "mid": 65.0,
+        "amplitude": 5.0,
+        "noise": 0.5,
+        "bounds_min": 50.0,
+        "bounds_max": 85.0,
+        "signal_id": "TRANSFORMER-101.winding_temp"
+      },
+      "TRANSFORMER-101.load_percent": {
+        "pattern": "sine",
+        "mid": 65.0,
+        "amplitude": 5.0,
+        "noise": 1.0,
+        "signal_id": "TRANSFORMER-101.load_percent"
+      },
+      "ENERGY-MONITORING-STATION-101.total_active_power": {
+        "pattern": "sine",
+        "mid": 350.0,
+        "amplitude": 30.0,
+        "noise": 5.0,
+        "signal_id": "ENERGY-MONITORING-STATION-101.total_active_power"
+      },
+      "ENERGY-MONITORING-STATION-101.specific_energy_consumption": {
+        "pattern": "random_walk",
+        "mid": 0.38,
+        "amplitude": 0.05,
+        "noise": 0.01,
+        "bounds_min": 0.25,
+        "bounds_max": 0.5,
+        "signal_id": "ENERGY-MONITORING-STATION-101.specific_energy_consumption"
+      },
+      "QUALITY-TRACEABILITY-ENGINE-101.outlet_quality_risk_score": {
+        "pattern": "random_walk",
+        "mid": 2.0,
+        "amplitude": 0.5,
+        "noise": 0.1,
+        "bounds_min": 0.0,
+        "bounds_max": 10.0,
+        "signal_id": "QUALITY-TRACEABILITY-ENGINE-101.outlet_quality_risk_score"
+      },
+      "QUALITY-TRACEABILITY-ENGINE-101.probable_root_cause_code": {
+        "pattern": "constant",
+        "mid": 0.0,
+        "signal_id": "QUALITY-TRACEABILITY-ENGINE-101.probable_root_cause_code"
+      },
+      "PLANT-KPI-101.water_production_today": {
+        "pattern": "constant",
+        "mid": 8500.0,
+        "noise": 50.0,
+        "signal_id": "PLANT-KPI-101.water_production_today"
+      },
+      "PLANT-KPI-101.treatment_yield": {
+        "pattern": "random_walk",
+        "mid": 97.0,
+        "amplitude": 1.0,
+        "noise": 0.1,
+        "bounds_min": 94.0,
+        "bounds_max": 99.5,
+        "signal_id": "PLANT-KPI-101.treatment_yield"
+      },
+      "PLANT-KPI-101.cost_per_m3": {
+        "pattern": "random_walk",
+        "mid": 320.0,
+        "amplitude": 20.0,
+        "noise": 5.0,
+        "bounds_min": 280.0,
+        "bounds_max": 380.0,
+        "signal_id": "PLANT-KPI-101.cost_per_m3"
+      }
+    }
+  },
+  "extensions": {
+    "monitoring": {
+      "scenarios": [
+        {
+          "scenario_id": "normal_operation",
+          "name": "Normal Operation",
+          "description": "Stable production, compliant outlet quality, normal cost."
+        },
+        {
+          "scenario_id": "raw_water_contamination",
+          "name": "Raw Water Contamination Event",
+          "description": "Raw turbidity, COD, and ammonia increase sharply. Impact propagates through treatment chain \u00e2\u20ac\u201d settled and filtered turbidity rise, outlet quality risk score increases."
+        },
+        {
+          "scenario_id": "algae_bloom",
+          "name": "Algae Bloom Event",
+          "description": "Raw algae index and TOC increase. Chlorine demand rises, free chlorine residual drops, filter run times shorten."
+        },
+        {
+          "scenario_id": "filter_breakthrough",
+          "name": "Filter Breakthrough",
+          "description": "Filtered turbidity rises above 1.0 NTU. Outlet turbidity risk increases, compliance status may fail."
+        },
+        {
+          "scenario_id": "chlorine_underdosing",
+          "name": "Chlorine Underdosing",
+          "description": "Chlorine dose and free chlorine residual drop below 0.2 mg/L. Outlet compliance status fails, disinfection compromised."
+        },
+        {
+          "scenario_id": "chemical_overdosing",
+          "name": "Chemical Overdosing",
+          "description": "Coagulant and chlorine dosing rates increase above normal. Outlet quality remains acceptable but chemical cost per m3 rises significantly."
+        },
+        {
+          "scenario_id": "filter_clogging_energy_impact",
+          "name": "Filter Clogging with Energy Impact",
+          "description": "Filter DP rises toward 80 kPa. Pumping energy increases, specific energy consumption rises, outlet turbidity risk grows."
+        },
+        {
+          "scenario_id": "hsp_trip",
+          "name": "High Service Pump Trip",
+          "description": "HSP-101 trips unexpectedly. Outlet manifold pressure drops, HSP-102 attempts to compensate but total flow decreases."
+        }
+      ],
+      "dashboards": [
+        {
+          "dashboard_id": "plant_overview",
+          "name": "Plant Overview",
+          "description": "Production summary, outlet quality, cost KPI, active alarms",
+          "widgets": [
+            {
+              "widget_id": "production_today",
+              "signal_id": "PLANT-KPI-101.water_production_today",
+              "type": "stat"
+            },
+            {
+              "widget_id": "outlet_quality_index",
+              "signal_id": "PLANT-KPI-101.outlet_quality_index",
+              "type": "gauge"
+            },
+            {
+              "widget_id": "cost_per_m3",
+              "signal_id": "PLANT-KPI-101.cost_per_m3",
+              "type": "stat"
+            },
+            {
+              "widget_id": "outlet_turbidity_trend",
+              "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity",
+              "type": "trend"
+            }
+          ]
+        },
+        {
+          "dashboard_id": "water_quality_chain",
+          "name": "Water Quality Chain",
+          "description": "Turbidity and pH tracking through treatment stages",
+          "widgets": [
+            {
+              "widget_id": "turbidity_chain",
+              "type": "trend_bundle",
+              "description": "raw \u00e2\u2020\u2019 settled \u00e2\u2020\u2019 filtered \u00e2\u2020\u2019 outlet",
+              "signals": [
+                "RAW-WATER-QUALITY-STATION-101.raw_turbidity",
+                "CLARIFIER-101.settled_turbidity",
+                "FILTER-QUALITY-STATION-101.filtered_turbidity",
+                "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity"
+              ]
+            },
+            {
+              "widget_id": "chlorine_chain",
+              "type": "trend_bundle",
+              "description": "free \u00e2\u2020\u2019 total \u00e2\u2020\u2019 outlet free chlorine",
+              "signals": [
+                "DISINFECTION-QUALITY-STATION-101.free_chlorine",
+                "DISINFECTION-QUALITY-STATION-101.total_chlorine",
+                "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_free_chlorine"
+              ]
+            }
+          ]
+        },
+        {
+          "dashboard_id": "energy_chemical_cost",
+          "name": "Energy & Chemical Cost",
+          "description": "Production cost breakdown",
+          "widgets": [
+            {
+              "widget_id": "specific_energy",
+              "signal_id": "ENERGY-MONITORING-STATION-101.specific_energy_consumption",
+              "type": "trend"
+            },
+            {
+              "widget_id": "energy_cost",
+              "signal_id": "ENERGY-MONITORING-STATION-101.energy_cost_per_m3",
+              "type": "trend"
+            },
+            {
+              "widget_id": "chemical_cost",
+              "signal_id": "CHEMICAL-CONSUMPTION-STATION-101.chemical_cost_per_m3",
+              "type": "trend"
+            },
+            {
+              "widget_id": "total_cost",
+              "signal_id": "PLANT-KPI-101.cost_per_m3",
+              "type": "trend"
+            }
+          ]
+        },
+        {
+          "dashboard_id": "quality_traceability",
+          "name": "Quality Traceability",
+          "description": "Risk scores and root cause analysis",
+          "widgets": [
+            {
+              "widget_id": "risk_score_gauge",
+              "signal_id": "QUALITY-TRACEABILITY-ENGINE-101.outlet_quality_risk_score",
+              "type": "gauge"
+            },
+            {
+              "widget_id": "root_cause",
+              "signal_id": "QUALITY-TRACEABILITY-ENGINE-101.probable_root_cause_code",
+              "type": "indicator"
+            },
+            {
+              "widget_id": "contribution_scores",
+              "type": "stacked_bar",
+              "signals": [
+                "QUALITY-TRACEABILITY-ENGINE-101.raw_water_impact_score",
+                "QUALITY-TRACEABILITY-ENGINE-101.chemical_dosing_abnormality_score",
+                "QUALITY-TRACEABILITY-ENGINE-101.energy_abnormality_score"
+              ]
+            }
+          ]
+        },
+        {
+          "dashboard_id": "equipment_health",
+          "name": "Equipment Health",
+          "description": "Pump motor currents, filter DP, transformer status",
+          "widgets": [
+            {
+              "widget_id": "rwp101_current",
+              "signal_id": "RWP-101-MOTOR.motor_current",
+              "type": "trend"
+            },
+            {
+              "widget_id": "hsp101_current",
+              "signal_id": "HSP-101-MOTOR.motor_current",
+              "type": "trend"
+            },
+            {
+              "widget_id": "filter101_dp",
+              "signal_id": "FILTER-101.filter_dp",
+              "type": "trend"
+            },
+            {
+              "widget_id": "transformer_temp",
+              "signal_id": "TRANSFORMER-101.winding_temp",
+              "type": "trend"
+            }
+          ]
+        }
+      ],
+      "alarm_recommendations": [
+        {
+          "rule_id": "WTP_FILTER_101_HIGH_DP",
+          "name": "Filter 101 High Differential Pressure",
+          "signal_id": "FILTER-101.filter_dp",
+          "condition": ">",
+          "threshold": 80.0,
+          "severity": "high",
+          "description": "Filter 101 differential pressure exceeds 80 kPa",
+          "unit": "kPa"
+        },
+        {
+          "rule_id": "WTP_FILTERED_TURBIDITY_HIGH",
+          "name": "Filtered Water Turbidity High",
+          "signal_id": "FILTER-QUALITY-STATION-101.filtered_turbidity",
+          "condition": ">",
+          "threshold": 1.0,
+          "severity": "high",
+          "description": "Filtered water turbidity exceeds 1.0 NTU",
+          "unit": "NTU"
+        },
+        {
+          "rule_id": "WTP_OUTLET_TURBIDITY_HIGH",
+          "name": "Outlet Turbidity High",
+          "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity",
+          "condition": ">",
+          "threshold": 1.0,
+          "severity": "critical",
+          "description": "Outlet turbidity exceeds 1.0 NTU \u00e2\u20ac\u201d compliance at risk",
+          "unit": "NTU"
+        },
+        {
+          "rule_id": "WTP_OUTLET_CHLORINE_LOW",
+          "name": "Outlet Free Chlorine Low",
+          "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_free_chlorine",
+          "condition": "<",
+          "threshold": 0.2,
+          "severity": "critical",
+          "description": "Outlet free chlorine below 0.2 mg/L \u00e2\u20ac\u201d disinfection compromised",
+          "unit": "mg/L"
+        },
+        {
+          "rule_id": "WTP_SPECIFIC_ENERGY_HIGH",
+          "name": "Specific Energy Consumption High",
+          "signal_id": "ENERGY-MONITORING-STATION-101.specific_energy_consumption",
+          "condition": ">",
+          "threshold": 0.5,
+          "severity": "medium",
+          "description": "Specific energy exceeds 0.5 kWh/m\u00c2\u00b3",
+          "unit": "kWh/m3"
+        },
+        {
+          "rule_id": "WTP_CHEMICAL_COST_HIGH",
+          "name": "Chemical Cost High",
+          "signal_id": "CHEMICAL-CONSUMPTION-STATION-101.chemical_cost_per_m3",
+          "condition": ">",
+          "threshold": 150.0,
+          "severity": "medium",
+          "description": "Chemical cost exceeds 150 VND/m\u00c2\u00b3",
+          "unit": "VND/m3"
+        },
+        {
+          "rule_id": "WTP_OUTLET_COMPLIANCE_FAIL",
+          "name": "Outlet Compliance Failure",
+          "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_compliance_status",
+          "condition": "==",
+          "threshold": false,
+          "severity": "critical",
+          "description": "Outlet compliance status is false \u00e2\u20ac\u201d immediate attention required",
+          "unit": ""
+        }
+      ]
+    }
+  }
+}

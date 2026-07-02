@@ -33,7 +33,11 @@ function createColoredIcon(color: string) {
 }
 
 export function GisMapPage() {
-  const { data: assets } = useQuery({ queryKey: ["assets"], queryFn: () => getAssets() });
+  const plantId = new URLSearchParams(window.location.search).get("plant_id") || "VF-DEMO";
+  const { data: assets } = useQuery({
+    queryKey: ["assets", plantId],
+    queryFn: () => getAssets({ plant_id: plantId }),
+  });
 
   useEffect(() => {
     const map = L.map("gis-map").setView([10.7626, 106.6602], 16);

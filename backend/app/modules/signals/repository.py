@@ -3,7 +3,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.modules.assets.models import Asset
+from app.modules.assets.models import Area, Asset, Plant
 from app.modules.signals.models import Signal
 
 
@@ -27,9 +27,18 @@ class SignalRepository:
         asset_id: str | None = None,
         signal_type: str | None = None,
         data_type: str | None = None,
+        plant_id: str | None = None,
     ) -> list[Signal]:
         stmt = select(Signal)
-        if asset_id:
+
+        if plant_id:
+            stmt = (
+                stmt.join(Asset, Signal.asset_id_fk == Asset.id)
+                .join(Area, Asset.area_id_fk == Area.id)
+                .join(Plant, Area.plant_id_fk == Plant.id)
+                .where(Plant.plant_id == plant_id)
+            )
+        elif asset_id:
             stmt = stmt.join(Asset).where(Asset.asset_id == asset_id)
         if signal_type:
             stmt = stmt.where(Signal.signal_type == signal_type)

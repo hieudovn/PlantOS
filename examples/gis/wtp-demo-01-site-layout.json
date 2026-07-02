@@ -1,0 +1,145 @@
+{
+  "site": {
+    "name": "WTP-DEMO-01",
+    "description": "Water Treatment Plant Reference Model — 9 areas, 47 assets, 92 signals",
+    "center": { "lat": 10.762622, "lng": 106.660172 },
+    "zoom": 16
+  },
+  "areas": [
+    {
+      "area_id": "INTAKE-AREA",
+      "name": "Raw Water Intake Area",
+      "description": "Intake structure, bar screens, raw water quality station, raw water pumps",
+      "polygon": [
+        { "lat": 10.7620, "lng": 106.6580 },
+        { "lat": 10.7628, "lng": 106.6580 },
+        { "lat": 10.7628, "lng": 106.6592 },
+        { "lat": 10.7620, "lng": 106.6592 }
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "area_id": "CHEMICAL-DOSING-AREA",
+      "name": "Chemical Dosing Area",
+      "description": "Coagulant tank, dosing pumps, pH correction, chlorine dosing, chemical consumption monitoring",
+      "polygon": [
+        { "lat": 10.7620, "lng": 106.6592 },
+        { "lat": 10.7628, "lng": 106.6592 },
+        { "lat": 10.7628, "lng": 106.6604 },
+        { "lat": 10.7620, "lng": 106.6604 }
+      ],
+      "color": "#8b5cf6"
+    },
+    {
+      "area_id": "CLARIFICATION-AREA",
+      "name": "Clarification Area",
+      "description": "Flash mixer, flocculator, clarifier, sludge pump, clarifier quality station",
+      "polygon": [
+        { "lat": 10.7620, "lng": 106.6604 },
+        { "lat": 10.7628, "lng": 106.6604 },
+        { "lat": 10.7628, "lng": 106.6616 },
+        { "lat": 10.7620, "lng": 106.6616 }
+      ],
+      "color": "#f59e0b"
+    },
+    {
+      "area_id": "FILTRATION-AREA",
+      "name": "Filtration Area",
+      "description": "Dual media filters 101/102, backwash pump, filter quality station",
+      "polygon": [
+        { "lat": 10.7620, "lng": 106.6616 },
+        { "lat": 10.7628, "lng": 106.6616 },
+        { "lat": 10.7628, "lng": 106.6628 },
+        { "lat": 10.7620, "lng": 106.6628 }
+      ],
+      "color": "#16a34a"
+    },
+    {
+      "area_id": "DISINFECTION-CLEARWATER-AREA",
+      "name": "Disinfection & Clear Water Area",
+      "description": "Chlorine contact tank, disinfection quality station, clear water tank, transfer pump",
+      "polygon": [
+        { "lat": 10.7628, "lng": 106.6592 },
+        { "lat": 10.7636, "lng": 106.6592 },
+        { "lat": 10.7636, "lng": 106.6604 },
+        { "lat": 10.7628, "lng": 106.6604 }
+      ],
+      "color": "#06b6d4"
+    },
+    {
+      "area_id": "DISTRIBUTION-AREA",
+      "name": "Distribution Area",
+      "description": "High service pump station, outlet manifold, outlet quality station",
+      "polygon": [
+        { "lat": 10.7628, "lng": 106.6604 },
+        { "lat": 10.7636, "lng": 106.6604 },
+        { "lat": 10.7636, "lng": 106.6616 },
+        { "lat": 10.7628, "lng": 106.6616 }
+      ],
+      "color": "#dc2626"
+    },
+    {
+      "area_id": "ELECTRICAL-UTILITY-AREA",
+      "name": "Electrical & Utility Area",
+      "description": "Main transformer, motor control center, energy monitoring station",
+      "polygon": [
+        { "lat": 10.7630, "lng": 106.6616 },
+        { "lat": 10.7638, "lng": 106.6616 },
+        { "lat": 10.7638, "lng": 106.6628 },
+        { "lat": 10.7630, "lng": 106.6628 }
+      ],
+      "color": "#f97316"
+    },
+    {
+      "area_id": "QUALITY-LAB-AREA",
+      "name": "Quality Lab Area",
+      "description": "Lab sampling station, quality traceability engine",
+      "polygon": [
+        { "lat": 10.7618, "lng": 106.6596 },
+        { "lat": 10.7620, "lng": 106.6596 },
+        { "lat": 10.7620, "lng": 106.6610 },
+        { "lat": 10.7618, "lng": 106.6610 }
+      ],
+      "color": "#14b8a6"
+    },
+    {
+      "area_id": "PLANT-KPI-AREA",
+      "name": "Plant KPI Area",
+      "description": "Plant KPI engine — production, cost, quality index, compliance",
+      "polygon": [
+        { "lat": 10.7618, "lng": 106.6610 },
+        { "lat": 10.7620, "lng": 106.6610 },
+        { "lat": 10.7620, "lng": 106.6620 },
+        { "lat": 10.7618, "lng": 106.6620 }
+      ],
+      "color": "#1e293b"
+    }
+  ],
+  "assets": [
+    { "asset_id": "INTAKE-STRUCTURE-101", "name": "Intake Structure", "position": { "lat": 10.7624, "lng": 106.6584 }, "icon": "vessel", "area_id": "INTAKE-AREA" },
+    { "asset_id": "RAW-WATER-QUALITY-STATION-101", "name": "Raw Water Quality", "position": { "lat": 10.7624, "lng": 106.6588 }, "icon": "sensor_array", "area_id": "INTAKE-AREA" },
+    { "asset_id": "RWP-101", "name": "Raw Water Pump 101", "position": { "lat": 10.7625, "lng": 106.6590 }, "icon": "pump", "area_id": "INTAKE-AREA" },
+    { "asset_id": "RWP-102", "name": "Raw Water Pump 102", "position": { "lat": 10.7623, "lng": 106.6590 }, "icon": "pump", "area_id": "INTAKE-AREA" },
+    { "asset_id": "COAG-TANK-101", "name": "Coagulant Tank", "position": { "lat": 10.7623, "lng": 106.6595 }, "icon": "tank", "area_id": "CHEMICAL-DOSING-AREA" },
+    { "asset_id": "COAG-PUMP-101", "name": "Coagulant Pump", "position": { "lat": 10.7625, "lng": 106.6598 }, "icon": "pump", "area_id": "CHEMICAL-DOSING-AREA" },
+    { "asset_id": "CHLORINE-TANK-101", "name": "Chlorine Tank", "position": { "lat": 10.7624, "lng": 106.6600 }, "icon": "tank", "area_id": "CHEMICAL-DOSING-AREA" },
+    { "asset_id": "CHEMICAL-CONSUMPTION-STATION-101", "name": "Chemical Consumption", "position": { "lat": 10.7623, "lng": 106.6602 }, "icon": "sensor_array", "area_id": "CHEMICAL-DOSING-AREA" },
+    { "asset_id": "FLASH-MIXER-101", "name": "Flash Mixer", "position": { "lat": 10.7624, "lng": 106.6606 }, "icon": "reactor", "area_id": "CLARIFICATION-AREA" },
+    { "asset_id": "FLOCCULATOR-101", "name": "Flocculator", "position": { "lat": 10.7625, "lng": 106.6609 }, "icon": "reactor", "area_id": "CLARIFICATION-AREA" },
+    { "asset_id": "CLARIFIER-101", "name": "Clarifier", "position": { "lat": 10.7624, "lng": 106.6612 }, "icon": "vessel", "area_id": "CLARIFICATION-AREA" },
+    { "asset_id": "CLARIFIER-QUALITY-STATION-101", "name": "Clarifier Quality", "position": { "lat": 10.7623, "lng": 106.6614 }, "icon": "sensor_array", "area_id": "CLARIFICATION-AREA" },
+    { "asset_id": "FILTER-101", "name": "Filter 101", "position": { "lat": 10.7624, "lng": 106.6620 }, "icon": "filter", "area_id": "FILTRATION-AREA" },
+    { "asset_id": "FILTER-102", "name": "Filter 102", "position": { "lat": 10.7625, "lng": 106.6623 }, "icon": "filter", "area_id": "FILTRATION-AREA" },
+    { "asset_id": "FILTER-QUALITY-STATION-101", "name": "Filter Quality", "position": { "lat": 10.7624, "lng": 106.6626 }, "icon": "sensor_array", "area_id": "FILTRATION-AREA" },
+    { "asset_id": "CONTACT-TANK-101", "name": "Contact Tank", "position": { "lat": 10.7630, "lng": 106.6596 }, "icon": "tank", "area_id": "DISINFECTION-CLEARWATER-AREA" },
+    { "asset_id": "CLEAR-WATER-TANK-101", "name": "Clear Water Tank", "position": { "lat": 10.7632, "lng": 106.6600 }, "icon": "tank", "area_id": "DISINFECTION-CLEARWATER-AREA" },
+    { "asset_id": "HSP-101", "name": "HSP 101", "position": { "lat": 10.7631, "lng": 106.6608 }, "icon": "pump", "area_id": "DISTRIBUTION-AREA" },
+    { "asset_id": "OUTLET-MANIFOLD-101", "name": "Outlet Manifold", "position": { "lat": 10.7633, "lng": 106.6612 }, "icon": "pipeline", "area_id": "DISTRIBUTION-AREA" },
+    { "asset_id": "TRANSFER-OUTLET-QUALITY-STATION-101", "name": "Outlet Quality", "position": { "lat": 10.7630, "lng": 106.6614 }, "icon": "sensor_array", "area_id": "DISTRIBUTION-AREA" },
+    { "asset_id": "TRANSFORMER-101", "name": "Main Transformer", "position": { "lat": 10.7634, "lng": 106.6620 }, "icon": "transformer", "area_id": "ELECTRICAL-UTILITY-AREA" },
+    { "asset_id": "ENERGY-MONITORING-STATION-101", "name": "Energy Monitoring", "position": { "lat": 10.7633, "lng": 106.6624 }, "icon": "sensor_array", "area_id": "ELECTRICAL-UTILITY-AREA" },
+    { "asset_id": "LAB-SAMPLING-STATION-101", "name": "Lab Sampling", "position": { "lat": 10.7619, "lng": 106.6602 }, "icon": "analyzer", "area_id": "QUALITY-LAB-AREA" },
+    { "asset_id": "QUALITY-TRACEABILITY-ENGINE-101", "name": "Quality Traceability", "position": { "lat": 10.7619, "lng": 106.6606 }, "icon": "analyzer", "area_id": "QUALITY-LAB-AREA" },
+    { "asset_id": "PLANT-KPI-101", "name": "Plant KPI Engine", "position": { "lat": 10.7619, "lng": 106.6615 }, "icon": "analyzer", "area_id": "PLANT-KPI-AREA" }
+  ]
+}

@@ -1,0 +1,172 @@
+# =============================================================================
+# WTP-DEMO-01 Trend Bundle Quick Reference
+# =============================================================================
+# Generated from extensions.monitoring.dashboards in wtp-demo-01.contract.yaml
+# These bundles are designed for the Historian trend chart UI.
+# NOTE: Current PlantOS historian supports trend_bundle with 4+ signal overlay.
+# Visualization runtime may require manual assembly of bundles not yet
+# supported by the API.
+# =============================================================================
+
+bundles:
+  turbidity_chain:
+    name: "Treatment Effectiveness — Turbidity Chain"
+    description: "Turbidity through all 4 treatment stages — raw → settled → filtered → outlet"
+    dashboard_id: water_quality_chain
+    signals:
+      - signal_id: RAW-WATER-QUALITY-STATION-101.raw_turbidity
+        label: "Raw Water"
+        color: "#dc2626"
+        unit: NTU
+      - signal_id: CLARIFIER-101.settled_turbidity
+        label: "Settled"
+        color: "#f59e0b"
+        unit: NTU
+      - signal_id: FILTER-QUALITY-STATION-101.filtered_turbidity
+        label: "Filtered"
+        color: "#16a34a"
+        unit: NTU
+      - signal_id: TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity
+        label: "Outlet"
+        color: "#3b82f6"
+        unit: NTU
+
+  ph_chain:
+    name: "pH Chain"
+    description: "pH through treatment stages"
+    dashboard_id: water_quality_chain
+    signals:
+      - signal_id: RAW-WATER-QUALITY-STATION-101.raw_ph
+        label: "Raw pH"
+        color: "#8b5cf6"
+      - signal_id: CLARIFIER-101.settled_ph
+        label: "Settled pH"
+        color: "#a78bfa"
+      - signal_id: FILTER-QUALITY-STATION-101.filtered_ph
+        label: "Filtered pH"
+        color: "#c4b5fd"
+      - signal_id: TRANSFER-OUTLET-QUALITY-STATION-101.outlet_ph
+        label: "Outlet pH"
+        color: "#ddd6fe"
+
+  chlorine_chain:
+    name: "Chlorine Disinfection"
+    description: "Free chlorine, total chlorine, and outlet residual — disinfection effectiveness"
+    dashboard_id: water_quality_chain
+    signals:
+      - signal_id: DISINFECTION-QUALITY-STATION-101.free_chlorine
+        label: "Free Chlorine"
+        color: "#06b6d4"
+        unit: mg/L
+      - signal_id: DISINFECTION-QUALITY-STATION-101.total_chlorine
+        label: "Total Chlorine"
+        color: "#0891b2"
+        unit: mg/L
+      - signal_id: TRANSFER-OUTLET-QUALITY-STATION-101.outlet_free_chlorine
+        label: "Outlet Free Cl₂"
+        color: "#0e7490"
+        unit: mg/L
+
+  energy_cost:
+    name: "Energy & Chemical Cost"
+    description: "Production cost breakdown — energy, chemical, and total cost per m³"
+    dashboard_id: energy_chemical_cost
+    signals:
+      - signal_id: ENERGY-MONITORING-STATION-101.specific_energy_consumption
+        label: "Specific Energy"
+        color: "#f97316"
+        unit: kWh/m3
+      - signal_id: ENERGY-MONITORING-STATION-101.energy_cost_per_m3
+        label: "Energy Cost"
+        color: "#fb923c"
+        unit: VND/m3
+      - signal_id: CHEMICAL-CONSUMPTION-STATION-101.chemical_cost_per_m3
+        label: "Chemical Cost"
+        color: "#a855f7"
+        unit: VND/m3
+      - signal_id: PLANT-KPI-101.cost_per_m3
+        label: "Total Cost"
+        color: "#1e293b"
+        unit: VND/m3
+
+  traceability:
+    name: "Quality Traceability"
+    description: "Risk scores and root cause analysis — composite and contributing factors"
+    dashboard_id: quality_traceability
+    signals:
+      - signal_id: QUALITY-TRACEABILITY-ENGINE-101.outlet_quality_risk_score
+        label: "Overall Risk Score"
+        color: "#dc2626"
+      - signal_id: QUALITY-TRACEABILITY-ENGINE-101.raw_water_impact_score
+        label: "Raw Water Impact"
+        color: "#f97316"
+      - signal_id: QUALITY-TRACEABILITY-ENGINE-101.chemical_dosing_abnormality_score
+        label: "Chemical Abnormality"
+        color: "#eab308"
+      - signal_id: QUALITY-TRACEABILITY-ENGINE-101.energy_abnormality_score
+        label: "Energy Abnormality"
+        color: "#a855f7"
+      - signal_id: QUALITY-TRACEABILITY-ENGINE-101.probable_root_cause_code
+        label: "Root Cause Code"
+        color: "#1e293b"
+
+  equipment_health:
+    name: "Equipment Health"
+    description: "Pump motor currents, filter DP, transformer temperature"
+    dashboard_id: equipment_health
+    signals:
+      - signal_id: RWP-101-MOTOR.motor_current
+        label: "RWP-101 Motor Current"
+        color: "#3b82f6"
+        unit: A
+      - signal_id: HSP-101-MOTOR.motor_current
+        label: "HSP-101 Motor Current"
+        color: "#ef4444"
+        unit: A
+      - signal_id: FILTER-101.filter_dp
+        label: "Filter 101 DP"
+        color: "#16a34a"
+        unit: kPa
+      - signal_id: FILTER-102.filter_dp
+        label: "Filter 102 DP"
+        color: "#22c55e"
+        unit: kPa
+      - signal_id: TRANSFORMER-101.winding_temp
+        label: "Transformer Winding Temp"
+        color: "#f59e0b"
+        unit: degC
+
+  plant_overview:
+    name: "Plant Overview KPIs"
+    description: "High-level production and quality metrics"
+    dashboard_id: plant_overview
+    signals:
+      - signal_id: PLANT-KPI-101.water_production_today
+        label: "Production Today"
+        color: "#3b82f6"
+        unit: m3
+      - signal_id: PLANT-KPI-101.outlet_quality_index
+        label: "Outlet Quality Index"
+        color: "#16a34a"
+      - signal_id: PLANT-KPI-101.compliance_rate_today
+        label: "Compliance Rate"
+        color: "#22c55e"
+        unit: "%"
+      - signal_id: PLANT-KPI-101.cost_per_m3
+        label: "Cost per m³"
+        color: "#dc2626"
+        unit: VND/m3
+      - signal_id: PLANT-KPI-101.treatment_yield
+        label: "Treatment Yield"
+        color: "#8b5cf6"
+        unit: "%"
+
+# =========================================================================
+# Recommended Time Ranges
+# =========================================================================
+# Each bundle works best with these time ranges:
+# - turbidity_chain, ph_chain, chlorine_chain: 1h (live process view)
+# - energy_cost: 6h (daily cost accumulation)
+# - traceability: 12h (trend analysis)
+# - equipment_health: 1h (real-time monitoring)
+# - plant_overview: 6h (daily production tracking)

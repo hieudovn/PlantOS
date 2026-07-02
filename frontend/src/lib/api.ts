@@ -7,11 +7,14 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
     "Content-Type": "application/json",
     ...(options?.headers as Record<string, string>),
   };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  } else {
+    headers["X-API-Key"] = "plantos-edge-key-2026";
+  }
 
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
 
-  // Sliding expiration: update token if server returned a new one
   const newToken = res.headers.get("X-New-Token");
   if (newToken) {
     localStorage.setItem("plantos_token", newToken);
@@ -19,8 +22,7 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
 
   if (res.status === 401) {
     localStorage.removeItem("plantos_token");
-    // Avoid redirect loop: only redirect if not already on login page
-    if (!window.location.pathname.startsWith("/login")) {
+    if (token && !window.location.pathname.startsWith("/login")) {
       window.location.href = "/login";
     }
     const err = await res.json().catch(() => ({ detail: res.statusText }));

@@ -1,0 +1,331 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font-size: 22px; font-weight: bold; fill: #1e293b; }
+      .subtitle { font-size: 13px; fill: #64748b; }
+      .area-label { font-size: 13px; font-weight: bold; fill: #fff; text-anchor: middle; }
+      .value-label { font-size: 12px; fill: #0f172a; text-anchor: middle; }
+      .value-num { font-size: 14px; font-weight: bold; fill: #1d4ed8; text-anchor: middle; }
+      .unit-label { font-size: 10px; fill: #64748b; text-anchor: middle; }
+      .pipe { stroke: #3b82f6; stroke-width: 5; fill: none; stroke-linecap: round; }
+      .pipe-dashed { stroke: #93c5fd; stroke-width: 3; fill: none; stroke-dasharray: 6,4; }
+      .arrow { fill: #3b82f6; }
+      .tank { fill: #e2e8f0; stroke: #94a3b8; stroke-width: 2; }
+      .pump { fill: #dbeafe; stroke: #60a5fa; stroke-width: 2; }
+      .filter { fill: #dcfce7; stroke: #4ade80; stroke-width: 2; }
+      .reactor { fill: #fef3c7; stroke: #fbbf24; stroke-width: 2; }
+      .vessel { fill: #f1f5f9; stroke: #94a3b8; stroke-width: 2; }
+      .sensor { fill: #ede9fe; stroke: #a78bfa; stroke-width: 1.5; }
+      .status-normal { fill: #22c55e; }
+      .status-warning { fill: #eab308; }
+      .status-alarm { fill: #ef4444; }
+      .legend-text { font-size: 11px; fill: #475569; }
+      .box { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1; rx: 6; }
+    </style>
+    <!-- Arrowhead marker -->
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" class="arrow"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" width="1200" height="800"/>
+
+  <!-- Title -->
+  <text x="600" y="35" class="title" text-anchor="middle">WTP-DEMO-01 Process Flow</text>
+  <text x="600" y="55" class="subtitle" text-anchor="middle">Water Treatment Plant — 8-Stage Treatment Chain</text>
+
+  <!-- Legend -->
+  <rect x="30" y="740" class="box" width="260" height="50"/>
+  <rect x="40" y="752" width="12" height="12" class="pump"/>
+  <text x="58" y="762" class="legend-text">Pump</text>
+  <rect x="100" y="752" width="12" height="12" class="tank"/>
+  <text x="118" y="762" class="legend-text">Tank</text>
+  <rect x="160" y="752" width="12" height="12" class="filter"/>
+  <text x="178" y="762" class="legend-text">Filter</text>
+  <rect x="220" y="752" width="12" height="12" class="reactor"/>
+  <text x="238" y="762" class="legend-text">Reactor</text>
+  <circle cx="40" cy="776" r="5" class="status-normal"/>
+  <text x="58" y="780" class="legend-text">Normal</text>
+  <circle cx="100" cy="776" r="5" class="status-warning"/>
+  <text x="118" y="780" class="legend-text">Warning</text>
+  <circle cx="170" cy="776" r="5" class="status-alarm"/>
+  <text x="188" y="780" class="legend-text">Alarm</text>
+
+  <!-- Main flow pipe (horizontal) -->
+  <line x1="60" y1="370" x2="1140" y2="370" class="pipe" marker-end="url(#arrow)"/>
+
+  <!-- ================================ -->
+  <!-- Stage 1: Intake (x=80) -->
+  <!-- ================================ -->
+  <g transform="translate(80, 130)">
+    <rect x="0" y="0" width="170" height="480" class="box"/>
+    <rect x="0" y="0" width="170" height="36" fill="#3b82f6"/>
+    <text x="85" y="24" class="area-label">INTAKE-AREA</text>
+
+    <!-- Intake structure -->
+    <rect x="25" y="60" width="120" height="80" class="vessel"/>
+    <text x="85" y="105" class="value-label" text-anchor="middle">Intake Structure</text>
+
+    <!-- Screen -->
+    <rect x="50" y="155" width="70" height="30" class="filter"/>
+    <text x="85" y="173" class="value-label">Bar Screen</text>
+    <circle cx="145" cy="170" r="5" class="status-normal"/>
+
+    <!-- Raw water quality station -->
+    <rect x="25" y="200" width="120" height="60" class="sensor" rx="4"/>
+    <text x="85" y="222" class="value-label" font-size="11">Raw Water Quality</text>
+
+    <!-- Signal placeholders -->
+    <text x="85" y="295" class="value-label">Raw Turbidity</text>
+    <text id="raw-turbidity-value" x="85" y="315" class="value-num">--</text>
+    <text x="85" y="332" class="unit-label">NTU</text>
+
+    <text x="85" y="360" class="value-label">Raw pH</text>
+    <text id="raw-ph-value" x="85" y="380" class="value-num">--</text>
+
+    <!-- Pump station -->
+    <rect x="35" y="400" width="100" height="50" class="pump" rx="8"/>
+    <text x="85" y="430" class="value-label">RWP-101</text>
+    <circle cx="150" cy="425" r="5" class="status-normal"/>
+
+    <text x="85" y="468" class="value-label" font-size="11">RWP Flow Rate</text>
+    <text id="rwp-flow-value" x="85" y="478" class="value-num" font-size="11">--</text>
+  </g>
+
+  <!-- Arrow 1→2 -->
+  <polygon points="255,370 268,360 268,380" class="arrow"/>
+
+  <!-- ================================ -->
+  <!-- Stage 2: Chemical Dosing (x=290) -->
+  <!-- ================================ -->
+  <g transform="translate(290, 130)">
+    <rect x="0" y="0" width="200" height="480" class="box"/>
+    <rect x="0" y="0" width="200" height="36" fill="#8b5cf6"/>
+    <text x="100" y="24" class="area-label">CHEMICAL DOSING</text>
+
+    <!-- Coag tank -->
+    <rect x="20" y="60" width="70" height="80" class="tank" rx="4"/>
+    <text x="55" y="90" class="value-label">Coag Tank</text>
+    <text x="55" y="108" class="unit-label">Level</text>
+    <text id="coag-level-value" x="55" y="128" class="value-num">--</text>
+
+    <!-- Coag pump -->
+    <rect x="110" y="65" width="70" height="50" class="pump" rx="8"/>
+    <text x="145" y="95" class="value-label">Coag Pump</text>
+    <circle cx="190" cy="90" r="5" class="status-normal"/>
+
+    <!-- Chlorine dosing -->
+    <rect x="20" y="160" width="70" height="70" class="tank"/>
+    <text x="55" y="190" class="value-label">Chlorine</text>
+    <text x="55" y="208" class="unit-label">Tank Level</text>
+    <text id="chlorine-level-value" x="55" y="220" class="value-num">--</text>
+
+    <rect x="110" y="170" width="70" height="50" class="pump" rx="8"/>
+    <text x="145" y="200" class="value-label">Cl Pump</text>
+
+    <!-- Chemical consumption -->
+    <rect x="35" y="260" width="130" height="60" class="sensor" rx="4"/>
+    <text x="100" y="282" class="value-label">Chemical Consumption</text>
+    <text x="100" y="300" class="unit-label">Coagulant Dose Rate</text>
+
+    <text x="100" y="350" class="value-label">Cost per m³</text>
+    <text id="chemical-cost-value" x="100" y="370" class="value-num">--</text>
+    <text x="100" y="387" class="unit-label">VND/m³</text>
+
+    <!-- Dosing flow -->
+    <text x="100" y="420" class="value-label">Dosing Flow</text>
+    <text id="coag-flow-value" x="100" y="440" class="value-num">--</text>
+    <text x="100" y="457" class="unit-label">L/min</text>
+  </g>
+
+  <!-- Arrow 2→3 -->
+  <polygon points="495,370 508,360 508,380" class="arrow"/>
+
+  <!-- ================================ -->
+  <!-- Stage 3: Flash Mix / Flocculator (x=520) -->
+  <!-- ================================ -->
+  <g transform="translate(520, 130)">
+    <rect x="0" y="0" width="160" height="480" class="box"/>
+    <rect x="0" y="0" width="160" height="36" fill="#f59e0b"/>
+    <text x="80" y="24" class="area-label">CLARIFICATION</text>
+
+    <rect x="15" y="60" width="55" height="90" class="reactor" rx="4"/>
+    <text x="42" y="100" class="value-label">Flash</text>
+    <text x="42" y="118" class="value-label">Mixer</text>
+    <circle cx="80" cy="130" r="5" class="status-normal"/>
+
+    <rect x="90" y="60" width="55" height="90" class="reactor" rx="4"/>
+    <text x="117" y="100" class="value-label">Floccu-</text>
+    <text x="117" y="118" class="value-label">lator</text>
+    <circle cx="80" cy="160" r="5" class="status-normal"/>
+
+    <!-- Clarifier -->
+    <rect x="25" y="180" width="110" height="80" class="vessel" rx="8"/>
+    <text x="80" y="220" class="value-label">Clarifier</text>
+    <circle cx="150" cy="220" r="5" class="status-normal"/>
+
+    <text x="80" y="295" class="value-label">Settled Turbidity</text>
+    <text id="settled-turbidity-value" x="80" y="315" class="value-num">--</text>
+    <text x="80" y="332" class="unit-label">NTU</text>
+
+    <text x="80" y="360" class="value-label">Clarifier Efficiency</text>
+    <text id="clarifier-efficiency-value" x="80" y="380" class="value-num">--</text>
+
+    <!-- Sludge pump -->
+    <rect x="45" y="410" width="70" height="40" class="pump" rx="6"/>
+    <text x="80" y="435" class="value-label">Sludge Pump</text>
+  </g>
+
+  <!-- Arrow 3→4 -->
+  <polygon points="685,370 698,360 698,380" class="arrow"/>
+
+  <!-- ================================ -->
+  <!-- Stage 4: Filters (x=710) -->
+  <!-- ================================ -->
+  <g transform="translate(710, 130)">
+    <rect x="0" y="0" width="170" height="480" class="box"/>
+    <rect x="0" y="0" width="170" height="36" fill="#16a34a"/>
+    <text x="85" y="24" class="area-label">FILTRATION</text>
+
+    <!-- Filter 101 -->
+    <rect x="15" y="60" width="60" height="90" class="filter" rx="4"/>
+    <text x="45" y="100" class="value-label">Filter</text>
+    <text x="45" y="118" class="value-label">101</text>
+    <circle cx="85" cy="120" r="5" class="status-normal"/>
+
+    <!-- Filter 102 -->
+    <rect x="95" y="60" width="60" height="90" class="filter" rx="4"/>
+    <text x="125" y="100" class="value-label">Filter</text>
+    <text x="125" y="118" class="value-label">102</text>
+    <circle cx="85" cy="140" r="5" class="status-normal"/>
+
+    <!-- Filter DP -->
+    <text x="85" y="200" class="value-label">Filter DP (101)</text>
+    <text id="filter101-dp-value" x="85" y="220" class="value-num">--</text>
+    <text x="85" y="237" class="unit-label">kPa</text>
+
+    <text x="85" y="265" class="value-label">Filter DP (102)</text>
+    <text id="filter102-dp-value" x="85" y="285" class="value-num">--</text>
+    <text x="85" y="302" class="unit-label">kPa</text>
+
+    <!-- Filter quality -->
+    <rect x="25" y="320" width="120" height="60" class="sensor" rx="4"/>
+    <text x="85" y="342" class="value-label">Filter Quality</text>
+
+    <text x="85" y="400" class="value-label">Filtered Turbidity</text>
+    <text id="filtered-turbidity-value" x="85" y="420" class="value-num">--</text>
+    <text x="85" y="437" class="unit-label">NTU</text>
+
+    <!-- Backwash pump -->
+    <rect x="50" y="455" width="70" height="25" class="pump" rx="4"/>
+    <text x="85" y="472" class="value-label" font-size="10">Backwash Pump</text>
+  </g>
+
+  <!-- Arrow 4→5 -->
+  <polygon points="885,370 898,360 898,380" class="arrow"/>
+
+  <!-- ================================ -->
+  <!-- Stage 5: Contact Tank (x=910) -->
+  <!-- ================================ -->
+  <g transform="translate(910, 130)">
+    <rect x="0" y="0" width="140" height="250" class="box"/>
+    <rect x="0" y="0" width="140" height="36" fill="#06b6d4"/>
+    <text x="70" y="24" class="area-label" font-size="11">DISINFECTION</text>
+
+    <rect x="25" y="55" width="90" height="70" class="tank" rx="4"/>
+    <text x="70" y="85" class="value-label">Contact Tank</text>
+    <circle cx="125" cy="90" r="5" class="status-normal"/>
+
+    <text x="70" y="155" class="value-label">Free Chlorine</text>
+    <text id="free-chlorine-value" x="70" y="175" class="value-num">--</text>
+    <text x="70" y="192" class="unit-label">mg/L</text>
+
+    <text x="70" y="215" class="value-label">Contact Time</text>
+    <text id="contact-time-value" x="70" y="235" class="value-num">--</text>
+    <text x="70" y="245" class="unit-label" font-size="9">min</text>
+  </g>
+
+  <!-- Arrow 5→6 -->
+  <polygon points="1055,255 1068,245 1068,265" class="arrow"/>
+
+  <!-- ================================ -->
+  <!-- Stage 6: Clear Water (x=1070, same row) -->
+  <!-- ================================ -->
+  <g transform="translate(910, 390)">
+    <rect x="0" y="0" width="140" height="220" class="box"/>
+    <rect x="0" y="0" width="140" height="36" fill="#0891b2"/>
+    <text x="70" y="24" class="area-label" font-size="11">CLEAR WATER</text>
+
+    <rect x="25" y="50" width="90" height="70" class="tank" rx="4"/>
+    <text x="70" y="80" class="value-label">Clear Water Tank</text>
+    <circle cx="125" cy="85" r="5" class="status-normal"/>
+
+    <text x="70" y="150" class="value-label">Quality Index</text>
+    <text id="quality-index-value" x="70" y="170" class="value-num">--</text>
+
+    <text x="70" y="195" class="value-label">Transfer Pump</text>
+    <circle cx="125" cy="195" r="5" class="status-normal"/>
+  </g>
+
+  <!-- Arrow 6→7 (dashed to right edge) -->
+  <line x1="1055" y1="500" x2="1100" y2="500" class="pipe-dashed"/>
+  <polygon points="1100,500 1110,493 1110,507" class="arrow"/>
+
+  <!-- ================================ -->
+  <!-- Stage 7: Distribution / Outlet (x=340, bottom row) -->
+  <!-- ================================ -->
+  <g transform="translate(340, 620)">
+    <rect x="0" y="0" width="520" height="100" class="box"/>
+    <rect x="0" y="0" width="520" height="30" fill="#dc2626"/>
+    <text x="260" y="20" class="area-label">DISTRIBUTION &amp; OUTLET</text>
+
+    <rect x="20" y="40" width="80" height="45" class="pump" rx="6"/>
+    <text x="60" y="67" class="value-label">HSP-101</text>
+    <circle cx="115" cy="62" r="5" class="status-normal"/>
+
+    <rect x="140" y="40" width="80" height="45" class="pump" rx="6"/>
+    <text x="180" y="67" class="value-label">HSP-102</text>
+
+    <!-- Manifold -->
+    <rect x="240" y="45" width="50" height="35" class="pipeline" rx="4"/>
+    <text x="265" y="67" class="value-label">Manifold</text>
+
+    <!-- Outlet quality -->
+    <rect x="310" y="40" width="100" height="45" class="sensor" rx="4"/>
+    <text x="360" y="67" class="value-label">Outlet Quality</text>
+
+    <text x="440" y="55" class="value-label">Outlet Turbidity</text>
+    <text id="outlet-turbidity-value" x="440" y="72" class="value-num">--</text>
+    <text x="500" y="72" class="unit-label">NTU</text>
+
+    <text x="440" y="90" class="value-label">Outlet Free Cl₂</text>
+    <text id="outlet-chlorine-value" x="500" y="90" class="value-num">--</text>
+  </g>
+
+  <!-- Arrow from clear water down to distribution -->
+  <line x1="980" y1="610" x2="980" y2="625" class="pipe"/>
+  <line x1="980" y1="625" x2="600" y2="625" class="pipe"/>
+  <polygon points="600,625 610,618 610,632" class="arrow"/>
+  <line x1="610" y1="620" x2="610" y2="620" class="pipe"/>
+
+  <!-- ================================ -->
+  <!-- Stage 8: KPI Panel (right side) -->
+  <!-- ================================ -->
+  <g transform="translate(1070, 620)">
+    <rect x="0" y="0" width="100" height="100" class="box"/>
+    <rect x="0" y="0" width="100" height="30" fill="#1e293b"/>
+    <text x="50" y="20" class="area-label" font-size="11">PLANT KPI</text>
+
+    <text x="50" y="50" class="value-label" font-size="10">Cost/m³</text>
+    <text id="cost-per-m3-value" x="50" y="67" class="value-num" font-size="13">--</text>
+    <text x="50" y="82" class="unit-label">VND/m³</text>
+
+    <text x="50" y="95" class="value-label" font-size="9">Prod Today</text>
+    <text id="production-today-value" x="50" y="105" class="value-num" font-size="9">--</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="600" y="730" class="subtitle" text-anchor="middle" font-size="10">Data-binding enabled — signal IDs embedded in binding YAML</text>
+</svg>

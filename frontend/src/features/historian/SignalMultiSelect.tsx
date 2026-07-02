@@ -5,12 +5,19 @@ import { X, Search } from "lucide-react";
 
 type Props = { selected: string[]; onChange: (ids: string[]) => void };
 
+const PLANTS = [
+  { id: "all", name: "All Plants" },
+  { id: "VF-DEMO", name: "VF-DEMO (Compressor)" },
+  { id: "WTP-DEMO-01", name: "WTP-DEMO-01 (Water Treatment)" },
+];
+
 export function SignalMultiSelect({ selected, onChange }: Props) {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [plantFilter, setPlantFilter] = useState("all");
   const { data: signals } = useQuery({
-    queryKey: ["signals-all-hist"],
-    queryFn: () => getSignals(),
+    queryKey: ["signals-all-hist", plantFilter],
+    queryFn: () => getSignals(plantFilter !== "all" ? { plant_id: plantFilter } : {}),
     staleTime: 30000,
   });
 
@@ -46,6 +53,17 @@ export function SignalMultiSelect({ selected, onChange }: Props) {
             <button onClick={() => remove(id)}><X className="w-3 h-3" /></button>
           </span>
         ))}
+      </div>
+      <div className="relative">
+        <select
+          value={plantFilter}
+          onChange={e => { setPlantFilter(e.target.value); setOpen(false); }}
+          className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm mb-2"
+        >
+          {PLANTS.map(p => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
       </div>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />

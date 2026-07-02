@@ -1,10 +1,19 @@
 import { useState, useEffect } from "react";
 import { SvgDiagram } from "./SvgDiagram";
 
-const DIAGRAMS = [
-  { id: "pid-process", name: "P&amp;ID Process Line 01", svg: "/diagrams/pid-process.svg" },
-  { id: "one-line-electrical", name: "One-Line Electrical", svg: "/diagrams/one-line-electrical.svg" },
-];
+const PLANT_DIAGRAMS: Record<string, Array<{ id: string; name: string; svg: string }>> = {
+  "VF-DEMO": [
+    { id: "pid-process", name: "P&amp;ID Process Line 01", svg: "/diagrams/pid-process.svg" },
+    { id: "one-line-electrical", name: "One-Line Electrical", svg: "/diagrams/one-line-electrical.svg" },
+  ],
+  "WTP-DEMO-01": [
+    { id: "wtp-process", name: "WTP Process Flow", svg: "/diagrams/wtp-demo-01-process.svg" },
+  ],
+};
+
+function getDiagramsForPlant(plantId: string | null) {
+  return PLANT_DIAGRAMS[plantId || ""] || [];
+}
 
 async function loadBinding(id: string): Promise<any> {
   try {
@@ -41,13 +50,30 @@ async function loadBinding(id: string): Promise<any> {
 }
 
 export function DiagramPage() {
-  const [diagramId, setDiagramId] = useState("pid-process");
+  // Use current workspace plant from URL or context
+  // For now, detect from pathname or default to VF-DEMO
+  const currentPlantId = window.location.pathname.includes("wtp") ? "WTP-DEMO-01" : "VF-DEMO";
+  const diagrams = getDiagramsForPlant(currentPlantId);
+  const [diagramId, setDiagramId] = useState(diagrams.length > 0 ? diagrams[0].id : "");
   const [binding, setBinding] = useState<any>(null);
-  const diagram = DIAGRAMS.find(d => d.id === diagramId) || DIAGRAMS[0];
+  const diagram = diagrams.find(d => d.id === diagramId) || diagrams[0];
 
   useEffect(() => {
-    loadBinding(diagramId).then(setBinding);
+    if (diagramId) {
+      loadBinding(diagramId).then(setBinding);
+    }
   }, [diagramId]);
+
+  if (diagrams.length === 0) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Diagrams</h1>
+        <div className="text-gray-500 text-center py-16">
+          No diagrams configured for this plant
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -58,7 +84,7 @@ export function DiagramPage() {
           onChange={e => setDiagramId(e.target.value)}
           className="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
         >
-          {DIAGRAMS.map(d => (
+          {diagrams.map(d => (
             <option key={d.id} value={d.id}>{d.name}</option>
           ))}
         </select>
