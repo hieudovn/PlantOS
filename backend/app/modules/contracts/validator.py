@@ -35,7 +35,7 @@ VALID_CRITICALITY = {"critical", "high", "medium", "low"}
 VALID_STATUS = {"active", "inactive", "deprecated"}
 VALID_SIGNAL_TYPES = {"measurement", "status", "setpoint", "command"}
 VALID_DATA_TYPES = {"float", "bool", "int", "string"}
-OPCUA_NODE_PATTERN = re.compile(r"^ns=\d+;s=[A-Za-z][A-Za-z0-9_.-]*$")
+OPCUA_NODE_PATTERN = re.compile(r"^ns=\d+;s=[A-Z][A-Z0-9_]*$")
 
 
 class ValidationResult:

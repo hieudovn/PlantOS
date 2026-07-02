@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SvgDiagram } from "./SvgDiagram";
+import { useWorkspace } from "@/lib/WorkspaceContext";
 
 const PLANT_DIAGRAMS: Record<string, Array<{ id: string; name: string; svg: string }>> = {
   "VF-DEMO": [
@@ -50,9 +51,7 @@ async function loadBinding(id: string): Promise<any> {
 }
 
 export function DiagramPage() {
-  // Use current workspace plant from URL or context
-  // For now, detect from pathname or default to VF-DEMO
-  const currentPlantId = window.location.pathname.includes("wtp") ? "WTP-DEMO-01" : "VF-DEMO";
+  const { plantId: currentPlantId } = useWorkspace();
   const diagrams = getDiagramsForPlant(currentPlantId);
   const [diagramId, setDiagramId] = useState(diagrams.length > 0 ? diagrams[0].id : "");
   const [binding, setBinding] = useState<any>(null);

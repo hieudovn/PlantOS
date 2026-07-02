@@ -28,14 +28,11 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
     } catch {}
     return ts;
   };
-  const localFrom = toLocalFormat(from);
-  const localTo = toLocalFormat(to);
-
   const queries = useQueries({
     queries: signalIds.map(sid => ({
-      queryKey: ["history", sid, localFrom, localTo],
-      queryFn: () => getHistory({ signal_id: sid, from: localFrom, to: localTo }),
-      enabled: !!sid && !!localFrom && !!localTo,
+      queryKey: ["history", sid, from, to],
+      queryFn: () => getHistory({ signal_id: sid, from, to }),
+      enabled: !!sid && !!from && !!to,
       refetchInterval: 5000,
     })),
   });
@@ -49,9 +46,17 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
   }
 
   const toLocalTs = (ts: string): string => {
-    // Timestamps from API have "Z" suffix but are actually server local time.
-    // Replace "Z" with "+07:00" so ECharts displays correct Vietnam time.
-    if (ts.endsWith("Z")) return ts.slice(0, -1) + "+07:00";
+    // Convert UTC ISO timestamp to local time string for ECharts display
+    const d = new Date(ts);
+    if (!isNaN(d.getTime())) {
+      const y = d.getFullYear();
+      const mo = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      const h = String(d.getHours()).padStart(2, "0");
+      const mi = String(d.getMinutes()).padStart(2, "0");
+      const s = String(d.getSeconds()).padStart(2, "0");
+      return `${y}-${mo}-${dd}T${h}:${mi}:${s}`;
+    }
     return ts;
   };
 
