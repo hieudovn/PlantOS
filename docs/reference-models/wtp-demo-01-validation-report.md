@@ -9,7 +9,7 @@
 - **Host:** `103.97.132.249:8000` (VPS production)
 - **Backend version:** `0.1.0` (reported by `/health`)
 - **DB state:** Has existing VF-DEMO plant data (7 assets, 26 signals). WTP-DEMO-01 does NOT exist yet.
-- **Auth:** API Key (`X-API-Key: plantos-edge-key-2026`)
+- **Auth:** API Key (`X-API-Key: {EDGE_API_KEY}`)
 
 ## Validate Results
 

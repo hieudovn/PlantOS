@@ -22,7 +22,7 @@ Contract → Registry → Simulator → Ingestion → Historian → Query → Vi
 |-----------|----------|
 | PlantOS API | `http://103.97.132.249:8000` |
 | VF Scenario API | `http://103.97.132.249:8100` |
-| API Key | `X-API-Key: plantos-edge-key-2026` |
+| API Key | `X-API-Key: {EDGE_API_KEY}` |
 
 ---
 
@@ -47,7 +47,7 @@ for sid in \
   TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity
 do
   curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; d=json.load(sys.stdin); print(f'{d[\"signal_id\"]}: {d[\"value\"]}')" 2>/dev/null
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; d=json.load(sys.stdin); print(f'{d[\"signal_id\"]}: {d[\"value\"]}')" 2>/dev/null
 done
 ```
 
@@ -68,7 +68,7 @@ for sid in \
   PLANT-KPI-101.cost_per_m3
 do
   curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; d=json.load(sys.stdin); print(f'{d[\"signal_id\"]}: {d[\"value\"]}')" 2>/dev/null
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; d=json.load(sys.stdin); print(f'{d[\"signal_id\"]}: {d[\"value\"]}')" 2>/dev/null
 done
 ```
 
@@ -80,7 +80,7 @@ for sid in \
   QUALITY-TRACEABILITY-ENGINE-101.probable_root_cause_code
 do
   curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; d=json.load(sys.stdin); print(f'{d[\"signal_id\"]}: {d[\"value\"]}')" 2>/dev/null
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; d=json.load(sys.stdin); print(f'{d[\"signal_id\"]}: {d[\"value\"]}')" 2>/dev/null
 done
 ```
 
@@ -110,7 +110,7 @@ for sid in \
   QUALITY-TRACEABILITY-ENGINE-101.probable_root_cause_code
 do
   val=$(curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
   echo "$sid = $val"
 done
 ```
@@ -137,7 +137,7 @@ for sid in \
   PLANT-KPI-101.cost_per_m3
 do
   val=$(curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
   echo "$sid = $val"
 done
 ```
@@ -163,7 +163,7 @@ for sid in \
   PLANT-KPI-101.cost_per_m3
 do
   val=$(curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
   echo "$sid = $val"
 done
 ```
@@ -186,7 +186,7 @@ for sid in \
   TRANSFER-OUTLET-QUALITY-STATION-101.outlet_compliance_status
 do
   val=$(curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
   echo "$sid = $val"
 done
 ```
@@ -209,7 +209,7 @@ for sid in \
   QUALITY-TRACEABILITY-ENGINE-101.outlet_quality_risk_score
 do
   val=$(curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
   echo "$sid = $val"
 done
 ```
@@ -233,7 +233,7 @@ for sid in \
   HSP-102.flow_rate
 do
   val=$(curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
   echo "$sid = $val"
 done
 ```
@@ -256,7 +256,7 @@ for sid in \
   CHEMICAL-CONSUMPTION-STATION-101.chlorine_dose_rate
 do
   val=$(curl -s "http://103.97.132.249:8000/api/v1/signals/$sid/current" \
-    -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
+    -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; print(json.load(sys.stdin)['value'])" 2>/dev/null)
   echo "$sid = $val"
 done
 ```
@@ -274,7 +274,7 @@ done
 
 ```bash
 curl -s "http://103.97.132.249:8000/api/v1/historian/query" \
-  -H "X-API-Key: plantos-edge-key-2026" \
+  -H "X-API-Key: {EDGE_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{
     "signal_ids": [

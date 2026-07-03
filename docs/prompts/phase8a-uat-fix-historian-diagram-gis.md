@@ -51,7 +51,7 @@ SELECT COUNT(*) FROM plantos.d_plant_kpi_101_cost_per_m3;
 
 ```bash
 curl -s "http://103.97.132.249:8000/api/v1/measurements/history?signal_id=RAW-WATER-QUALITY-STATION-101.raw_turbidity&from=2026-07-02T00:00:00Z&to=2026-07-02T23:59:59Z" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -m json.tool | head -30
+  -H "X-API-Key: {EDGE_API_KEY}" | python -m json.tool | head -30
 ```
 
 If this returns `[]` or `null` → data is NOT in TDengine. Check if VF simulator HTTP ingestion is still running.
@@ -305,12 +305,12 @@ const { data: assets } = useQuery({
 ```bash
 # 1. Test plant-filtered signals
 curl "http://103.97.132.249:8000/api/v1/signals?plant_id=WTP-DEMO-01" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; print(len(json.load(sys.stdin)['signals']))"
+  -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; print(len(json.load(sys.stdin)['signals']))"
 # Expected: 92
 
 # 2. Test historian query for WTP
 curl "http://103.97.132.249:8000/api/v1/measurements/history?signal_id=RAW-WATER-QUALITY-STATION-101.raw_turbidity&from=2026-07-02T00:00:00Z&to=2026-07-02T23:59:59Z" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; d=json.load(sys.stdin); print(f'Points: {len(d) if isinstance(d,list) else d}')"
+  -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; d=json.load(sys.stdin); print(f'Points: {len(d) if isinstance(d,list) else d}')"
 
 # 3. Verify frontend rebuild works
 cd frontend && npm run build

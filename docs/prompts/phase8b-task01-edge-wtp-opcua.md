@@ -128,7 +128,7 @@ The signal_id in the contract (e.g., `RWP-101.flow_rate`) must match what's in t
 ```bash
 # Get WTP signal IDs from API and compare with what the collector would send
 curl -s "http://localhost:8000/api/v1/signals?plant_id=WTP-DEMO-01" \
-  -H "X-API-Key: plantos-edge-key-2026" | \
+  -H "X-API-Key: {EDGE_API_KEY}" | \
   python -c "import sys,json; signals=json.load(sys.stdin); print('\n'.join(s['signal_id'] for s in signals[:5])); print(f'Total: {len(signals)}')"
 ```
 
@@ -154,7 +154,7 @@ for r in result:
 # 3. Verify Center receives WTP data through Edge
 # Check historian for a WTP signal with recent timestamp
 curl -s "http://localhost:8000/api/v1/measurements/history?signal_id=RWP-101.flow_rate&limit=1" \
-  -H "X-API-Key: plantos-edge-key-2026"
+  -H "X-API-Key: {EDGE_API_KEY}"
 ```
 
 ### Step 7: Cleanup — Remove WTP HTTP Ingest (Optional)

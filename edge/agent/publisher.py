@@ -8,10 +8,13 @@ logger = logging.getLogger(__name__)
 
 
 class MQTTPublisher:
-    def __init__(self, host: str, port: int, topic_prefix: str, edge_node_id: str):
+    def __init__(self, host: str, port: int, topic_prefix: str, edge_node_id: str,
+                 username: str = "", password: str = ""):
         self.topic_prefix = topic_prefix
         self.edge_node_id = edge_node_id
         self.client = mqtt.Client(client_id=edge_node_id)
+        if username:
+            self.client.username_pw_set(username, password)
         self.client.on_connect = self._on_connect
         self.connected = False
 

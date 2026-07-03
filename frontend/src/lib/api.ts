@@ -10,7 +10,10 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   } else {
-    headers["X-API-Key"] = "plantos-edge-key-2026";
+    const DEMO_API_KEY = import.meta.env.VITE_API_KEY || "";
+    if (DEMO_API_KEY) {
+      headers["X-API-Key"] = DEMO_API_KEY;
+    }
   }
 
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
@@ -30,6 +33,9 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   }
   return res.json();
 }
+
+// ---- Edge Fleet ----
+export const getEdgeNodes = () => fetchAPI<any[]>("/api/v1/edge-nodes");
 
 // ---- Plants ----
 export const getPlants = () => fetchAPI<any[]>("/api/v1/plants");
@@ -52,11 +58,16 @@ export const getCurrentValues = (params: Record<string, string>) => {
   const qs = "?" + new URLSearchParams(params).toString();
   return fetchAPI<any[]>(`/api/v1/measurements/current${qs}`);
 };
-
 export const getHistory = (params: Record<string, string>) => {
   const qs = "?" + new URLSearchParams(params).toString();
   return fetchAPI<any>(`/api/v1/measurements/history${qs}`);
 };
 
-// ---- System Metrics ----
+// ---- Alarms ----
+export const getAlarms = (params?: Record<string, string>) => {
+  const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+  return fetchAPI<any[]>(`/api/v1/alarms${qs}`);
+};
+
+// ---- System ----
 export const getSystemMetrics = () => fetchAPI<any>("/api/v1/system/metrics");

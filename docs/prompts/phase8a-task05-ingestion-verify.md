@@ -36,23 +36,23 @@ ssh root@103.97.132.249 "docker logs plantos-backend --tail 100 2>&1 | grep -i -
 ```bash
 # Test 1: Raw water quality
 curl -s "http://103.97.132.249:8000/api/v1/signals/RAW-WATER-QUALITY-STATION-101.raw_turbidity/current" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -m json.tool
+  -H "X-API-Key: {EDGE_API_KEY}" | python -m json.tool
 
 # Test 2: Settled water quality
 curl -s "http://103.97.132.249:8000/api/v1/signals/CLARIFIER-101.settled_turbidity/current" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -m json.tool
+  -H "X-API-Key: {EDGE_API_KEY}" | python -m json.tool
 
 # Test 3: Filtered water quality
 curl -s "http://103.97.132.249:8000/api/v1/signals/FILTER-QUALITY-STATION-101.filtered_turbidity/current" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -m json.tool
+  -H "X-API-Key: {EDGE_API_KEY}" | python -m json.tool
 
 # Test 4: Outlet quality
 curl -s "http://103.97.132.249:8000/api/v1/signals/TRANSFER-OUTLET-QUALITY-STATION-101.outlet_turbidity/current" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -m json.tool
+  -H "X-API-Key: {EDGE_API_KEY}" | python -m json.tool
 
 # Test 5: Cost KPI
 curl -s "http://103.97.132.249:8000/api/v1/signals/PLANT-KPI-101.cost_per_m3/current" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -m json.tool
+  -H "X-API-Key: {EDGE_API_KEY}" | python -m json.tool
 ```
 
 Expected: Each returns a JSON with `signal_id`, `value`, `timestamp`, `quality`.
@@ -60,7 +60,7 @@ Expected: Each returns a JSON with `signal_id`, `value`, `timestamp`, `quality`.
 > **Note:** If `/current` endpoint doesn't exist, try the historian query:
 > ```bash
 > curl -s "http://103.97.132.249:8000/api/v1/historian/query" \
->   -H "X-API-Key: plantos-edge-key-2026" \
+>   -H "X-API-Key: {EDGE_API_KEY}" \
 >   -H "Content-Type: application/json" \
 >   -d '{"signal_ids":["RAW-WATER-QUALITY-STATION-101.raw_turbidity"],"limit":1}'
 > ```
@@ -71,7 +71,7 @@ Query all 4 turbidity signals at once:
 
 ```bash
 curl -s "http://103.97.132.249:8000/api/v1/historian/query" \
-  -H "X-API-Key: plantos-edge-key-2026" \
+  -H "X-API-Key: {EDGE_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{
     "signal_ids": [
@@ -109,7 +109,7 @@ for sid in signals:
     try:
         r = requests.get(
             f'http://103.97.132.249:8000/api/v1/signals/{sid}/current',
-            headers={'X-API-Key': 'plantos-edge-key-2026'},
+            headers={'X-API-Key': '{EDGE_API_KEY}'},
             timeout=5
         )
         if r.status_code == 200:
@@ -227,7 +227,7 @@ curl -s -X POST http://103.97.132.249:8100/api/v1/scenarios/raw_water_contaminat
 Wait 30 seconds for transition, then check turbidity values:
 ```bash
 curl -s "http://103.97.132.249:8000/api/v1/signals/RAW-WATER-QUALITY-STATION-101.raw_turbidity/current" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -m json.tool
+  -H "X-API-Key: {EDGE_API_KEY}" | python -m json.tool
 ```
 
 Expected: raw_turbidity should spike significantly higher (e.g., 80-120 NTU vs normal 30-50).

@@ -5,8 +5,8 @@ import { LogOut } from "lucide-react";
 export function Topbar() {
   const { plantId, setPlantId, plants } = useWorkspace();
   const navigate = useNavigate();
-  const username = localStorage.getItem("plantos_user") || "MVP Demo";
-  const isLoggedIn = !!localStorage.getItem("plantos_token") || true;
+  const username = localStorage.getItem("plantos_user") || "";
+  const isLoggedIn = !!localStorage.getItem("plantos_token");
 
   const handleLogout = () => {
     localStorage.removeItem("plantos_token");

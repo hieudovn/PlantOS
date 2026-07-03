@@ -1,8 +1,13 @@
 """WTP Ingestion Diagnostic — kiểm tra toàn bộ pipeline từ Edge → Center → TDengine"""
-import requests, json, sys
+import os, requests, json, sys
+
+EDGE_API_KEY = os.environ.get("EDGE_API_KEY", "")
+if not EDGE_API_KEY:
+    print("ERROR: EDGE_API_KEY environment variable not set.", file=sys.stderr)
+    sys.exit(1)
 
 HOST = "103.97.132.249"
-API_KEY = "plantos-edge-key-2026"
+API_KEY = EDGE_API_KEY
 HEADERS = {"X-API-Key": API_KEY}
 
 def check(label, url, expect_status=200):

@@ -1,7 +1,7 @@
 edge_node_id: edge-agent-01
 plant_id: DEMO-PLANT
 center_url: http://localhost:8000
-api_key: plantos-edge-key-2026
+api_key: ${EDGE_API_KEY}  # Set via environment variable (from deployment/.env)
 
 # DuckDB local buffer
 buffer:
@@ -13,6 +13,8 @@ mqtt:
   host: localhost
   port: 1883
   topic_prefix: avenue/demo-plant
+  username: ${MQTT_USER}      # edge-agent — set via env
+  password: ${MQTT_PASSWORD}  # from deployment/.env
 
 # HTTP fallback (when MQTT unavailable)
 http:

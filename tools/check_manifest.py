@@ -1,10 +1,14 @@
 """Check Edge Agent manifest."""
-import json
-import sys
+import json, os, sys
 
 import requests
 
-r = requests.get("http://localhost:8000/api/v1/edge/sync/manifest", headers={"X-API-Key": "plantos-edge-key-2026"})
+EDGE_API_KEY = os.environ.get("EDGE_API_KEY", "")
+if not EDGE_API_KEY:
+    print("ERROR: EDGE_API_KEY environment variable not set.", file=sys.stderr)
+    sys.exit(1)
+
+r = requests.get("http://localhost:8000/api/v1/edge/sync/manifest", headers={"X-API-Key": EDGE_API_KEY})
 d = r.json()
 assets = d.get("assets", [])
 signals = d.get("signals", [])

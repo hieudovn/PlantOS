@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle."""
-    # Startup — initialize DB engine
+    # Startup — validate config, initialize DB engine
+    settings.validate()
     get_engine()
 
     # Register EventDispatcher subscribers

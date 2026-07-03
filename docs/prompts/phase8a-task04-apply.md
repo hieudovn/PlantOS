@@ -37,11 +37,11 @@ Before applying, snapshot the current DB state:
 ```bash
 # Check VF-DEMO is intact
 curl -s http://103.97.132.249:8000/api/v1/assets?plant_id=VF-DEMO \
-  -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; d=json.load(sys.stdin); print(f'VF-DEMO assets: {len(d)}')"
+  -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; d=json.load(sys.stdin); print(f'VF-DEMO assets: {len(d)}')"
 
 # Check WTP-DEMO-01 does NOT exist yet
 curl -s http://103.97.132.249:8000/api/v1/assets?plant_id=WTP-DEMO-01 \
-  -H "X-API-Key: plantos-edge-key-2026" | python -c "import sys,json; d=json.load(sys.stdin); print(f'WTP-DEMO-01 assets: {len(d)}')"
+  -H "X-API-Key: {EDGE_API_KEY}" | python -c "import sys,json; d=json.load(sys.stdin); print(f'WTP-DEMO-01 assets: {len(d)}')"
 ```
 
 Expected: VF-DEMO has 7 assets, WTP-DEMO-01 has 0 assets.
@@ -68,7 +68,7 @@ payload = {
 resp = requests.post(
     'http://103.97.132.249:8000/api/v1/contracts/apply',
     json=payload,
-    headers={'X-API-Key': 'plantos-edge-key-2026'}
+    headers={'X-API-Key': '{EDGE_API_KEY}'}
 )
 print(json.dumps(resp.json(), indent=2))
 print(f'Status: {resp.status_code}')
@@ -111,7 +111,7 @@ After successful apply, verify via GET endpoints:
 ```bash
 # 4a. Verify plant
 curl -s http://103.97.132.249:8000/api/v1/assets?plant_id=WTP-DEMO-01 \
-  -H "X-API-Key: plantos-edge-key-2026" | python -c "
+  -H "X-API-Key: {EDGE_API_KEY}" | python -c "
 import sys, json
 data = json.load(sys.stdin)
 print(f'Total assets: {len(data)}')
@@ -129,7 +129,7 @@ Expected: 47 assets across various types.
 ```bash
 # 4b. Verify asset hierarchy (parent-child)
 curl -s http://103.97.132.249:8000/api/v1/assets?plant_id=WTP-DEMO-01 \
-  -H "X-API-Key: plantos-edge-key-2026" | python -c "
+  -H "X-API-Key: {EDGE_API_KEY}" | python -c "
 import sys, json
 assets = json.load(sys.stdin)
 roots = [a for a in assets if not a.get('parent_asset_id')]
@@ -150,7 +150,7 @@ Expected: ~15-17 root assets, ~30-32 child assets. SCREEN-101 parent = INTAKE-ST
 ```bash
 # 4c. Verify signals
 curl -s "http://103.97.132.249:8000/api/v1/signals?plant_id=WTP-DEMO-01" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -c "
+  -H "X-API-Key: {EDGE_API_KEY}" | python -c "
 import sys, json
 signals = json.load(sys.stdin)
 print(f'Total signals: {len(signals)}')
@@ -162,7 +162,7 @@ Expected: 92 signals.
 ```bash
 # 4d. Verify VF-DEMO still intact
 curl -s http://103.97.132.249:8000/api/v1/assets?plant_id=VF-DEMO \
-  -H "X-API-Key: plantos-edge-key-2026" | python -c "
+  -H "X-API-Key: {EDGE_API_KEY}" | python -c "
 import sys, json
 data = json.load(sys.stdin)
 print(f'VF-DEMO assets: {len(data)}')
@@ -175,7 +175,7 @@ Expected: Still 7 assets (unchanged).
 
 ```bash
 curl -s "http://103.97.132.249:8000/api/v1/signals?plant_id=WTP-DEMO-01" \
-  -H "X-API-Key: plantos-edge-key-2026" | python -c "
+  -H "X-API-Key: {EDGE_API_KEY}" | python -c "
 import sys, json
 signals = json.load(sys.stdin)
 # Key trend bundle signals
@@ -274,7 +274,7 @@ If apply goes wrong:
 # Option A: Delete WTP-DEMO-01 plant (cascading)
 # (Only if supported by API — check with PM)
 curl -X DELETE http://103.97.132.249:8000/api/v1/plants/WTP-DEMO-01 \
-  -H "X-API-Key: plantos-edge-key-2026"
+  -H "X-API-Key: {EDGE_API_KEY}"
 
 # Option B: Use on_conflict=skip for re-apply (idempotent)
 # Change import_policy to {mode: apply, on_conflict: skip}

@@ -1,13 +1,18 @@
 """WTP-DEMO-01 End-to-End Demo Test Suite.
 Runs baseline + 7 scenarios + historian query. Saves all results to /tmp/e2e_results.json
 """
-import json, time, sys
+import json, os, time, sys
 
 import requests
 
+EDGE_API_KEY = os.environ.get("EDGE_API_KEY", "")
+if not EDGE_API_KEY:
+    print("ERROR: EDGE_API_KEY environment variable not set.", file=sys.stderr)
+    sys.exit(1)
+
 PLANTOS = "http://localhost:8000"
 VF = "http://localhost:8100"
-HEADERS = {"X-API-Key": "plantos-edge-key-2026"}
+HEADERS = {"X-API-Key": EDGE_API_KEY}
 
 
 def get_current(signal_id):

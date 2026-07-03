@@ -12,16 +12,23 @@ CACHE_PATH = Path("metadata_cache.json")
 
 
 class MetadataManager:
-    def __init__(self, center_url: str):
+    def __init__(self, center_url: str, api_key: str = ""):
         self.center_url = center_url.rstrip("/")
+        self.api_key = api_key
         self.manifest: dict = {"assets": [], "signals": []}
         self._signal_ids: set[str] = set()
 
     async def sync(self) -> bool:
         """Download manifest from Center and cache locally."""
         try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                resp = await client.get(f"{self.center_url}/api/v1/edge/sync/manifest")
+            headers = {"Content-Type": "application/json"}
+            if self.api_key:
+                headers["X-API-Key"] = self.api_key
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.get(
+                    f"{self.center_url}/api/v1/edge/sync/manifest",
+                    headers=headers,
+                )
                 if resp.status_code == 200:
                     self.manifest = resp.json()
                     self._signal_ids = {s["signal_id"] for s in self.manifest.get("signals", [])}

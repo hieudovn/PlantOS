@@ -1,11 +1,16 @@
 """Verify WTP apply results on PlantOS."""
-import json, sys
+import json, os, sys
 from collections import Counter
 
 import requests
 
+EDGE_API_KEY = os.environ.get("EDGE_API_KEY", "")
+if not EDGE_API_KEY:
+    print("ERROR: EDGE_API_KEY environment variable not set.", file=sys.stderr)
+    sys.exit(1)
+
 HOST = "http://localhost:8000"
-HEADERS = {"X-API-Key": "plantos-edge-key-2026"}
+HEADERS = {"X-API-Key": EDGE_API_KEY}
 
 # 4a. Asset count + types
 print("=== 4a. Asset Count & Types ===")

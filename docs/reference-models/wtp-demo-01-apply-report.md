@@ -9,7 +9,7 @@
 - **Host:** `103.97.132.249:8000` (VPS production)
 - **Backend version:** `0.1.0`
 - **Apply time:** 2026-07-02 (after Task 8A-03 validation)
-- **Auth:** API Key (`X-API-Key: plantos-edge-key-2026`)
+- **Auth:** API Key (`X-API-Key: {EDGE_API_KEY}`)
 
 ## Pre-Apply State
 
