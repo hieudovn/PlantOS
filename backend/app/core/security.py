@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=10)
 
 
 def hash_password(password: str) -> str:
@@ -16,9 +16,9 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
-def create_access_token(user_id: str, username: str) -> str:
+def create_access_token(user_id: str, username: str, role: str = "operator") -> str:
     expire = datetime.now(timezone.utc) + timedelta(hours=settings.JWT_EXPIRE_HOURS)
-    payload = {"sub": user_id, "username": username, "exp": expire}
+    payload = {"sub": user_id, "username": username, "role": role, "exp": expire}
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 

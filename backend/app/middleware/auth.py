@@ -2,8 +2,9 @@
 
 import logging
 
-from fastapi import Request
+from fastapi import Request, Depends, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.security import decode_access_token, should_refresh_token, create_access_token
 from app.core.config import settings
@@ -58,3 +59,23 @@ class AuthMiddleware(BaseHTTPMiddleware):
             status_code=401,
             content={"detail": "Invalid or missing authentication"},
         )
+
+
+# ---- FastAPI Dependency for Admin-Only Endpoints ----
+
+security = HTTPBearer()
+
+
+def require_admin(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+    """FastAPI dependency — validates JWT and requires role=admin.
+
+    Usage:
+        @router.get("/admin-only", dependencies=[Depends(require_admin)])
+    """
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    if payload.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return payload

@@ -1,7 +1,7 @@
 // Use relative URLs — Vite proxy forwards /api to backend
 const BASE = "";
 
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
+export async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   const token = localStorage.getItem("plantos_token");
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

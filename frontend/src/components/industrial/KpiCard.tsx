@@ -13,7 +13,12 @@ type KpiCardProps = {
   onClick?: () => void;
   icon?: JSX.Element;
   compact?: boolean;
+  loading?: boolean;
 };
+
+function Skeleton({ className }: { className?: string }) {
+  return <div className={`animate-pulse rounded ${className || ""}`} style={{ backgroundColor: 'var(--surface-hover)' }} />;
+}
 
 const stateBorder: Record<string, string> = {
   warning: "3px solid var(--status-warning)",
@@ -28,8 +33,22 @@ const trendIcon: Record<string, JSX.Element> = {
 };
 
 export function KpiCard({
-  label, value, unit, state, trend, trendLabel, quality, timestamp, onClick, icon, compact,
+  label, value, unit, state, trend, trendLabel, quality, timestamp, onClick, icon, compact, loading,
 }: KpiCardProps) {
+  if (loading) {
+    return (
+      <div style={{ backgroundColor: 'var(--surface-card)', borderColor: 'var(--border-default)' }} className="rounded-lg p-4 border">
+        <div className="flex items-center gap-2">
+          <Skeleton className="w-8 h-8 rounded-full" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-5 w-24" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const valSize = compact ? "text-base" : "text-xl";
   return (
     <div onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined}

@@ -61,7 +61,7 @@ class Settings(BaseSettings):
         """Synchronous URL for Alembic (migrations run sync)."""
         return self.DATABASE_URL
 
-    def validate(self):
+    def validate_config(self):
         """Validate required settings. Call at startup."""
         if not self.JWT_SECRET:
             raise RuntimeError(

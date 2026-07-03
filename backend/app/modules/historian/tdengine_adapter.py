@@ -1,7 +1,7 @@
 """TDengine Historian Adapter — the ONLY module that knows TDengine internals."""
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.core.config import settings
 from app.db.tdengine import build_tdengine_dsn
@@ -217,7 +217,7 @@ class TDengineHistorianAdapter(HistorianInterface):
             rows = self._cursor.fetchallintodict()
             return [
                 Measurement(
-                    timestamp=r["ts"],
+                    timestamp=r["ts"].replace(tzinfo=timezone.utc) if isinstance(r["ts"], datetime) else r["ts"],
                     signal_id=signal_id,
                     value=r["val"],
                     quality=Quality(r.get("quality", "GOOD")),

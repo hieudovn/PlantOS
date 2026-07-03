@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAssets, getSignals, getHistory, getAlarms } from "@/lib/api";
+import { getAssets, getSignals, getCurrentValues, getAlarms } from "@/lib/api";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { KpiCard } from "@/components/industrial/KpiCard";
 import { WorkflowDiagram } from "@/components/diagrams/WorkflowDiagram";
@@ -8,11 +8,9 @@ import { Circle, ExternalLink, CheckCircle, AlertTriangle, XCircle, Pause } from
 function useLatestValue(signalId: string) {
   return useQuery({
     queryKey: ["current", signalId],
-    queryFn: () => getHistory({ signal_id: signalId, from: "2026-07-01T00:00:00.000Z", to: new Date().toISOString() }).then((res: any) => {
-      const data = res?.data || [];
-      return data.length > 0 ? data[data.length - 1] : null;
-    }),
+    queryFn: () => getCurrentValues({ signal_id: signalId }).then((data: any[]) => data?.[0] || null),
     refetchInterval: 10000, enabled: !!signalId,
+    staleTime: 10000,
   });
 }
 

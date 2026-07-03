@@ -1,6 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap');
 @import "tailwindcss";
 
+/* ==========================================================================
+   PlantOS Design Tokens v1.0 — Single Source of Truth
+   Dark theme (default). Light theme via data-theme="light" in future.
+   ========================================================================== */
+
+/* ---- Typography & Spacing & Radius & Colors — Tailwind @theme ---- */
 @theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Inter', ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  /* Status colors */
   --color-status-normal: #22c55e;
   --color-status-running: #3b82f6;
   --color-status-warning: #f59e0b;
@@ -9,13 +20,18 @@
   --color-status-offline: #6b7280;
   --color-status-simulated: #8b5cf6;
 
+  /* Severity colors */
   --color-severity-low: #3b82f6;
   --color-severity-medium: #f59e0b;
   --color-severity-high: #f97316;
   --color-severity-critical: #ef4444;
+
+  /* Accent colors */
+  --color-accent-primary: #3b82f6;
+  --color-accent-secondary: #06b6d4;
 }
 
-/* PlantOS Design Tokens — Dark Theme (default) */
+/* ---- CSS Custom Properties (for var() inline styles) — MUST match @theme ---- */
 :root {
   color-scheme: dark;
 
@@ -34,12 +50,12 @@
   --border-default: #334155;
   --border-subtle: #1e293b;
 
-  /* Status */
+  /* Status — exact match with @theme above */
   --status-normal: #22c55e;
-  --status-warning: #eab308;
+  --status-warning: #f59e0b;
   --status-critical: #ef4444;
   --status-offline: #6b7280;
-  --status-simulated: #a855f7;
+  --status-simulated: #8b5cf6;
 
   /* Data Quality */
   --quality-good: #22c55e;
@@ -50,8 +66,22 @@
   /* Accent */
   --accent-primary: #3b82f6;
   --accent-secondary: #06b6d4;
+
+  /* Typography */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Inter', ui-monospace, SFMono-Regular, Consolas, monospace;
 }
 
+/* ---- Base ---- */
 body {
-  @apply bg-gray-950 text-gray-100 antialiased;
+  font-family: var(--font-sans);
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular figures for numeric contexts */
+.font-mono, .tabular-nums {
+  font-feature-settings: "tnum";
 }

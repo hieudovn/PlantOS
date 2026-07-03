@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 from app.api import v1_router
 from app.api.ws import router as ws_router, broadcast_measurements
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle."""
     # Startup — validate config, initialize DB engine
-    settings.validate()
+    settings.validate_config()
     get_engine()
 
     # Register EventDispatcher subscribers
@@ -73,6 +74,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],

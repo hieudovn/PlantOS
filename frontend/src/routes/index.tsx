@@ -11,6 +11,8 @@ import { GisMapPage } from "@/features/visualization/GisMapPage";
 import { EdgeFleetPage } from "@/features/edge-fleet/EdgeFleetPage";
 import { AlarmPage } from "@/features/alarms/AlarmPage";
 import { LoginPage } from "@/features/auth/LoginPage";
+import { ReportsPage } from "@/features/reports/ReportsPage";
+import { UserManagementPage } from "@/features/users/UserManagementPage";
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -43,6 +45,8 @@ export const router = createBrowserRouter([
       { path: "alarms", element: <AlarmPage /> },
       { path: "edge", element: <EdgeFleetPage /> },
       { path: "system", element: <SystemHealthPage /> },
+      { path: "reports", element: <ReportsPage /> },
+      { path: "users", element: <UserManagementPage /> },
     ],
   },
 ]);

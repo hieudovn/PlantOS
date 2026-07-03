@@ -7,29 +7,11 @@ const COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#8b5cf6", "#ef4444", "#06b6d4"
 type Props = { signalIds: string[]; from: string; to: string; chartType?: string; showLegend?: boolean; showToolbox?: boolean; refetchInterval?: number; height?: number; compact?: boolean };
 
 export function TrendChart({ signalIds, from, to, chartType = "line", showLegend = true, showToolbox = true, refetchInterval = 5000, height = 500, compact = false }: Props) {
-  const toLocalFormat = (ts: string): string => {
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(ts)) return ts;
-    try {
-      const d = new Date(ts);
-      if (!isNaN(d.getTime())) {
-        const y = d.getFullYear();
-        const mo = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
-        const h = String(d.getHours()).padStart(2, "0");
-        const mi = String(d.getMinutes()).padStart(2, "0");
-        return `${y}-${mo}-${dd}T${h}:${mi}`;
-      }
-    } catch {}
-    return ts;
-  };
-  const localFrom = toLocalFormat(from);
-  const localTo = toLocalFormat(to);
-
   const queries = useQueries({
     queries: signalIds.map(sid => ({
-      queryKey: ["history", sid, localFrom, localTo],
-      queryFn: () => getHistory({ signal_id: sid, from: localFrom, to: localTo }),
-      enabled: !!sid && !!localFrom && !!localTo,
+      queryKey: ["history", sid, from, to],
+      queryFn: () => getHistory({ signal_id: sid, from, to }),
+      enabled: !!sid && !!from && !!to,
       refetchInterval,
     })),
   });
