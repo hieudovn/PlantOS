@@ -21,7 +21,7 @@ class LoginResponse(BaseModel):
 
 
 # Pre-computed bcrypt hash for "admin" (passlib bcrypt, rounds=12)
-_ADMIN_HASH = "$2b$12$D741Dv2E4ghcJDAPWptO3eKqIyUrCF5TMzxJ8TaUKnI.2I1cPYFwC"
+_ADMIN_HASH = "$2b$12$HJXc8NpIHObx5vbmcF2VHubD4aNzWVFunOz8US9rEi9ZUckEGgseG"
 _ENG_HASH = "$2b$12$m/pXatm.5tgpMKhCaY/TWul1hC7e3Zkk9hZQHmqhmdC.kVq4rpJeu"
 
 _USERS = {

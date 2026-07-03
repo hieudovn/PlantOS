@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set in .env}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init:/docker-entrypoint-initdb.d
@@ -27,8 +27,8 @@ services:
     environment:
       TAOS_FQDN: tdengine
     ports:
-      - "${TDENGINE_REST_PORT:-6041}:6041"
-      - "${TDENGINE_NATIVE_PORT:-6030}:6030"
+      - "127.0.0.1:${TDENGINE_REST_PORT:-6041}:6041"
+      - "127.0.0.1:${TDENGINE_NATIVE_PORT:-6030}:6030"
     volumes:
       - tdengine_data:/var/lib/taos
       - tdengine_log:/var/log/taos
@@ -51,9 +51,9 @@ services:
       EMQX_DASHBOARD__DEFAULT_USERNAME: admin
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${MQTT_PASSWORD:?MQTT_PASSWORD must be set in .env}
     ports:
-      - "${EMQX_MQTT_PORT:-1883}:1883"
-      - "${EMQX_WS_PORT:-8083}:8083"
-      - "${EMQX_DASHBOARD_PORT:-18083}:18083"
+      - "127.0.0.1:${EMQX_MQTT_PORT:-1883}:1883"
+      - "127.0.0.1:${EMQX_WS_PORT:-8083}:8083"
+      - "127.0.0.1:${EMQX_DASHBOARD_PORT:-18083}:18083"
     volumes:
       - emqx_data:/opt/emqx/data
       - emqx_log:/opt/emqx/log
@@ -87,7 +87,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
       API_KEYS: ${EDGE_API_KEY},${FRONTEND_DEMO_KEY}
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "127.0.0.1:${BACKEND_PORT:-8000}:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -106,7 +106,7 @@ services:
     environment:
       VITE_API_BASE_URL: http://backend:${BACKEND_PORT:-8000}
     ports:
-      - "${FRONTEND_PORT:-5173}:5173"
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:5173"
     volumes:
       - ../frontend/src:/app/src
     depends_on:
