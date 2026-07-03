@@ -1,24 +1,5 @@
-@import "tailwindcss";
-
-@theme {
-  --color-status-normal: #22c55e;
-  --color-status-running: #3b82f6;
-  --color-status-warning: #f59e0b;
-  --color-status-alarm: #ef4444;
-  --color-status-trip: #dc2626;
-  --color-status-offline: #6b7280;
-  --color-status-simulated: #8b5cf6;
-
-  --color-severity-low: #3b82f6;
-  --color-severity-medium: #f59e0b;
-  --color-severity-high: #f97316;
-  --color-severity-critical: #ef4444;
-}
-
 /* PlantOS Design Tokens — Dark Theme (default) */
 :root {
-  color-scheme: dark;
-
   /* Surfaces */
   --surface-primary: #0f172a;
   --surface-secondary: #1e293b;
@@ -50,8 +31,4 @@
   /* Accent */
   --accent-primary: #3b82f6;
   --accent-secondary: #06b6d4;
-}
-
-body {
-  @apply bg-gray-950 text-gray-100 antialiased;
 }

@@ -1,45 +1,76 @@
 import { NavLink } from "react-router-dom";
 import {
-  LayoutDashboard, Wrench, Radio, ChartLine, MapPin,
-  GitBranch, Bell, Plug,
+  LayoutDashboard, LineChart, Workflow, MapPin,
+  Bell, Boxes, Activity, Server, Monitor,
 } from "lucide-react";
 
-const navItems = [
-  { to: "/", label: "Overview", icon: LayoutDashboard },
-  { to: "/assets", label: "Assets", icon: Wrench },
-  { to: "/signals", label: "Signals", icon: Radio },
-  { to: "/historian", label: "Historian", icon: ChartLine },
-  { to: "/diagrams", label: "Diagrams", icon: GitBranch },
-  { to: "/gis", label: "GIS Map", icon: MapPin },
-  { to: "/alarms", label: "Alarms", icon: Bell },
-  { to: "/edge", label: "Edge Fleet", icon: Plug },
+const navGroups = [
+  {
+    label: "Monitor",
+    items: [
+      { path: "/", icon: LayoutDashboard, label: "Overview" },
+      { path: "/historian", icon: LineChart, label: "Historian" },
+      { path: "/diagrams", icon: Workflow, label: "Diagrams" },
+      { path: "/gis", icon: MapPin, label: "GIS Map" },
+      { path: "/alarms", icon: Bell, label: "Alarms" },
+    ],
+  },
+  {
+    label: "Platform",
+    items: [
+      { path: "/assets", icon: Boxes, label: "Assets" },
+      { path: "/signals", icon: Activity, label: "Signals" },
+      { path: "/edge", icon: Server, label: "Edge Fleet" },
+      { path: "/system", icon: Monitor, label: "System" },
+    ],
+  },
 ];
+
+function NavItem({ path, icon: Icon, label }: { path: string; icon: any; label: string }) {
+  return (
+    <NavLink
+      to={path}
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+          isActive ? "text-white" : "hover:text-white"
+        }`
+      }
+      style={({ isActive }) => ({
+        backgroundColor: isActive ? 'var(--surface-hover)' : 'transparent',
+        color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+      })}
+    >
+      <Icon className="w-4 h-4" />
+      {label}
+    </NavLink>
+  );
+}
 
 export function Sidebar() {
   return (
-    <aside className="w-60 bg-gray-900 border-r border-gray-800 flex flex-col">
-      <div className="h-14 flex items-center px-4 border-b border-gray-800">
-        <span className="text-lg font-bold tracking-tight">🏭 PlantOS</span>
+    <aside style={{ backgroundColor: 'var(--surface-primary)', borderColor: 'var(--border-default)' }} className="w-60 border-r flex flex-col">
+      <div style={{ borderColor: 'var(--border-default)' }} className="h-14 flex items-center px-4 border-b">
+        <span className="inline-flex items-center gap-2 text-lg font-bold tracking-tight">
+          <LayoutDashboard className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
+          PlantOS
+        </span>
       </div>
-      <nav className="flex-1 p-2 space-y-0.5">
-        {navItems.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-                isActive
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800/50"
-              }`
-            }
-          >
-            <Icon className="w-4 h-4" />
-            {label}
-          </NavLink>
+      <nav className="flex-1 p-2 space-y-1">
+        {navGroups.map((group) => (
+          <div key={group.label}>
+            <div
+              className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              {group.label}
+            </div>
+            {group.items.map((item) => (
+              <NavItem key={item.path} {...item} />
+            ))}
+          </div>
         ))}
       </nav>
-      <div className="p-3 border-t border-gray-800 text-xs text-gray-600">
+      <div style={{ borderColor: 'var(--border-default)', color: 'var(--text-muted)' }} className="p-3 border-t text-xs">
         PlantOS v0.1.0
       </div>
     </aside>

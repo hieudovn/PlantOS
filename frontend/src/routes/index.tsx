@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Shell } from "@/components/layout/Shell";
 import { OverviewPage } from "@/features/overview/OverviewPage";
+import { SystemHealthPage } from "@/features/system/SystemHealthPage";
 import { AssetTable } from "@/features/assets/AssetTable";
 import { AssetDetail } from "@/features/assets/AssetDetail";
 import { SignalTable } from "@/features/signals/SignalTable";
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
       { path: "gis", element: <GisMapPage /> },
       { path: "alarms", element: <AlarmPage /> },
       { path: "edge", element: <EdgeFleetPage /> },
+      { path: "system", element: <SystemHealthPage /> },
     ],
   },
 ]);
