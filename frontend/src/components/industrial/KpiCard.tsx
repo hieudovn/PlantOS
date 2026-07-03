@@ -11,6 +11,8 @@ type KpiCardProps = {
   quality?: string;
   timestamp?: string;
   onClick?: () => void;
+  icon?: JSX.Element;
+  compact?: boolean;
 };
 
 const stateBorder: Record<string, string> = {
@@ -26,21 +28,11 @@ const trendIcon: Record<string, JSX.Element> = {
 };
 
 export function KpiCard({
-  label,
-  value,
-  unit,
-  state,
-  trend,
-  trendLabel,
-  quality,
-  timestamp,
-  onClick,
+  label, value, unit, state, trend, trendLabel, quality, timestamp, onClick, icon, compact,
 }: KpiCardProps) {
+  const valSize = compact ? "text-base" : "text-xl";
   return (
-    <div
-      onClick={onClick}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
+    <div onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === "Enter") onClick(); } : undefined}
       style={{
         backgroundColor: 'var(--surface-card)',
@@ -49,30 +41,21 @@ export function KpiCard({
       }}
       className={`rounded-lg p-4 border ${onClick ? "cursor-pointer hover:brightness-110 transition-all" : ""}`}
     >
-      <div style={{ color: 'var(--text-secondary)' }} className="text-xs mb-1">
-        {label}
-      </div>
-      <div className="flex items-baseline gap-1">
-        <span style={{ color: 'var(--text-primary)' }} className="text-[28px] font-bold leading-tight">
-          {value}
-        </span>
-        {unit && (
-          <span style={{ color: 'var(--text-muted)' }} className="text-sm">
-            {unit}
-          </span>
-        )}
-      </div>
-      {quality && timestamp && (
-        <div className="mt-1">
-          <DataQualityBadge quality={quality} timestamp={timestamp} />
+      <div className="flex items-center gap-2">
+        {icon && <span className="flex-shrink-0">{icon}</span>}
+        <div className="min-w-0 flex-1">
+          <div style={{ color: 'var(--text-secondary)' }} className="text-xs mb-1">{label}</div>
+          <div className="flex items-baseline gap-1">
+            <span style={{ color: 'var(--text-primary)' }} className={`${valSize} font-bold leading-tight`}>{value}</span>
+            {unit && <span style={{ color: 'var(--text-muted)' }} className="text-xs">{unit}</span>}
+          </div>
         </div>
-      )}
-      {trend && trendLabel && (
-        <div className="flex items-center gap-1 mt-1">
-          {trendIcon[trend]}
-          <span style={{ color: 'var(--text-muted)' }} className="text-xs">
-            {trendLabel}
-          </span>
+      </div>
+      {(trend || trendLabel || quality) && (
+        <div className="flex items-center gap-2 mt-2">
+          {trend && trendIcon[trend]}
+          {trendLabel && <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{trendLabel}</span>}
+          {quality && timestamp && <DataQualityBadge quality={quality} timestamp={timestamp} />}
         </div>
       )}
     </div>

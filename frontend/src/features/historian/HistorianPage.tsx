@@ -83,6 +83,23 @@ export function HistorianPage() {
     return () => clearInterval(id);
   }, [preset]);
 
+  // Deep-link: read ?signal= from URL and auto-add to active panel
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sid = params.get("signal");
+    if (sid) {
+      setPanels(prev => {
+        const np = [...prev];
+        const panel = np[active] || np[0];
+        if (!panel.signalIds.includes(sid)) {
+          panel.signalIds = [...panel.signalIds, sid];
+        }
+        return np;
+      });
+      window.history.replaceState({}, "", "/historian");
+    }
+  }, []); // Only on mount
+
   // Auto-save state to localStorage
   useEffect(() => {
     saveState({ from, to, preset, panels, active, chartType });
