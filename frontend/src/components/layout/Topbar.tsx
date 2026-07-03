@@ -74,19 +74,18 @@ export function Topbar() {
         )}
 
         {isLoggedIn && (
-          <>
-            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{username}</span>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1 text-xs transition-colors"
-              style={{ color: 'var(--text-muted)' }}
-              title="Logout"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              Logout
-            </button>
-          </>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{username}</span>
         )}
+        {/* Always show logout in MVP mode (API key fallback ensures page works even without JWT) */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-1 text-xs transition-colors hover:text-red-400"
+          style={{ color: 'var(--text-muted)' }}
+          title="Logout"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          Logout
+        </button>
         <span className="text-xs border rounded px-1.5 py-0.5 font-mono" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-default)' }}>
           v0.1.0
         </span>
