@@ -42,8 +42,8 @@ export function SystemHealthPage() {
         </h2>
         <div className="grid grid-cols-4 gap-3">
           <MetricCard
-            icon={Database} label="Total Size" value={`${totalDbSize} MB`}
-            sub={`PG: ${pg.size_mb || 0} MB · TD: ${td.size_mb || 0} MB`}
+            icon={Database} label="Total DB Size" value={`${totalDbSize} MB`}
+            sub={`PG: ${pg.size_mb || 0} MB · Historian: ${td.size_mb || 0} MB`}
             color="bg-cyan-500/20 text-cyan-400"
           />
           <MetricCard
@@ -53,13 +53,16 @@ export function SystemHealthPage() {
             color="bg-cyan-500/20 text-cyan-400"
           />
           <MetricCard
-            icon={Database} label="TD Measurements"
+            icon={Database} label="Historian Records"
             value={(td.measurement_count || 0).toLocaleString()}
+            sub={`${td.size_mb || 0} MB on disk`}
             color="bg-teal-500/20 text-teal-400"
           />
           <MetricCard
-            icon={Database} label="TD Size" value={`${td.size_mb || 0} MB`}
-            color="bg-teal-500/20 text-teal-400"
+            icon={Database} label="Historian DB"
+            value={td.measurement_count > 0 ? "Healthy" : "—"}
+            sub={`${td.measurement_count > 0 ? 'Connected' : 'No data'}`}
+            color={td.measurement_count > 0 ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"}
           />
         </div>
       </div>

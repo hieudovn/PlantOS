@@ -70,6 +70,9 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     container_name: plantos-backend
+    volumes:
+      - tdengine_data:/tdengine-data:ro
+      - ../examples/vf-plantos-contract.yaml:/app/examples/vf-plantos-contract.yaml:ro
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
@@ -85,8 +88,6 @@ services:
       API_KEYS: ${EDGE_API_KEY},${FRONTEND_DEMO_KEY}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
-    volumes:
-      - ../examples/vf-plantos-contract.yaml:/app/examples/vf-plantos-contract.yaml:ro
     depends_on:
       postgres:
         condition: service_healthy
