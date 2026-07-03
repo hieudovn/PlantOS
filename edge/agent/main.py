@@ -77,8 +77,8 @@ class EdgeAgent:
             api_key=self.cfg.get("api_key", ""),
         )
 
-        # Signal generators
-        self.generators = [SignalGenerator(s) for s in self.cfg["signals"]]
+        # Signal generators (optional — disabled when OPC UA provides data)
+        self.generators = [SignalGenerator(s) for s in self.cfg.get("signals", [])]
 
         # Setup web server
         web_setup(self.buffer, self.mqtt, self.sync, self.cfg)
@@ -93,11 +93,31 @@ class EdgeAgent:
         self.modbus = ModbusCollector(modbus_cfg, self.buffer)
         set_modbus_collector(self.modbus)
 
-        # OPC UA collector (for Virtual Factory integration)
+        # OPC UA collector (for Virtual Factory + WTP integration)
         from collectors.opcua import OpcUaCollector
-        opcua_cfg = self.cfg.get("opcua", {})
-        self.opcua_collector = OpcUaCollector(opcua_cfg, self.buffer)
-        set_opcua_collector(self.opcua_collector)
+        from collectors.opcua.collector import MultiOpcUaCollector
+        from collectors.opcua.bindings import generate_bindings_from_contract
+
+        # Build multi-endpoint OPC UA collector
+        self.opcua_multi = MultiOpcUaCollector()
+
+        # VF Compressor (existing endpoint port 4840)
+        vf_config = self.cfg.get("opcua", {})
+        if vf_config.get("enabled", False):
+            self.opcua_multi.add_collector(vf_config, self.buffer)
+
+        # WTP (new endpoint port 4841, auto-bind from contract)
+        wtp_config = self.cfg.get("opcua_wtp", {})
+        if wtp_config.get("enabled", False):
+            auto_bind = wtp_config.get("auto_bind", {})
+            if auto_bind.get("enabled") and auto_bind.get("contract_path"):
+                wtp_config["tags"] = generate_bindings_from_contract(
+                    auto_bind["contract_path"],
+                    auto_bind.get("node_id_template", "ns=2;s={signal_id}"),
+                )
+            self.opcua_multi.add_collector(wtp_config, self.buffer)
+
+        set_opcua_collector(self.opcua_multi)
 
         logger.info(f"Agent {self.node_id} started with {len(self.generators)} signals")
 
@@ -114,7 +134,7 @@ class EdgeAgent:
         asyncio.create_task(self.health.run(lambda: self.sync.get_backlog()))
         asyncio.create_task(self._periodic_metadata_sync())
         asyncio.create_task(self.modbus.start())
-        asyncio.create_task(self.opcua_collector.start())
+        asyncio.create_task(self.opcua_multi.start_all())
 
         while True:
             # Generate measurements
@@ -153,13 +173,13 @@ class EdgeAgent:
 
 
     def get_opcua_status(self) -> dict:
-        if not hasattr(self, 'opcua_collector'):
+        if not hasattr(self, 'opcua_multi'):
             return {"enabled": False}
         return {
-            "enabled": self.opcua_collector._enabled,
-            "connected": self.opcua_collector.connected,
-            "endpoint": self.opcua_collector.config.get("endpoint", ""),
-            "signal_count": len(self.opcua_collector.mapper.node_ids),
+            "enabled": self.opcua_multi.total_signals > 0,
+            "total_signals": self.opcua_multi.total_signals,
+            "any_connected": self.opcua_multi.any_connected,
+            "endpoints": self.opcua_multi.status_list,
         }
 
 

@@ -23,30 +23,9 @@ heartbeat:
   url: http://localhost:8000/api/v1/edge-nodes/heartbeat
   interval_seconds: 10
 
-# Signal generation (same signals as simulator)
-signals:
-  - signal_id: PUMP-101.discharge_pressure
-    data_type: float
-    min: 5.0
-    max: 9.0
-    noise: 0.2
-    pattern: sine
-  - signal_id: PUMP-101.flow_rate
-    data_type: float
-    min: 80.0
-    max: 120.0
-    noise: 1.0
-    pattern: sine
-  - signal_id: MOTOR-101.motor_current
-    data_type: float
-    min: 40.0
-    max: 60.0
-    noise: 0.5
-    pattern: sine
-
 publish:
-  interval_seconds: 10     # 10s sampling cycle (was 1s)
-  batch_size: 10
+  interval_seconds: 10     # 10s sampling cycle
+  batch_size: 500           # 500 measurements per flush (was 10 — too small for 118 OPC UA signals)
 
 # OPC UA collector (Virtual Factory Compressor Train)
 opcua:
@@ -114,6 +93,18 @@ opcua:
     # === Seal Gas (1) ===
     - node_id: ns=2;s=COMP01_SEAL_FLOW
       signal_id: COMP01-SEAL.flow_rate
+
+# OPC UA collector — WTP Water Treatment Plant
+opcua_wtp:
+  enabled: true
+  endpoint: opc.tcp://localhost:4841
+  timeout: 5.0
+  poll_interval_ms: 30000  # 30s poll cycle
+  # Auto-generate bindings from contract
+  auto_bind:
+    enabled: true
+    contract_path: /opt/plantos/examples/contracts/wtp-demo-01.contract.yaml
+    node_id_template: "ns=2;s={signal_id}"
 
 # Modbus TCP adapter
 modbus:
