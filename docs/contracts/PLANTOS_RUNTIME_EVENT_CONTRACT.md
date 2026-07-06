@@ -1,7 +1,7 @@
-# PlantOS Runtime Event Contract — Final Draft
+# PlantOS Runtime Event Contract
 
 > **Version:** 2.0-final | **Date:** 2026-07-06  
-> **Status:** Final draft for SA approval. No implementation until approved.
+> **Status:** Final — SA Approved. Implementation authorized.
 
 ---
 
@@ -81,7 +81,7 @@
 
 ## 4. Event-Specific Required Fields
 
-### 3.1 SignalValueUpdated
+### 4.1 SignalValueUpdated
 
 ```json
 {
@@ -95,7 +95,7 @@
 ```
 Required: event_id, event_type, timestamp, asset, signal, uns_topic, payload.value, payload.quality
 
-### 3.2 AssetStatusChanged
+### 4.2 AssetStatusChanged
 
 ```json
 {
@@ -107,7 +107,7 @@ Required: event_id, event_type, timestamp, asset, signal, uns_topic, payload.val
 Required: event_id, event_type, timestamp, asset, payload.status.  
 Optional: payload.previous_status, payload.reason
 
-### 3.3 AlarmRaised
+### 4.3 AlarmRaised
 
 ```json
 {
@@ -119,7 +119,7 @@ Optional: payload.previous_status, payload.reason
 ```
 Required: event_id, event_type, timestamp, correlation_id, asset, alarm.alarm_code, alarm.severity, alarm.description, alarm.state="raised"
 
-### 3.4 AlarmCleared
+### 4.4 AlarmCleared
 
 ```json
 {
@@ -131,7 +131,7 @@ Required: event_id, event_type, timestamp, correlation_id, asset, alarm.alarm_co
 ```
 Required: event_id, event_type, timestamp, correlation_id (must match AlarmRaised), asset, alarm.alarm_code, alarm.state="cleared"
 
-### 3.5 SignalQualityChanged
+### 4.5 SignalQualityChanged
 
 ```json
 {
@@ -142,7 +142,7 @@ Required: event_id, event_type, timestamp, correlation_id (must match AlarmRaise
 ```
 Required: event_id, event_type, timestamp, asset, signal, payload.quality, payload.previous_quality
 
-### 3.6 EdgeHeartbeatReceived
+### 4.6 EdgeHeartbeatReceived
 
 ```json
 {
@@ -212,3 +212,20 @@ Context:   asset/signal/edge/alarm presence per event type
 Alarm:     state=raised/cleared, correlation_id match for pairs
 Exclusion: no WO/MO/Operation fields
 ```
+
+---
+
+## 10. Bundle Verification
+
+This contract has been verified against all 5 bundle requirements:
+
+1. ✅ `event_id` format finalized: `plantos-{entity_id_lower}-{YYYYMMDDTHHMMSSZ}-{random6}`, retry uses same event_id
+2. ✅ Identity mapping: `asset.asset_id` primary, `signal.signal_id` primary, `asset.asset_code` secondary
+3. ✅ Topic model finalized: hybrid — signal UNS for `SignalValueUpdated`, `plantos/events/{event_type}` for system events
+4. ✅ `uns_topic` semantics: signal UNS topic for `SignalValueUpdated`, event topic for system events
+5. ✅ No MES production context fields in any payload
+
+---
+
+> **This contract is the source of truth for MES PlantOSAdapter implementation.**
+> Any later change to runtime topic, event envelope, event_id, identity key, alarm lifecycle, or QoS policy must be versioned and reviewed by SA + MES PM before implementation impact is accepted.

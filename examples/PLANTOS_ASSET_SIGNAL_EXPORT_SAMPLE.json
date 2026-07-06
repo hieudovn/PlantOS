@@ -4,7 +4,7 @@
     "generated_at": "2026-07-06T12:00:00Z",
     "plantos_version": "0.1.0",
     "schema_version": "2.0",
-    "description": "Sample asset/signal export for MES crosswalk preparation. Real data from PlantOS Center PostgreSQL."
+    "description": "Sample asset/signal export for MES crosswalk preparation"
   },
   "plant": {
     "plant_id": "WTP-DEMO-01",
@@ -57,14 +57,15 @@
   ],
   "signals": [
     {
-      "signal_id": "INTAKE-STRUCTURE-101.screen_dp",
+      "signal_id": "INTAKE-STRUCTURE-101.intake_flow",
       "asset_id": "INTAKE-STRUCTURE-101",
-      "signal_name": "screen_dp",
-      "display_name": "Screen Differential Pressure",
+      "signal_name": "intake_flow",
+      "display_name": "Intake Flow Rate",
       "signal_category": "measurement",
       "data_type": "float",
-      "engineering_unit": "kPa",
-      "uns_topic": "plantos/wtp-demo-01/intake-area/intake-structure-101/measurement/screen_dp"
+      "engineering_unit": "m3/h",
+      "uns_topic": "plantos/wtp-demo-01/intake-area/intake-structure-101/measurement/intake_flow",
+      "status": "active"
     },
     {
       "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_turbidity",
@@ -74,7 +75,8 @@
       "signal_category": "measurement",
       "data_type": "float",
       "engineering_unit": "NTU",
-      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_turbidity"
+      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_turbidity",
+      "status": "active"
     },
     {
       "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_ph",
@@ -84,7 +86,8 @@
       "signal_category": "measurement",
       "data_type": "float",
       "engineering_unit": "pH",
-      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_ph"
+      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_ph",
+      "status": "active"
     },
     {
       "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_conductivity",
@@ -94,25 +97,27 @@
       "signal_category": "measurement",
       "data_type": "float",
       "engineering_unit": "uS/cm",
-      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_conductivity"
+      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_conductivity",
+      "status": "active"
     },
     {
-      "signal_id": "INTAKE-STRUCTURE-101.intake_flow",
-      "asset_id": "INTAKE-STRUCTURE-101",
-      "signal_name": "intake_flow",
-      "display_name": "Intake Flow Rate",
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_temperature",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_temperature",
+      "display_name": "Raw Water Temperature",
       "signal_category": "measurement",
       "data_type": "float",
-      "engineering_unit": "m3/h",
-      "uns_topic": "plantos/wtp-demo-01/intake-area/intake-structure-101/measurement/intake_flow"
+      "engineering_unit": "degC",
+      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_temperature",
+      "status": "active"
     }
   ],
   "identifier_surface_for_mes": {
-    "description": "Fields available for MES crosswalk mapping",
+    "description": "Fields available for MES crosswalk mapping. All values are stable identifiers from PlantOS data model.",
     "fields": [
-      "plant_id", "area_id", "asset_id", "asset_code", "asset_type", "asset_role",
-      "parent_asset_id", "signal_id", "signal_name", "signal_category",
-      "data_type", "engineering_unit", "uns_topic"
+      "plant_id", "area_id",
+      "asset_id", "asset_code", "asset_type", "asset_role", "parent_asset_id",
+      "signal_id", "signal_name", "signal_category", "data_type", "engineering_unit", "uns_topic"
     ]
   }
 }
