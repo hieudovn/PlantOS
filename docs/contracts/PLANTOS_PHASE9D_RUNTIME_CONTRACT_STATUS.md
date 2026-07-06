@@ -96,5 +96,36 @@ MES C8/C9/C10:        UNBLOCKED — MES may proceed with PlantOSAdapter
 
 ---
 
+## Cross-Project Verification (2026-07-06)
+
+MES PlantOSAdapter implementation was verified against PlantOS Phase 9D final contract.
+Full report: `docs/contracts/MES_PLANTOS_CROSS_VERIFICATION_REPORT.md`
+
+### Verification Summary
+
+| Area | Result |
+|------|--------|
+| Architecture principles (7/7) | ✅ PASS |
+| Event type mapping (6/6) | ✅ PASS |
+| Identity resolution | ✅ PASS |
+| Idempotency via external_event_id | ✅ PASS |
+| Alarm lifecycle via correlation_id | ✅ PASS |
+| Bridge topic subscriptions | ✅ PASS |
+| Test cases (8/8) | ✅ PASS — structurally valid |
+
+### Cross-Project Issues Found
+
+| # | Priority | Issue | Owner |
+|---|----------|-------|-------|
+| 1 | 🔴 P0 | **event_id regex T/Z case**: MES adapter expects uppercase `T`/`Z` in regex (`\d{8}T\d{6}Z`), PlantOS emits lowercase `t`/`z` per contract §5 (`20260706t120000z`). All events will be rejected at validation. Fix: change regex to `\d{8}[tT]\d{6}[zZ]` or `\d{8}t\d{6}z`. | MES PM |
+| 2 | 🟡 P1 | **SignalQualityChanged topic misdocumented** in MES report: placed in signal UNS row. PlantOS contract §1 routes it to `plantos/events/SignalQualityChanged`. Bridge subscribes to both patterns — functionally OK, doc only. | MES PM |
+| 3 | 🟡 P1 | **SignalQualityChanged QoS misstated** in MES report: says QoS 0. PlantOS contract §6 specifies QoS 1. | MES PM |
+
+### MES Fix Patch
+
+See `docs/contracts/MES_PLANTOS_FIX_PATCH.md` for exact code changes MES PM must apply.
+
+---
+
 > **This bundle is the source of truth for MES PlantOSAdapter implementation.**
 > Any later change to runtime topic, event envelope, event_id, identity key, alarm lifecycle, or QoS policy must be versioned and reviewed by SA + MES PM before implementation impact is accepted.
