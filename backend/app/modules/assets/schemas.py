@@ -89,6 +89,7 @@ class AssetResponse(BaseModel):
     asset_code: Optional[str] = None
     name: str
     asset_type: str
+    asset_role: Optional[str] = None  # v2.0+: functional_location | equipment | subsystem | component | logical_group
     plant_id: Optional[str] = None   # resolved from area→plant
     area_id: Optional[str] = None
     parent_asset_id: Optional[str] = None

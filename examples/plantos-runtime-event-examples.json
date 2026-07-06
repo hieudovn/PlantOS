@@ -1,0 +1,186 @@
+{
+  "description": "PlantOS Runtime Event Examples — for MES adapter integration testing",
+  "schema_version": "1.0",
+  "generated_at": "2026-07-06T12:00:00Z",
+  "examples": [
+    {
+      "_comment": "SignalValueUpdated — measurement from WTP plant",
+      "schema_version": "1.0",
+      "source_system": "plantos_center",
+      "event_id": "plantos-HSP-101.flow_rate-20260706T120000Z-a1b2c3",
+      "correlation_id": "plantos-flush-edge-wtp-01-20260706T120000Z",
+      "event_type": "SignalValueUpdated",
+      "timestamp": "2026-07-06T12:00:00Z",
+      "asset": {
+        "plant_id": "WTP-DEMO-01",
+        "area_id": "RAW-WATER-INTAKE",
+        "asset_id": "HSP-101",
+        "asset_code": "HSP101",
+        "asset_type": "pump",
+        "asset_role": "equipment"
+      },
+      "signal": {
+        "signal_id": "HSP-101.flow_rate",
+        "signal_name": "flow_rate",
+        "signal_category": "measurement",
+        "data_type": "float",
+        "engineering_unit": "m3/h"
+      },
+      "uns_topic": "plantos/wtp-demo-01/raw-water-intake/hsp-101/measurement/flow_rate",
+      "payload": {
+        "value": 1250.5,
+        "quality": "GOOD"
+      }
+    },
+    {
+      "_comment": "SignalValueUpdated — boolean status signal",
+      "schema_version": "1.0",
+      "source_system": "plantos_center",
+      "event_id": "plantos-TRANSFER-OUTLET-QUALITY-STATION-101.outlet_compliance_status-20260706T120001Z-b4c5d6",
+      "correlation_id": null,
+      "event_type": "SignalValueUpdated",
+      "timestamp": "2026-07-06T12:00:01Z",
+      "asset": {
+        "plant_id": "WTP-DEMO-01",
+        "area_id": "DISTRIBUTION-AREA",
+        "asset_id": "TRANSFER-OUTLET-QUALITY-STATION-101",
+        "asset_code": "TOQS101",
+        "asset_type": "sensor_array",
+        "asset_role": "equipment"
+      },
+      "signal": {
+        "signal_id": "TRANSFER-OUTLET-QUALITY-STATION-101.outlet_compliance_status",
+        "signal_name": "outlet_compliance_status",
+        "signal_category": "status",
+        "data_type": "bool",
+        "engineering_unit": null
+      },
+      "uns_topic": "plantos/wtp-demo-01/distribution-area/transfer-outlet-quality-station-101/status/outlet_compliance_status",
+      "payload": {
+        "value": true,
+        "quality": "GOOD"
+      }
+    },
+    {
+      "_comment": "AssetStatusChanged — compressor train goes into maintenance",
+      "schema_version": "1.0",
+      "source_system": "plantos_center",
+      "event_id": "plantos-COMP01-20260706T120500Z-e7f8g9",
+      "correlation_id": null,
+      "event_type": "AssetStatusChanged",
+      "timestamp": "2026-07-06T12:05:00Z",
+      "asset": {
+        "plant_id": "VF-DEMO",
+        "area_id": "COMPRESSOR-AREA",
+        "asset_id": "COMP01",
+        "asset_code": "COMP01",
+        "asset_type": "compressor_train",
+        "asset_role": "equipment"
+      },
+      "signal": null,
+      "uns_topic": "plantos/events/AssetStatusChanged",
+      "payload": {
+        "previous_status": "active",
+        "new_status": "maintenance",
+        "reason": "Scheduled bearing inspection"
+      }
+    },
+    {
+      "_comment": "AlarmRaised — critical alarm on compressor motor",
+      "schema_version": "1.0",
+      "source_system": "plantos_center",
+      "event_id": "plantos-COMP01-MOTOR-20260706T121030Z-h0i1j2",
+      "correlation_id": null,
+      "event_type": "AlarmRaised",
+      "timestamp": "2026-07-06T12:10:30Z",
+      "asset": {
+        "plant_id": "VF-DEMO",
+        "area_id": "COMPRESSOR-AREA",
+        "asset_id": "COMP01-MOTOR",
+        "asset_code": "COMP01-MOTOR",
+        "asset_type": "motor",
+        "asset_role": "equipment"
+      },
+      "signal": null,
+      "uns_topic": "plantos/events/AlarmRaised",
+      "payload": {
+        "alarm_code": "OVERCURRENT",
+        "severity": "critical",
+        "description": "Motor current exceeded 100A threshold",
+        "threshold_value": 100.0,
+        "actual_value": 142.5
+      }
+    },
+    {
+      "_comment": "AlarmCleared — same alarm resolved",
+      "schema_version": "1.0",
+      "source_system": "plantos_center",
+      "event_id": "plantos-COMP01-MOTOR-20260706T121530Z-k3l4m5",
+      "correlation_id": null,
+      "event_type": "AlarmCleared",
+      "timestamp": "2026-07-06T12:15:30Z",
+      "asset": {
+        "plant_id": "VF-DEMO",
+        "area_id": "COMPRESSOR-AREA",
+        "asset_id": "COMP01-MOTOR",
+        "asset_code": "COMP01-MOTOR",
+        "asset_type": "motor",
+        "asset_role": "equipment"
+      },
+      "signal": null,
+      "uns_topic": "plantos/events/AlarmCleared",
+      "payload": {
+        "alarm_code": "OVERCURRENT",
+        "cleared_by": "auto"
+      }
+    },
+    {
+      "_comment": "SignalQualityChanged — signal went BAD due to OPC UA disconnect",
+      "schema_version": "1.0",
+      "source_system": "plantos_center",
+      "event_id": "plantos-COMP01-CORE.speed-20260706T122000Z-n6o7p8",
+      "correlation_id": null,
+      "event_type": "SignalQualityChanged",
+      "timestamp": "2026-07-06T12:20:00Z",
+      "asset": {
+        "plant_id": "VF-DEMO",
+        "area_id": "COMPRESSOR-AREA",
+        "asset_id": "COMP01-CORE",
+        "asset_code": "COMP01-CORE",
+        "asset_type": "compressor",
+        "asset_role": "equipment"
+      },
+      "signal": {
+        "signal_id": "COMP01-CORE.speed",
+        "signal_name": "speed",
+        "signal_category": "measurement",
+        "data_type": "float",
+        "engineering_unit": "RPM"
+      },
+      "uns_topic": "plantos/events/SignalQualityChanged",
+      "payload": {
+        "previous_quality": "GOOD",
+        "new_quality": "BAD",
+        "reason": "OPC UA connection to edge-wtp-01 lost"
+      }
+    },
+    {
+      "_comment": "EdgeHeartbeatReceived — periodic edge health report",
+      "schema_version": "1.0",
+      "source_system": "plantos_center",
+      "event_id": "plantos-edge-wtp-01-20260706T123000Z-q9r0s1",
+      "correlation_id": null,
+      "event_type": "EdgeHeartbeatReceived",
+      "timestamp": "2026-07-06T12:30:00Z",
+      "asset": null,
+      "signal": null,
+      "uns_topic": "plantos/events/EdgeHeartbeatReceived",
+      "payload": {
+        "edge_hostname": "edge-wtp-01",
+        "ip_address": "172.19.0.5",
+        "signal_count": 92,
+        "version": "0.1.0"
+      }
+    }
+  ]
+}

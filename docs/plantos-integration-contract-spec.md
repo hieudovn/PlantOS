@@ -66,16 +66,18 @@ assets:                      # Asset tree (parent-child hierarchy)
     asset_code: ""           # Short code
     name: ""                 # Display name
     asset_type: ""           # See Asset Types below
+    asset_role: ""           # See Asset Roles below (v2.0+)
     parent_asset_id: null    # null = root, or parent asset_id
     area_id: ""              # Must match an area.area_id
     criticality: ""          # critical | high | medium | low
+    status: active           # active | inactive | maintenance | decommissioned
 
 signals:                     # All measurement signals
   - signal_id: ""            # Format: {asset_id}.{signal_name}
     asset_id: ""             # Must match an asset.asset_id
     signal_name: ""          # Short snake_case name
     display_name: ""         # Human-readable name
-    signal_type: measurement # Always "measurement" for telemetry
+    signal_category: measurement  # measurement | status | alarm | counter | calculated | command (v2.0+)
     data_type: float         # float | bool | int
     engineering_unit: ""     # SI unit: kPa, degC, RPM, A, kW, m3/h, mm/s, etc.
     opcua_node_id: ""        # OPC UA NodeId: ns=2;s=NODE_NAME
@@ -83,6 +85,7 @@ signals:                     # All measurement signals
     offset: 0.0              # (optional) defaults to 0
     vf_internal_ref: ""      # VF simulator internal variable reference
     vf_sensor_id: ""         # Sensor tag for P&ID reference
+    external_refs: {}         # (optional) Opaque dict for external system metadata
 ```
 
 ### 2.2 Naming Conventions
@@ -124,7 +127,46 @@ sensor_array, analyzer, flow_meter, transmitter
 production_line, work_cell, conveyor, robot, cnc_machine
 ```
 
-### 2.4 Engineering Units
+### 2.4 Asset Roles (v2.0+)
+
+Each asset must declare an `asset_role` to indicate its semantic position in the hierarchy:
+
+```yaml
+functional_location:  # Grouping/organizational node (Line, Cell, System, Zone)
+                      # Does not generate telemetry itself; groups equipment beneath it
+
+equipment:            # Physical asset with telemetry/signals
+                      # Has at least one associated signal
+
+subsystem:            # Maintainable component within equipment
+                      # May have dedicated diagnostic signals
+
+component:            # Small replaceable part (use only when lifecycle tracking needed)
+
+logical_group:        # Non-physical grouping for display/analytics (e.g., "Critical Path Assets")
+```
+
+**Backward compatibility:** Contracts without `asset_role` will auto-derive from `asset_type`:
+- `production_line`, `work_cell`, `equipment_group` → `functional_location`
+- `bearing_assembly`, `seal_system`, `lubrication_system`, `cooling_system` → `subsystem`
+- All others → `equipment`
+
+### 2.5 Signal Categories (v2.0+)
+
+Each signal declares a `signal_category` (replaces the single-value `signal_type: measurement`):
+
+```yaml
+measurement:  # Continuous or sampled value (temperature, pressure, speed, flow)
+status:       # Discrete state or enumeration (running/stopped, open/closed)
+alarm:        # Binary alarm state (normal/alarmed)
+counter:      # Cumulative count (cycle count, energy totalizer)
+calculated:   # Derived/computed value (efficiency, KPI, index)
+command:      # Control command (future — requires control authorization)
+```
+
+**Backward compatibility:** Old contracts with `signal_type: measurement` will auto-map to `signal_category: measurement`.
+
+### 2.6 Engineering Units
 
 Common units supported by PlantOS:
 

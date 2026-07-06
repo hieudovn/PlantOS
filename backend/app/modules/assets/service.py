@@ -54,6 +54,7 @@ def _asset_to_response(asset: Asset) -> AssetResponse:
         asset_code=asset.asset_code,
         name=asset.name,
         asset_type=asset.asset_type,
+        asset_role=asset.asset_role,
         plant_id=plant_id,
         area_id=area_id,
         parent_asset_id=asset.parent.asset_id if asset.parent else None,

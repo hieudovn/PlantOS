@@ -44,12 +44,14 @@ class SignalResponse(BaseModel):
     signal_name: str
     display_name: Optional[str] = None
     signal_type: str
+    signal_category: Optional[str] = None  # v2.0+: measurement | status | alarm | counter | calculated | command
     data_type: str
     engineering_unit: Optional[str] = None
     min_value: Optional[float] = None
     max_value: Optional[float] = None
     uns_path: Optional[str] = None
     source: Optional[SourceInfo] = None
+    external_refs: Optional[dict] = None   # v2.0+: opaque metadata for external systems
     quality_policy: str
     created_at: datetime
     updated_at: datetime

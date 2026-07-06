@@ -1,0 +1,118 @@
+{
+  "export_info": {
+    "source": "PlantOS Center API",
+    "generated_at": "2026-07-06T12:00:00Z",
+    "plantos_version": "0.1.0",
+    "schema_version": "2.0",
+    "description": "Sample asset/signal export for MES crosswalk preparation. Real data from PlantOS Center PostgreSQL."
+  },
+  "plant": {
+    "plant_id": "WTP-DEMO-01",
+    "name": "WTP Demo Plant 01",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "status": "active"
+  },
+  "areas": [
+    {
+      "area_id": "INTAKE-AREA",
+      "plant_id": "WTP-DEMO-01",
+      "name": "Raw Water Intake Area",
+      "status": "active"
+    }
+  ],
+  "assets": [
+    {
+      "asset_id": "INTAKE-STRUCTURE-101",
+      "asset_code": "INTAKE101",
+      "name": "Intake Structure 101",
+      "asset_type": "vessel",
+      "asset_role": "equipment",
+      "parent_asset_id": null,
+      "area_id": "INTAKE-AREA",
+      "criticality": "high",
+      "lifecycle_status": "active"
+    },
+    {
+      "asset_id": "SCREEN-101",
+      "asset_code": "SCREEN101",
+      "name": "Bar Screen 101",
+      "asset_type": "filter",
+      "asset_role": "equipment",
+      "parent_asset_id": "INTAKE-STRUCTURE-101",
+      "area_id": "INTAKE-AREA",
+      "criticality": "medium",
+      "lifecycle_status": "active"
+    },
+    {
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "asset_code": "RWQS101",
+      "name": "Raw Water Quality Station 101",
+      "asset_type": "sensor_array",
+      "asset_role": "equipment",
+      "parent_asset_id": "INTAKE-STRUCTURE-101",
+      "area_id": "INTAKE-AREA",
+      "criticality": "high",
+      "lifecycle_status": "active"
+    }
+  ],
+  "signals": [
+    {
+      "signal_id": "INTAKE-STRUCTURE-101.screen_dp",
+      "asset_id": "INTAKE-STRUCTURE-101",
+      "signal_name": "screen_dp",
+      "display_name": "Screen Differential Pressure",
+      "signal_category": "measurement",
+      "data_type": "float",
+      "engineering_unit": "kPa",
+      "uns_topic": "plantos/wtp-demo-01/intake-area/intake-structure-101/measurement/screen_dp"
+    },
+    {
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_turbidity",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_turbidity",
+      "display_name": "Raw Water Turbidity",
+      "signal_category": "measurement",
+      "data_type": "float",
+      "engineering_unit": "NTU",
+      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_turbidity"
+    },
+    {
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_ph",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_ph",
+      "display_name": "Raw Water pH",
+      "signal_category": "measurement",
+      "data_type": "float",
+      "engineering_unit": "pH",
+      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_ph"
+    },
+    {
+      "signal_id": "RAW-WATER-QUALITY-STATION-101.raw_conductivity",
+      "asset_id": "RAW-WATER-QUALITY-STATION-101",
+      "signal_name": "raw_conductivity",
+      "display_name": "Raw Water Conductivity",
+      "signal_category": "measurement",
+      "data_type": "float",
+      "engineering_unit": "uS/cm",
+      "uns_topic": "plantos/wtp-demo-01/intake-area/raw-water-quality-station-101/measurement/raw_conductivity"
+    },
+    {
+      "signal_id": "INTAKE-STRUCTURE-101.intake_flow",
+      "asset_id": "INTAKE-STRUCTURE-101",
+      "signal_name": "intake_flow",
+      "display_name": "Intake Flow Rate",
+      "signal_category": "measurement",
+      "data_type": "float",
+      "engineering_unit": "m3/h",
+      "uns_topic": "plantos/wtp-demo-01/intake-area/intake-structure-101/measurement/intake_flow"
+    }
+  ],
+  "identifier_surface_for_mes": {
+    "description": "Fields available for MES crosswalk mapping",
+    "fields": [
+      "plant_id", "area_id", "asset_id", "asset_code", "asset_type", "asset_role",
+      "parent_asset_id", "signal_id", "signal_name", "signal_category",
+      "data_type", "engineering_unit", "uns_topic"
+    ]
+  }
+}
