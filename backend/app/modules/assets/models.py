@@ -64,7 +64,6 @@ class Asset(Base):
     asset_code: Mapped[str | None] = mapped_column(String(128), nullable=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     asset_type: Mapped[str] = mapped_column(String(64), nullable=False)
-    asset_role: Mapped[str | None] = mapped_column(String(32), nullable=True, default="equipment")
     area_id_fk: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("areas.id"), nullable=True)
     parent_asset_id_fk: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("assets.id"), nullable=True)
     criticality: Mapped[str] = mapped_column(String(32), default="medium")

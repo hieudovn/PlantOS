@@ -13,6 +13,7 @@ import { AlarmPage } from "@/features/alarms/AlarmPage";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { ReportsPage } from "@/features/reports/ReportsPage";
 import { UserManagementPage } from "@/features/users/UserManagementPage";
+import { ProcessViewWorkspace } from "@/features/operations/ProcessViewWorkspace";
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -45,6 +46,9 @@ export const router = createBrowserRouter([
       { path: "alarms", element: <AlarmPage /> },
       { path: "edge", element: <EdgeFleetPage /> },
       { path: "system", element: <SystemHealthPage /> },
+      { path: "operations", element: <ProcessViewWorkspace /> },
+      { path: "operations/area/:areaId", element: <ProcessViewWorkspace /> },
+      { path: "operations/asset/:assetId", element: <ProcessViewWorkspace /> },
       { path: "reports", element: <ReportsPage /> },
       { path: "users", element: <UserManagementPage /> },
     ],

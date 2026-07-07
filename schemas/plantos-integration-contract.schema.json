@@ -105,11 +105,6 @@
           "asset_code": { "type": "string", "minLength": 1 },
           "name": { "type": "string", "minLength": 1 },
           "asset_type": { "type": "string", "minLength": 1 },
-          "asset_role": {
-            "type": "string",
-            "enum": ["functional_location", "equipment", "subsystem", "component", "logical_group"],
-            "description": "Semantic role in asset hierarchy (v2.0+). Auto-derived from asset_type if omitted."
-          },
           "parent_asset_id": {
             "type": ["string", "null"],
             "default": null
@@ -150,14 +145,7 @@
           "signal_type": {
             "type": "string",
             "enum": ["measurement", "status", "setpoint", "command"],
-            "default": "measurement",
-            "description": "DEPRECATED in v2.0. Use signal_category instead."
-          },
-          "signal_category": {
-            "type": "string",
-            "enum": ["measurement", "status", "alarm", "counter", "calculated", "command"],
-            "default": "measurement",
-            "description": "Signal category for UNS topic derivation and MES integration (v2.0+)"
+            "default": "measurement"
           },
           "data_type": {
             "type": "string",
@@ -171,11 +159,6 @@
             "type": "string",
             "enum": ["active", "inactive", "deprecated"],
             "default": "active"
-          },
-          "external_refs": {
-            "type": "object",
-            "description": "Opaque metadata for external system references. NOT the MES mapping source of truth.",
-            "default": {}
           }
         }
       }
