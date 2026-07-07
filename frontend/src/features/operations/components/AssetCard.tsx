@@ -1,36 +1,14 @@
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { Circle, AlertTriangle } from "lucide-react";
 import { fetchAPI, getCurrentValues } from "@/lib/api";
+import { useWorkspace } from "@/lib/WorkspaceContext";
+import { getAssetSignals, getThreshold } from "../config";
+import type { ThresholdConfig } from "../config/types";
 
 interface Props {
   asset: { asset_id: string; name: string; asset_type: string; asset_role: string };
   onClick: () => void;
 }
-
-// Hardcoded signal mapping per asset for demo
-const ASSET_SIGNALS: Record<string, Array<{ signalId: string; label: string; unit: string }>> = {
-  "FILTER-101": [
-    { signalId: "FILTER-101.filter_dp", label: "DP", unit: "kPa" },
-    { signalId: "FILTER-101.effluent_flow", label: "Effluent", unit: "m³/h" },
-  ],
-  "FILTER-102": [
-    { signalId: "FILTER-102.filter_dp", label: "DP", unit: "kPa" },
-    { signalId: "FILTER-102.effluent_flow", label: "Effluent", unit: "m³/h" },
-  ],
-  "BACKWASH-PUMP-101": [
-    { signalId: "BACKWASH-PUMP-101.running_status", label: "Status", unit: "" },
-  ],
-  "FILTER-QUALITY-STATION-101": [
-    { signalId: "FILTER-QUALITY-STATION-101.filtered_turbidity", label: "Turbidity", unit: "NTU" },
-    { signalId: "FILTER-QUALITY-STATION-101.filter_run_quality_index", label: "Quality", unit: "" },
-  ],
-};
-
-const FILTER_THRESHOLDS: Record<string, { warn: number; crit: number; direction: "high" | "low" }> = {
-  "FILTER-101.filter_dp": { warn: 60, crit: 80, direction: "high" },
-  "FILTER-102.filter_dp": { warn: 60, crit: 80, direction: "high" },
-  "FILTER-QUALITY-STATION-101.filtered_turbidity": { warn: 0.5, crit: 1, direction: "high" },
-};
 
 function formatVal(value: number | null | undefined): string {
   if (value === null || value === undefined) return "—";
@@ -39,16 +17,15 @@ function formatVal(value: number | null | undefined): string {
   return value.toFixed(2);
 }
 
-function deriveStatus(signalId: string, value: number | null | undefined): "normal" | "warning" | "critical" {
+function deriveStatus(value: number | null | undefined, threshold: ThresholdConfig | null): "normal" | "warning" | "critical" {
   if (value === null || value === undefined) return "normal";
-  const t = FILTER_THRESHOLDS[signalId];
-  if (!t) return "normal";
-  if (t.direction === "high") {
-    if (value >= t.crit) return "critical";
-    if (value >= t.warn) return "warning";
+  if (!threshold) return "normal";
+  if (threshold.direction === "high") {
+    if (value >= threshold.crit) return "critical";
+    if (value >= threshold.warn) return "warning";
   } else {
-    if (value <= t.crit) return "critical";
-    if (value <= t.warn) return "warning";
+    if (value <= threshold.crit) return "critical";
+    if (value <= threshold.warn) return "warning";
   }
   return "normal";
 }
@@ -60,7 +37,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function AssetCard({ asset, onClick }: Props) {
-  const signals = ASSET_SIGNALS[asset.asset_id] || [];
+  const { plantId } = useWorkspace();
+  const signals = getAssetSignals(plantId, asset.asset_id);
 
   // useQueries follows React hooks rules (no hooks in loops)
   const signalQueries = useQueries({
@@ -91,7 +69,7 @@ export function AssetCard({ asset, onClick }: Props) {
   const activeAlarms = (alarms || []).length;
 
   // Derive worst status across all signals
-  const statuses = signalValues.map((sv) => deriveStatus(sv.signalId, sv.value));
+  const statuses = signalValues.map((sv) => deriveStatus(sv.value, getThreshold(plantId, sv.signalId)));
   const worstStatus = statuses.includes("critical") ? "critical" : statuses.includes("warning") ? "warning" : "normal";
 
   // Check if any signal has data (for freshness)
@@ -138,7 +116,7 @@ export function AssetCard({ asset, onClick }: Props) {
           <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No signals configured</div>
         )}
         {signalValues.map((sv) => {
-          const st = deriveStatus(sv.signalId, sv.value);
+          const st = deriveStatus(sv.value, getThreshold(plantId, sv.signalId));
           return (
             <div key={sv.signalId} className="flex items-center justify-between">
               <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{sv.label}</span>

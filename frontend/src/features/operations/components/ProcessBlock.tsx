@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle, AlertTriangle, XCircle, Circle } from "lucide-react";
 import { getCurrentValues } from "@/lib/api";
+import { useWorkspace } from "@/lib/WorkspaceContext";
+import { getThreshold } from "../config";
+import type { ThresholdConfig } from "../config/types";
 
 export interface ProcessBlockConfig {
   id: string;
@@ -29,26 +32,15 @@ const STATUS_COLORS = {
   critical: "var(--status-critical)",
 };
 
-const THRESHOLDS: Record<string, { warn: number; crit: number; direction: "high" | "low" }> = {
-  "RWP-101.flow_rate": { warn: 400, crit: 200, direction: "low" },
-  "CHEMICAL-CONSUMPTION-STATION-101.coagulant_dose_rate": { warn: 50, crit: 80, direction: "high" },
-  "CLARIFIER-101.settled_turbidity": { warn: 5, crit: 10, direction: "high" },
-  "FILTER-QUALITY-STATION-101.filtered_turbidity": { warn: 0.5, crit: 1, direction: "high" },
-  "DISINFECTION-QUALITY-STATION-101.free_chlorine": { warn: 0.8, crit: 0.5, direction: "low" },
-  "CLEAR-WATER-TANK-101.level": { warn: 30, crit: 15, direction: "low" },
-  "HSP-101.flow_rate": { warn: 300, crit: 150, direction: "low" },
-};
-
-function deriveStatus(signalId: string, value: number | null | undefined): Status {
+function deriveStatus(value: number | null | undefined, threshold: ThresholdConfig | null): Status {
   if (value === null || value === undefined) return "normal";
-  const t = THRESHOLDS[signalId];
-  if (!t) return "normal";
-  if (t.direction === "high") {
-    if (value >= t.crit) return "critical";
-    if (value >= t.warn) return "warning";
+  if (!threshold) return "normal";
+  if (threshold.direction === "high") {
+    if (value >= threshold.crit) return "critical";
+    if (value >= threshold.warn) return "warning";
   } else {
-    if (value <= t.crit) return "critical";
-    if (value <= t.warn) return "warning";
+    if (value <= threshold.crit) return "critical";
+    if (value <= threshold.warn) return "warning";
   }
   return "normal";
 }
@@ -61,6 +53,7 @@ function formatBlockValue(value: number | null | undefined): string {
 }
 
 export function ProcessBlock({ config, onClick }: Props) {
+  const { plantId } = useWorkspace();
   const { data } = useQuery({
     queryKey: ["current-single", config.signalId],
     queryFn: () =>
@@ -71,8 +64,9 @@ export function ProcessBlock({ config, onClick }: Props) {
     refetchInterval: 10000,
   });
 
+  const threshold = getThreshold(plantId, config.signalId);
   const value = data?.value;
-  const status = deriveStatus(config.signalId, value);
+  const status = deriveStatus(value, threshold);
   const StatusIcon = STATUS_ICONS[status];
 
   return (
