@@ -23,8 +23,10 @@ class HeartbeatRequest(BaseModel):
 
 
 @router.post("/edge-nodes/heartbeat")
-def receive_heartbeat(data: HeartbeatRequest, request: Request):
+async def receive_heartbeat(data: HeartbeatRequest, request: Request):
     """Receive heartbeat from edge node."""
+    from app.core.events import dispatch
+
     client_ip = data.ip_address or (request.client.host if request.client else "")
     try:
         hostname = data.hostname or socket.gethostbyaddr(client_ip)[0] if client_ip else ""
@@ -41,6 +43,17 @@ def receive_heartbeat(data: HeartbeatRequest, request: Request):
         "version": data.version,
         "last_heartbeat": datetime.now(timezone.utc).isoformat(),
     }
+
+    # Dispatch EdgeHeartbeat event
+    edge_data = {
+        "edge_node_id": data.edge_node_id,
+        "status": data.status,
+        "ip_address": client_ip,
+        "signal_count": data.signal_count,
+        "version": data.version,
+    }
+    await dispatch("edge.heartbeat", {"edge": edge_data})
+
     return {"status": "ok"}
 
 

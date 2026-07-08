@@ -29,8 +29,14 @@ async def lifespan(app: FastAPI):
     # Register EventDispatcher subscribers
     _register_event_subscribers()
 
+    # Start MQTT publisher
+    from app.modules.events.publisher import MqttPublisher
+    MqttPublisher.get_instance().start()
+
     yield
-    # Shutdown — dispose DB engine
+
+    # Shutdown — stop MQTT publisher, dispose DB engine
+    MqttPublisher.get_instance().stop()
     dispose_engine()
 
 
@@ -65,7 +71,21 @@ def _register_event_subscribers():
     subscribe("measurements.ingested", _broadcast_handler)
     subscribe("measurements.ingested", _alarm_eval_handler)
     subscribe("measurements.ingested", _calc_eval_handler)
-    logger.info("EventDispatcher subscribers registered for 'measurements.ingested'")
+
+    # MQTT event publishing subscribers
+    from app.modules.events.subscribers import (
+        on_measurements_ingested,
+        on_alarm_raised,
+        on_alarm_cleared,
+        on_edge_heartbeat,
+    )
+
+    subscribe("measurements.ingested", on_measurements_ingested)
+    subscribe("alarm.raised", on_alarm_raised)
+    subscribe("alarm.cleared", on_alarm_cleared)
+    subscribe("edge.heartbeat", on_edge_heartbeat)
+
+    logger.info("EventDispatcher subscribers registered")
 
 
 app = FastAPI(

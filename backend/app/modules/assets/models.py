@@ -72,6 +72,7 @@ class Asset(Base):
     location_lng: Mapped[float | None] = mapped_column(Float, nullable=True)
     manufacturer: Mapped[str | None] = mapped_column(String(255), nullable=True)
     model: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    asset_role: Mapped[str] = mapped_column(String(32), default="equipment", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
 

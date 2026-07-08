@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     # EMQX
     EMQX_HOST: str = "localhost"
     EMQX_MQTT_PORT: int = 1883
+    EMQX_USERNAME: str = ""
+    EMQX_PASSWORD: str = ""
 
     # Historian
     HISTORIAN_MODE: str = "tdengine"  # "tdengine" | "stub"

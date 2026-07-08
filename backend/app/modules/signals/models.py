@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import String, Float, ForeignKey, DateTime
+from sqlalchemy import String, Float, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -36,6 +36,8 @@ class Signal(Base):
     source_type: Mapped[str] = mapped_column(String(64), default="simulator")
     source_ref: Mapped[str | None] = mapped_column(String(512), nullable=True)
     quality_policy: Mapped[str] = mapped_column(String(32), default="GOOD")
+    signal_category: Mapped[str] = mapped_column(String(32), default="measurement", nullable=False)
+    external_refs: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
 
