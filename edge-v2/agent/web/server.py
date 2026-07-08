@@ -16,6 +16,8 @@ from agent.web.routes.status import register_status_routes
 from agent.web.routes.config import register_config_routes
 from agent.web.routes.connections import register_connection_routes
 from agent.web.routes.processing import register_processing_routes
+from agent.web.routes.backup import register_backup_routes
+from agent.web.routes.support import register_support_routes
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +68,8 @@ class WebServer:
         register_config_routes(app, self.config)
         register_connection_routes(app, self.config, self.connectors)
         register_processing_routes(app, self.processing, self.config)
+        register_backup_routes(app, self.config)
+        register_support_routes(app, self.config, self.connectors, self.buffer, self.processing)
 
         return app
 
