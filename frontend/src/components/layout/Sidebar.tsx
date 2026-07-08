@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, LineChart, Factory, MapPin,
   Bell, Boxes, Activity, Server, Monitor, BarChart3, Users,
+  Calculator, Target,
 } from "lucide-react";
 
 type NavItemDef = { path: string; icon: any; label: string; roles?: string[] };
@@ -23,6 +24,8 @@ const navGroups: { label: string; items: NavItemDef[]; roles?: string[] }[] = [
     roles: ["admin", "engineer"],
     items: [
       { path: "/reports", icon: BarChart3, label: "Reports" },
+      { path: "/kpis", icon: Target, label: "KPIs" },
+      { path: "/formulas", icon: Calculator, label: "Formulas" },
     ],
   },
   {

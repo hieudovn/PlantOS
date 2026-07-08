@@ -14,6 +14,8 @@ import { LoginPage } from "@/features/auth/LoginPage";
 import { ReportsPage } from "@/features/reports/ReportsPage";
 import { UserManagementPage } from "@/features/users/UserManagementPage";
 import { ProcessViewWorkspace } from "@/features/operations/ProcessViewWorkspace";
+import { CalculatedSignalsPage } from "@/features/formulas/CalculatedSignalsPage";
+import { KpiDefinitionsPage } from "@/features/formulas/KpiDefinitionsPage";
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -51,6 +53,8 @@ export const router = createBrowserRouter([
       { path: "operations/asset/:assetId", element: <ProcessViewWorkspace /> },
       { path: "reports", element: <ReportsPage /> },
       { path: "users", element: <UserManagementPage /> },
+      { path: "kpis", element: <KpiDefinitionsPage /> },
+      { path: "formulas", element: <CalculatedSignalsPage /> },
     ],
   },
 ]);
