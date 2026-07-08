@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantOS Edge Lite — Connections</title>
+  <link rel="stylesheet" href="/css/plantos-tokens.css">
+  <style>
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; }
+    .step-indicator { display: flex; gap: 8px; margin-bottom: 24px; }
+    .step-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                font-size: 13px; font-weight: 600; background: var(--color-surface); color: var(--color-text-muted); border: 2px solid var(--color-border); }
+    .step-dot.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .step-dot.done { background: var(--color-success); color: white; border-color: var(--color-success); }
+    .step-line { flex: 1; height: 2px; align-self: center; background: var(--color-border); }
+    .step-line.done { background: var(--color-success); }
+    .tag-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .tag-row input { flex: 1; }
+    .browse-tree { max-height: 300px; overflow-y: auto; font-family: var(--font-mono); font-size: 13px; }
+    .browse-item { padding: 4px 8px; cursor: pointer; border-radius: 4px; }
+    .browse-item:hover { background: var(--color-surface-hover); }
+    .browse-item .toggle { margin-right: 8px; color: var(--color-text-muted); }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100;
+                     align-items: center; justify-content: center; }
+    .modal-overlay.visible { display: flex; }
+    .modal-content { background: var(--color-surface); border: 1px solid var(--color-border);
+                     border-radius: var(--radius-xl); padding: var(--space-lg); max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main-content">
+      <div class="page-header flex justify-between items-center">
+        <h1>Connections</h1>
+        <button class="btn btn-primary" onclick="startWizard()">+ New Connection</button>
+      </div>
+      <div class="page-body">
+        <!-- Connector List -->
+        <div id="connectorList">
+          <div class="text-muted">Loading connectors...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Wizard Modal -->
+  <div id="wizardModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-md">
+        <h2 id="wizardTitle" style="font-size:18px;">New Connection</h2>
+        <button class="btn btn-secondary btn-sm" onclick="closeWizard()">✕</button>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="step-indicator" id="stepIndicator"></div>
+
+      <!-- Step 1: Protocol Selection -->
+      <div class="wizard-step" id="step1">
+        <h3 class="mb-md">Select Protocol</h3>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="card protocol-card" onclick="selectProtocol('opcua')" style="cursor:pointer;text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">🔌</div>
+            <div style="font-weight:600;">OPC UA</div>
+            <div class="text-muted" style="font-size:12px;">Industrial automation</div>
+          </div>
+          <div class="card protocol-card" onclick="selectProtocol('modbus_tcp')" style="cursor:pointer;text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">🔧</div>
+            <div style="font-weight:600;">Modbus TCP</div>
+            <div class="text-muted" style="font-size:12px;">PLC & RTU</div>
+          </div>
+          <div class="card protocol-card" onclick="selectProtocol('mqtt')" style="cursor:pointer;text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">📡</div>
+            <div style="font-weight:600;">MQTT</div>
+            <div class="text-muted" style="font-size:12px;">Subscribe & ingest</div>
+          </div>
+        </div>
+        <div class="mt-lg flex justify-between">
+          <div></div>
+          <button class="btn btn-primary" onclick="nextStep()" id="step1Next" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Connection Parameters -->
+      <div class="wizard-step" id="step2">
+        <h3 class="mb-md">Connection Parameters</h3>
+        <div id="connParams"></div>
+        <div class="mt-lg flex justify-between">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Validate -->
+      <div class="wizard-step" id="step3">
+        <h3 class="mb-md">Validate Configuration</h3>
+        <div id="validationResult"></div>
+        <div class="mt-lg flex justify-between">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Test Connection -->
+      <div class="wizard-step" id="step4">
+        <h3 class="mb-md">Test Connection</h3>
+        <p class="text-muted mb-md">Verify the connector can reach its target.</p>
+        <button class="btn btn-primary" onclick="runTest()">🔍 Test Connection</button>
+        <div id="testResult" class="mt-md"></div>
+        <div class="mt-lg flex justify-between">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" onclick="nextStep()" id="step4Next" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Browse / Tag Entry -->
+      <div class="wizard-step" id="step5">
+        <h3 class="mb-md">Signal Mapping</h3>
+        <div id="browseSection">
+          <p class="text-muted mb-md">Browse tags or enter them manually:</p>
+          <div id="browseTree" class="browse-tree mb-md" style="display:none;"></div>
+          <button class="btn btn-secondary btn-sm" id="browseBtn" onclick="loadBrowse()">🔄 Browse Tags</button>
+        </div>
+        <div class="mt-lg flex justify-between">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 6: Tag Mapping Table -->
+      <div class="wizard-step" id="step6">
+        <h3 class="mb-md">Tag Mapping Table</h3>
+        <div id="tagMappingTable"></div>
+        <button class="btn btn-secondary btn-sm mt-sm" onclick="addTagRow()">+ Add Tag</button>
+        <div class="mt-lg flex justify-between">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" onclick="nextStep()">Next: Review →</button>
+        </div>
+      </div>
+
+      <!-- Step 7: Review & Apply -->
+      <div class="wizard-step" id="step7">
+        <h3 class="mb-md">Review & Apply</h3>
+        <div id="reviewContent" class="card" style="font-family:var(--font-mono);font-size:13px;max-height:300px;overflow-y:auto;"></div>
+        <div class="mt-lg flex justify-between">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" onclick="applyConfig()">✅ Apply Configuration</button>
+        </div>
+      </div>
+
+      <!-- Step 8: Confirm -->
+      <div class="wizard-step" id="step8">
+        <h3 class="mb-md">Confirm</h3>
+        <div id="confirmContent">
+          <p class="text-muted">Applying configuration...</p>
+        </div>
+        <div class="mt-lg flex justify-between" id="confirmActions" style="display:none;">
+          <button class="btn btn-secondary" onclick="closeWizard()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/connections.js"></script>
+  <script>
+    // ---- State ----
+    let currentStep = 0;
+    let wizardState = {
+      connector_id: "",
+      type: "",
+      connection: {},
+      poll_interval_ms: 1000,
+      enabled: true,
+      tags: [],
+    };
+    let editConnId = null;
+
+    const STEPS = ["Protocol", "Params", "Validate", "Test", "Browse", "Tags", "Review", "Confirm"];
+
+    // ---- Page Load ----
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await Auth.requireAuth();
+      if (user) loadConnectorList();
+    });
+
+    // ---- Connector List ----
+    async function loadConnectorList() {
+      try {
+        const list = await Connections.list();
+        const container = document.getElementById("connectorList");
+
+        if (list.length === 0) {
+          container.innerHTML = '<div class="text-muted">No connectors configured. Click "+ New Connection" to add one.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));">
+            ${list.map(c => `
+              <div class="card connector-card" style="cursor:pointer;" onclick="showConnector('${c.connector_id}')">
+                <div class="flex justify-between items-center mb-sm">
+                  <span class="mono" style="font-weight:600;">${c.connector_id}</span>
+                  <span class="badge ${statusBadge(c.status)}">${c.status}</span>
+                </div>
+                <div class="text-muted" style="font-size:13px;">Type: ${c.type}</div>
+                <div class="text-muted" style="font-size:13px;">Signals: ${c.signal_count || 0}</div>
+                ${c.last_error ? `<div class="text-error" style="font-size:12px;margin-top:4px;">${c.last_error}</div>` : ""}
+              </div>
+            `).join("")}
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById("connectorList").innerHTML =
+          `<div class="text-error">Failed to load connectors: ${err.message}</div>`;
+      }
+    }
+
+    function statusBadge(status) {
+      switch (status) {
+        case "running": return "badge-success";
+        case "stopped": return "badge-warning";
+        case "error": return "badge-error";
+        default: return "badge-info";
+      }
+    }
+
+    // ---- Wizard ----
+    function startWizard(connId) {
+      editConnId = connId || null;
+      currentStep = 0;
+      wizardState = { connector_id: "", type: "", connection: {}, poll_interval_ms: 1000, enabled: true, tags: [] };
+
+      if (connId) {
+        document.getElementById("wizardTitle").textContent = `Edit: ${connId}`;
+        // Load existing config
+        Connections.get(connId).then(data => {
+          if (data.draft) {
+            wizardState = { ...wizardState, ...data.draft, connector_id: connId };
+          } else if (data.active_config) {
+            wizardState = { ...wizardState, ...data.active_config, connector_id: connId };
+          }
+          showStep(0);
+        });
+      } else {
+        document.getElementById("wizardTitle").textContent = "New Connection";
+        showStep(0);
+      }
+
+      document.getElementById("wizardModal").classList.add("visible");
+    }
+
+    function closeWizard() {
+      document.getElementById("wizardModal").classList.remove("visible");
+      loadConnectorList();
+    }
+
+    function showStep(step) {
+      currentStep = step;
+
+      // Step indicator
+      const indicator = document.getElementById("stepIndicator");
+      indicator.innerHTML = STEPS.map((s, i) => `
+        ${i > 0 ? `<div class="step-line ${i <= step ? 'done' : ''}"></div>` : ""}
+        <div class="step-dot ${i === step ? 'active' : ''} ${i < step ? 'done' : ''}">${i < step ? "✓" : (i + 1)}</div>
+      `).join("");
+
+      // Show current step
+      document.querySelectorAll(".wizard-step").forEach(el => el.classList.remove("active"));
+      const stepEl = document.getElementById(`step${step + 1}`);
+      if (stepEl) stepEl.classList.add("active");
+
+      // Step-specific initialization
+      switch (step) {
+        case 1: initConnParams(); break;
+        case 2: runValidate(); break;
+        case 4: initBrowse(); break;
+        case 5: initTagTable(); break;
+        case 6: initReview(); break;
+      }
+    }
+
+    function nextStep() { if (currentStep < 7) showStep(currentStep + 1); }
+    function prevStep() { if (currentStep > 0) showStep(currentStep - 1); }
+
+    // ---- Step 1: Protocol ----
+    function selectProtocol(type) {
+      wizardState.type = type;
+      document.querySelectorAll(".protocol-card").forEach(c => c.style.borderColor = "var(--color-border)");
+      event.currentTarget.style.borderColor = "var(--color-primary)";
+      document.getElementById("step1Next").disabled = false;
+    }
+
+    // ---- Step 2: Connection Parameters ----
+    function initConnParams() {
+      const container = document.getElementById("connParams");
+      const conn = wizardState.connection || {};
+      const type = wizardState.type;
+
+      let html = "";
+      if (type === "opcua") {
+        html = `
+          <div class="form-group">
+            <label>Endpoint URL</label>
+            <input class="form-input" id="param_endpoint" value="${conn.endpoint || "opc.tcp://127.0.0.1:4840"}" placeholder="opc.tcp://..."
+                   onchange="wizardState.connection.endpoint = this.value">
+          </div>
+          <div class="form-group">
+            <label>Timeout (s)</label>
+            <input class="form-input" id="param_timeout" value="${conn.timeout || 5.0}" type="number" step="0.1"
+                   onchange="wizardState.connection.timeout = parseFloat(this.value)">
+          </div>
+          <div class="form-group">
+            <label>Poll Interval (ms)</label>
+            <input class="form-input" id="param_poll" value="${wizardState.poll_interval_ms || 1000}" type="number"
+                   onchange="wizardState.poll_interval_ms = parseInt(this.value)">
+          </div>
+          <div class="form-group">
+            <label>Browse Namespace (optional, -1 for all)</label>
+            <input class="form-input" id="param_ns" value="${conn.browse_namespace || -1}" type="number"
+                   onchange="wizardState.connection.browse_namespace = parseInt(this.value)">
+          </div>
+        `;
+      } else if (type === "modbus_tcp") {
+        html = `
+          <div class="form-group">
+            <label>Host</label>
+            <input class="form-input" id="param_host" value="${conn.host || "127.0.0.1"}"
+                   onchange="wizardState.connection.host = this.value">
+          </div>
+          <div class="form-group">
+            <label>Port</label>
+            <input class="form-input" id="param_port" value="${conn.port || 502}" type="number"
+                   onchange="wizardState.connection.port = parseInt(this.value)">
+          </div>
+          <div class="form-group">
+            <label>Unit ID</label>
+            <input class="form-input" id="param_unit" value="${conn.unit_id || 1}" type="number"
+                   onchange="wizardState.connection.unit_id = parseInt(this.value)">
+          </div>
+          <div class="form-group">
+            <label>Timeout (s)</label>
+            <input class="form-input" id="param_timeout" value="${conn.timeout || 5.0}" type="number" step="0.1"
+                   onchange="wizardState.connection.timeout = parseFloat(this.value)">
+          </div>
+        `;
+      } else if (type === "mqtt") {
+        html = `
+          <div class="form-group">
+            <label>Host</label>
+            <input class="form-input" id="param_host" value="${conn.host || "localhost"}"
+                   onchange="wizardState.connection.host = this.value">
+          </div>
+          <div class="form-group">
+            <label>Port</label>
+            <input class="form-input" id="param_port" value="${conn.port || 1883}" type="number"
+                   onchange="wizardState.connection.port = parseInt(this.value)">
+          </div>
+          <div class="form-group">
+            <label>Topic Prefix</label>
+            <input class="form-input" id="param_prefix" value="${conn.topic_prefix || ""}"
+                   onchange="wizardState.connection.topic_prefix = this.value">
+          </div>
+          <div class="form-group">
+            <label>Parse Mode</label>
+            <select class="form-input" id="param_parse" onchange="wizardState.parse_mode = this.value">
+              <option value="jsonpath" ${(wizardState.parse_mode || "jsonpath") === "jsonpath" ? "selected" : ""}>JSONPath</option>
+              <option value="plain_text" ${wizardState.parse_mode === "plain_text" ? "selected" : ""}>Plain Text</option>
+            </select>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    // ---- Step 3: Validate ----
+    async function runValidate() {
+      const resultEl = document.getElementById("validationResult");
+      resultEl.innerHTML = '<div class="text-muted">Validating...</div>';
+
+      try {
+        // Save draft first
+        const connId = wizardState.connector_id || `conn_${Date.now()}`;
+        wizardState.connector_id = connId;
+        await Connections.create(wizardState);
+
+        const result = await Connections.validate(connId);
+        if (result.valid) {
+          resultEl.innerHTML = '<div class="badge badge-success" style="font-size:14px;padding:8px;">✅ Configuration is valid</div>';
+        } else {
+          resultEl.innerHTML = `
+            <div class="badge badge-error" style="font-size:14px;padding:8px;margin-bottom:12px;">❌ Validation failed</div>
+            <ul style="color:var(--color-error);font-size:13px;">
+              ${result.errors.map(e => `<li>${e}</li>`).join("")}
+            </ul>
+          `;
+        }
+      } catch (err) {
+        resultEl.innerHTML = `<div class="text-error">Validation error: ${err.message}</div>`;
+      }
+    }
+
+    // ---- Step 4: Test ----
+    async function runTest() {
+      const resultEl = document.getElementById("testResult");
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = "Testing...";
+      resultEl.innerHTML = '<div class="text-muted">Testing connection...</div>';
+
+      try {
+        const result = await Connections.test(wizardState.connector_id);
+        if (result.success) {
+          resultEl.innerHTML = `
+            <div class="badge badge-success" style="font-size:14px;padding:8px;margin-bottom:8px;">✅ Connection successful</div>
+            <div class="text-muted">${result.message}</div>
+            <div class="text-muted">Latency: ${result.latency_ms}ms</div>
+          `;
+          document.getElementById("step4Next").disabled = false;
+        } else {
+          resultEl.innerHTML = `
+            <div class="badge badge-error" style="font-size:14px;padding:8px;margin-bottom:8px;">❌ Connection failed</div>
+            <div class="text-muted">${result.message}</div>
+            ${result.detail ? `<div class="text-muted">${result.detail}</div>` : ""}
+          `;
+          document.getElementById("step4Next").disabled = true;
+        }
+      } catch (err) {
+        resultEl.innerHTML = `<div class="text-error">Test error: ${err.message}</div>`;
+      }
+      btn.disabled = false;
+      btn.textContent = "🔍 Test Connection";
+    }
+
+    // ---- Step 5: Browse ----
+    function initBrowse() {
+      const browseBtn = document.getElementById("browseBtn");
+      browseBtn.style.display = wizardState.type === "opcua" ? "inline-flex" : "none";
+    }
+
+    async function loadBrowse() {
+      const treeEl = document.getElementById("browseTree");
+      treeEl.style.display = "block";
+      treeEl.innerHTML = '<div class="text-muted">Browsing...</div>';
+
+      try {
+        const nodes = await Connections.browse(wizardState.connector_id, "i=84");
+        renderBrowseTree(nodes, treeEl);
+      } catch (err) {
+        treeEl.innerHTML = `<div class="text-error">Browse failed: ${err.message}</div>`;
+      }
+    }
+
+    function renderBrowseTree(nodes, container, depth = 0) {
+      container.innerHTML = nodes.map(n => `
+        <div class="browse-item" style="padding-left:${(n.depth || 0) * 20 + 8}px;"
+             ondblclick="addTagFromBrowse('${n.node_id}', '${n.name}')">
+          <span class="toggle">${n.has_children ? "▼" : "○"}</span>
+          <span>${n.name}</span>
+          <span class="text-muted" style="font-size:11px;margin-left:8px;">${n.node_id}</span>
+        </div>
+      `).join("");
+    }
+
+    function addTagFromBrowse(nodeId, name) {
+      wizardState.tags.push({
+        tag_id: `tag_${wizardState.tags.length + 1}`,
+        source_ref: nodeId,
+        signal_id: name,
+        data_type: "float",
+        scale: 1.0,
+        offset: 0.0,
+        enabled: true,
+      });
+      alert(`Added tag: ${name} (${nodeId})`);
+    }
+
+    // ---- Step 6: Tag Mapping ----
+    function initTagTable() {
+      renderTagTable();
+    }
+
+    function renderTagTable() {
+      const container = document.getElementById("tagMappingTable");
+      if (wizardState.tags.length === 0) {
+        wizardState.tags.push({ tag_id: "tag_1", source_ref: "", signal_id: "", data_type: "float", scale: 1.0, offset: 0.0, enabled: true });
+      }
+
+      container.innerHTML = `
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Source Ref</th>
+              <th>Signal ID</th>
+              <th>Data Type</th>
+              <th>Scale</th>
+              <th>Offset</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${wizardState.tags.map((t, i) => `
+              <tr>
+                <td><input class="form-input" style="min-width:120px;" value="${t.source_ref || ""}"
+                           onchange="updateTag(${i}, 'source_ref', this.value)"></td>
+                <td><input class="form-input" style="min-width:120px;" value="${t.signal_id || ""}"
+                           onchange="updateTag(${i}, 'signal_id', this.value)"></td>
+                <td>
+                  <select class="form-input" onchange="updateTag(${i}, 'data_type', this.value)">
+                    <option value="float" ${t.data_type === "float" ? "selected" : ""}>Float</option>
+                    <option value="int16" ${t.data_type === "int16" ? "selected" : ""}>Int16</option>
+                    <option value="uint32_holding" ${t.data_type === "uint32_holding" ? "selected" : ""}>UInt32</option>
+                    <option value="float32_holding" ${t.data_type === "float32_holding" ? "selected" : ""}>Float32</option>
+                    <option value="bool" ${t.data_type === "bool" ? "selected" : ""}>Bool</option>
+                  </select>
+                </td>
+                <td><input class="form-input" style="width:80px;" value="${t.scale || 1.0}" type="number" step="0.1"
+                           onchange="updateTag(${i}, 'scale', parseFloat(this.value))"></td>
+                <td><input class="form-input" style="width:80px;" value="${t.offset || 0.0}" type="number" step="0.1"
+                           onchange="updateTag(${i}, 'offset', parseFloat(this.value))"></td>
+                <td><button class="btn btn-danger btn-sm" onclick="removeTag(${i})">✕</button></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function updateTag(index, field, value) {
+      if (wizardState.tags[index]) {
+        wizardState.tags[index][field] = value;
+      }
+    }
+
+    function addTagRow() {
+      wizardState.tags.push({ tag_id: `tag_${wizardState.tags.length + 1}`, source_ref: "", signal_id: "", data_type: "float", scale: 1.0, offset: 0.0, enabled: true });
+      renderTagTable();
+    }
+
+    function removeTag(index) {
+      wizardState.tags.splice(index, 1);
+      if (wizardState.tags.length === 0) addTagRow();
+      else renderTagTable();
+    }
+
+    // ---- Step 7: Review ----
+    function initReview() {
+      const container = document.getElementById("reviewContent");
+      container.innerHTML = JSON.stringify(wizardState, null, 2);
+    }
+
+    // ---- Step 7 → 8: Apply ----
+    async function applyConfig() {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = "Applying...";
+
+      try {
+        // Save tags
+        for (const tag of wizardState.tags) {
+          await Connections.saveTag(wizardState.connector_id, tag);
+        }
+
+        // Apply draft
+        const applyResult = await Connections.apply(wizardState.connector_id);
+        document.getElementById("confirmContent").innerHTML = `
+          <div class="badge badge-success" style="font-size:14px;padding:8px;margin-bottom:12px;">✅ Configuration applied</div>
+          <p class="text-muted">Connector '${wizardState.connector_id}' has been started with the new configuration.</p>
+          <div class="mt-md flex gap-sm">
+            <button class="btn btn-primary" onclick="confirmApply(true)">✓ Confirm OK</button>
+            <button class="btn btn-danger" onclick="confirmApply(false)">↩ Rollback</button>
+          </div>
+        `;
+        document.getElementById("confirmActions").style.display = "none";
+      } catch (err) {
+        document.getElementById("confirmContent").innerHTML = `
+          <div class="badge badge-error" style="font-size:14px;padding:8px;margin-bottom:12px;">❌ Apply failed</div>
+          <p class="text-error">${err.message}</p>
+          <div class="mt-md">
+            <button class="btn btn-danger" onclick="confirmApply(false)">↩ Rollback</button>
+          </div>
+        `;
+        document.getElementById("confirmActions").style.display = "none";
+      }
+      btn.disabled = false;
+    }
+
+    async function confirmApply(success) {
+      try {
+        await Connections.confirm(wizardState.connector_id, success);
+        document.getElementById("confirmContent").innerHTML = success
+          ? '<div class="badge badge-success" style="font-size:14px;padding:8px;">✅ Configuration confirmed</div>'
+          : '<div class="badge badge-warning" style="font-size:14px;padding:8px;">↩ Configuration rolled back</div>';
+        document.getElementById("confirmActions").style.display = "flex";
+      } catch (err) {
+        document.getElementById("confirmContent").innerHTML = `<div class="text-error">${err.message}</div>`;
+      }
+    }
+
+    // ---- Connector Detail ----
+    async function showConnector(connId) {
+      try {
+        const data = await Connections.get(connId);
+        const status = data.status || {};
+        const msg = `Connector: ${connId}
+Type: ${status.type || "unknown"}
+Status: ${status.status || "unknown"}
+Connected: ${status.connected || false}
+Signals: ${status.signal_count || 0}
+${status.last_error ? `Last Error: ${status.last_error}` : ""}
+
+Actions:
+  [Start] [Stop] [Restart] [Edit] [Delete]`;
+        // Simple action dialog
+        if (confirm(`${msg}\n\nClick OK to edit, Cancel for actions`)) {
+          startWizard(connId);
+        }
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      }
+    }
+  </script>
+</body>
+</html>

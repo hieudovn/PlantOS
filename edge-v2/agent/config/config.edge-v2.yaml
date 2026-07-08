@@ -32,5 +32,16 @@ publish:
   interval_seconds: 10
   batch_size: 10
 
+connectors:
+  # Example OPC UA connector config (disabled):
+  # opcua_01:
+  #   type: opcua
+  #   enabled: false
+  #   connection:
+  #     endpoint: opc.tcp://127.0.0.1:4840
+  #     timeout: 5.0
+  #   poll_interval_ms: 1000
+  #   tags: []
+
 web:
   port: 8011

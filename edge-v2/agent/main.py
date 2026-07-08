@@ -102,7 +102,7 @@ class EdgeAgentV2:
             api_key=self.config.api_key,
         )
 
-        # Connectors — new, stub for now, full implementation in E2V2-2
+        # Connectors — OPC UA, Modbus TCP, MQTT Subscribe via safe apply
         self.connectors = ConnectorRegistry(self.config)
 
         # Processing engine — new, stub for now, full implementation in E2V2-3

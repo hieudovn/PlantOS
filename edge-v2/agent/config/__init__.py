@@ -108,25 +108,15 @@ class ConfigManager:
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get a config value, supporting dot-separated nested keys."""
-        parts = key.split(".")
-        node = self._data
-        for p in parts:
-            if isinstance(node, dict):
-                node = node.get(p)
-            else:
-                return default
-        return node if node is not None else default
         if "." in key:
             parts = key.split(".")
-            obj = self._data
-            for part in parts:
-                if isinstance(obj, dict):
-                    obj = obj.get(part)
-                    if obj is None:
-                        return default
+            node = self._data
+            for p in parts:
+                if isinstance(node, dict):
+                    node = node.get(p)
                 else:
                     return default
-            return obj
+            return node if node is not None else default
         return self._data.get(key, default)
 
     def _save(self):
@@ -136,6 +126,87 @@ class ConfigManager:
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.config_path, "w") as f:
             yaml_lib.dump(self._data, f, default_flow_style=False)
+
+    # -- Safe Apply (connector drafts) ----------------------------------------
+
+    def save_draft(self, section: str, fragment: dict) -> int:
+        """Save a connector draft config. Returns draft version number."""
+        drafts = self._data.setdefault("_drafts", {})
+        version = drafts.get(f"{section}_version", 0) + 1
+        drafts[f"{section}_v{version}"] = fragment
+        drafts[f"{section}_version"] = version
+        self._save()
+        return version
+
+    def get_draft(self, section: str) -> dict | None:
+        """Get the latest draft for a section."""
+        drafts = self._data.get("_drafts", {})
+        version = drafts.get(f"{section}_version", 0)
+        if version == 0:
+            return None
+        return drafts.get(f"{section}_v{version}")
+
+    def list_drafts(self, section: str) -> list[dict]:
+        """List all drafts for a section."""
+        drafts = self._data.get("_drafts", {})
+        result = []
+        i = 1
+        while drafts.get(f"{section}_v{i}"):
+            result.append(drafts[f"{section}_v{i}"])
+            i += 1
+        return result
+
+    def validate_draft(self, section: str) -> list[str]:
+        """Validate a connector draft. Returns list of error messages."""
+        draft = self.get_draft(section)
+        if not draft:
+            return ["No draft found"]
+        errors = []
+        if "type" not in draft:
+            errors.append("Missing 'type' field")
+        if "connection" not in draft:
+            errors.append("Missing 'connection' section")
+        return errors
+
+    def apply_draft(self, section: str) -> str | None:
+        """Promote a draft to active config. Returns backup path or None."""
+        draft = self.get_draft(section)
+        if not draft:
+            return None
+        from datetime import datetime, timezone
+        backup_key = f"{section}_backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+        backups = self._data.setdefault("_backups", {})
+        current = self._data.get(section, {})
+        backups[backup_key] = dict(current) if isinstance(current, dict) else current
+        self._data[section] = dict(draft)
+        self._save()
+        return backup_key
+
+    def confirm_apply(self, section: str, success: bool):
+        """Confirm or rollback an apply operation."""
+        if success:
+            logger.info("Apply confirmed for '%s' — backup retained", section)
+            return
+        backups = self._data.get("_backups", {})
+        backup_keys = sorted([k for k in backups if k.startswith(f"{section}_backup_")],
+                             reverse=True)
+        if backup_keys:
+            self._data[section] = dict(backups[backup_keys[0]])
+            self._save()
+            logger.info("Rolled back '%s' to backup %s", section, backup_keys[0])
+
+    def rollback(self, section: str, backup_path: str | None = None):
+        """Rollback a section to a specific backup."""
+        backups = self._data.get("_backups", {})
+        if backup_path and backup_path in backups:
+            self._data[section] = dict(backups[backup_path])
+        else:
+            backup_keys = sorted([k for k in backups if k.startswith(f"{section}_backup_")],
+                                 reverse=True)
+            if backup_keys:
+                self._data[section] = dict(backups[backup_keys[0]])
+        self._save()
+        logger.info("Rolled back '%s'", section)
 
     def export_sanitized(self) -> dict:
         """Export config with secrets masked."""

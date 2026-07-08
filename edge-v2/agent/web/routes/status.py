@@ -52,6 +52,7 @@ def register_status_routes(app: web.Application, buffer, sync, health, config,
             },
             "connectors": {
                 "active": connectors.active_count if connectors else 0,
+                "list": await connectors.get_status_all() if connectors else [],
             },
             "center": {
                 "url": config.center_url,
