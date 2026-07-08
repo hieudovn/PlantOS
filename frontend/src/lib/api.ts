@@ -104,6 +104,39 @@ export const validateBindings = (assetId: string) =>
 export const bindFromTemplate = (assetId: string, templateId: string) =>
   fetchAPI<any[]>(`/api/v1/assets/${assetId}/bindings/from-template/${templateId}`, { method: "POST" });
 
+// ---- Formulas ----
+export const validateFormula = (data: any) =>
+  fetchAPI<any>("/api/v1/formulas/validate", { method: "POST", body: JSON.stringify(data) });
+export const getCalcSignals = (params?: Record<string, string>) => {
+  const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+  return fetchAPI<any[]>(`/api/v1/calculated-signals${qs}`);
+};
+export const getCalcSignal = (id: string) => fetchAPI<any>(`/api/v1/calculated-signals/${id}`);
+export const createCalcSignal = (data: any) =>
+  fetchAPI<any>("/api/v1/calculated-signals", { method: "POST", body: JSON.stringify(data) });
+export const updateCalcSignal = (id: string, data: any) =>
+  fetchAPI<any>(`/api/v1/calculated-signals/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+export const deleteCalcSignal = (id: string) =>
+  fetchAPIRaw(`/api/v1/calculated-signals/${id}`, { method: "DELETE" });
+export const testCalcSignal = (id: string) =>
+  fetchAPI<any>(`/api/v1/calculated-signals/${id}/test`, { method: "POST" });
+export const executeCalcSignal = (id: string) =>
+  fetchAPI<any>(`/api/v1/calculated-signals/${id}/execute`, { method: "POST" });
+
+// ---- KPIs ----
+export const getKpis = (params?: Record<string, string>) => {
+  const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+  return fetchAPI<any[]>(`/api/v1/kpis${qs}`);
+};
+export const createKpi = (data: any) =>
+  fetchAPI<any>("/api/v1/kpis", { method: "POST", body: JSON.stringify(data) });
+export const updateKpi = (id: string, data: any) =>
+  fetchAPI<any>(`/api/v1/kpis/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+export const deleteKpi = (id: string) =>
+  fetchAPIRaw(`/api/v1/kpis/${id}`, { method: "DELETE" });
+export const testKpi = (id: string) =>
+  fetchAPI<any>(`/api/v1/kpis/${id}/test`, { method: "POST" });
+
 // ---- Signals ----
 export const getSignals = (params?: Record<string, string>) => {
   const qs = params ? "?" + new URLSearchParams(params).toString() : "";
