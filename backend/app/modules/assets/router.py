@@ -6,12 +6,14 @@ from app.modules.assets.schemas import (
     PlantCreate,
     PlantResponse,
     AreaCreate,
+    AreaUpdate,
     AreaResponse,
     AssetCreate,
     AssetUpdate,
     AssetResponse,
 )
 from app.modules.assets.service import PlantService, AreaService, AssetService
+from app.modules.assets.vocabulary import ASSET_TYPES, ASSET_ROLES, LIFECYCLE_STATUSES, CRITICALITY_LEVELS
 
 router = APIRouter()
 
@@ -68,6 +70,27 @@ def get_area(area_id: str):
         raise HTTPException(status_code=404, detail=str(e))
 
 
+@router.patch("/areas/{area_id}", response_model=AreaResponse)
+def update_area(area_id: str, data: AreaUpdate):
+    try:
+        return area_service.update_area(area_id, data)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+# ---- Assets Vocabulary ----
+
+@router.get("/assets/vocabulary")
+def get_asset_vocabulary():
+    """Return allowed values for asset classification fields."""
+    return {
+        "asset_types": ASSET_TYPES,
+        "asset_roles": ASSET_ROLES,
+        "lifecycle_statuses": LIFECYCLE_STATUSES,
+        "criticality_levels": CRITICALITY_LEVELS,
+    }
+
+
 # ---- Assets ----
 
 @router.post("/assets", response_model=AssetResponse, status_code=201)
@@ -103,5 +126,14 @@ def get_asset(asset_id: str):
 def update_asset(asset_id: str, data: AssetUpdate):
     try:
         return asset_service.update_asset(asset_id, data)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.delete("/assets/{asset_id}", status_code=204)
+def delete_asset(asset_id: str):
+    """Soft-delete an asset by setting lifecycle_status='deleted'."""
+    try:
+        asset_service.delete_asset(asset_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

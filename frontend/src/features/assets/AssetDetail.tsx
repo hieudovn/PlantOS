@@ -1,11 +1,14 @@
-import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getAsset, getSignals } from "@/lib/api";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getAsset, getSignals, deleteAsset } from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useRealtimeValues } from "@/lib/useRealtimeValues";
+import { Trash2 } from "lucide-react";
 
 export function AssetDetail() {
   const { assetId } = useParams<{ assetId: string }>();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: asset } = useQuery({
     queryKey: ["asset", assetId],
@@ -21,6 +24,17 @@ export function AssetDetail() {
 
   const currentValues = useRealtimeValues(assetId ? [assetId] : []);
 
+  async function handleDelete() {
+    if (!confirm(`Delete asset "${assetId}"? This will soft-delete it.`)) return;
+    try {
+      await deleteAsset(assetId!);
+      queryClient.invalidateQueries({ queryKey: ["assets"] });
+      navigate("/assets");
+    } catch (err: any) {
+      alert(err.message || "Delete failed");
+    }
+  }
+
   if (!asset) return <div className="text-gray-500">Loading...</div>;
 
   return (
@@ -29,6 +43,13 @@ export function AssetDetail() {
         <Link to="/assets" className="text-gray-500 hover:text-white text-sm">← Assets</Link>
         <h1 className="text-2xl font-bold">{asset.name}</h1>
         <StatusBadge status={asset.lifecycle_status} />
+        <button
+          onClick={handleDelete}
+          className="ml-auto p-1.5 rounded hover:bg-gray-800"
+          title="Delete asset"
+        >
+          <Trash2 className="w-4 h-4" style={{ color: '#ef4444' }} />
+        </button>
       </div>
 
       {/* Metadata */}

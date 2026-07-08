@@ -38,6 +38,12 @@ class AreaCreate(BaseModel):
     status: str = "active"
 
 
+class AreaUpdate(BaseModel):
+    name: Optional[str] = None
+    area_type: Optional[str] = None
+    status: Optional[str] = None
+
+
 class AreaResponse(BaseModel):
     area_id: str
     plant_id: str

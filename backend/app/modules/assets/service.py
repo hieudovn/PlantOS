@@ -11,6 +11,7 @@ from app.modules.assets.schemas import (
     PlantCreate,
     PlantResponse,
     AreaCreate,
+    AreaUpdate,
     AreaResponse,
     AssetCreate,
     AssetUpdate,
@@ -139,6 +140,21 @@ class AreaService:
             areas = repo.list_by_plant(plant_id)
             return [_area_to_response(a) for a in areas]
 
+    def update_area(self, area_id: str, data: AreaUpdate) -> AreaResponse:
+        """Update area metadata."""
+        with get_session() as session:
+            repo = AreaRepository(session)
+            area = repo.get_by_id(area_id)
+            if not area:
+                raise ValueError(f"Area '{area_id}' not found")
+            update_data = data.model_dump(exclude_unset=True)
+            for key, value in update_data.items():
+                if value is not None:
+                    setattr(area, key, value)
+            session.commit()
+            session.refresh(area)
+            return _area_to_response(area)
+
 
 # ---- Asset Service ----
 
@@ -245,3 +261,12 @@ class AssetService:
 
             asset = asset_repo.update(asset, update_data)
             return _asset_to_response(asset)
+
+    def delete_asset(self, asset_id: str) -> None:
+        """Soft-delete an asset by setting lifecycle_status='deleted'."""
+        with get_session() as session:
+            repo = AssetRepository(session)
+            asset = repo.get_by_id(asset_id)
+            if not asset:
+                raise ValueError(f"Asset '{asset_id}' not found")
+            repo.update(asset, {"lifecycle_status": "deleted"})

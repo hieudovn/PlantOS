@@ -1,18 +1,22 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { getAssets } from "@/lib/api";
+import { getAssets, deleteAsset } from "@/lib/api";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AssetFilters } from "./AssetFilters";
 import { AssetTree } from "./AssetTree";
-import { Search } from "lucide-react";
+import { AssetForm } from "./AssetForm";
+import { Search, Plus, Pencil, Trash2 } from "lucide-react";
 
 export function AssetTable() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"tree" | "table">("tree");
+  const [showForm, setShowForm] = useState(false);
+  const [editAsset, setEditAsset] = useState<any | null>(null);
   const { plantId } = useWorkspace();
 
   const params: Record<string, string> = { plant_id: plantId };
@@ -29,11 +33,31 @@ export function AssetTable() {
     a.asset_id.toLowerCase().includes(search.toLowerCase())
   );
 
+  async function handleDelete(assetId: string) {
+    if (!confirm(`Delete asset "${assetId}"? This will soft-delete it.`)) return;
+    try {
+      await deleteAsset(assetId);
+      queryClient.invalidateQueries({ queryKey: ["assets"] });
+    } catch (err: any) {
+      alert(err.message || "Delete failed");
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Assets</h1>
-        <span className="text-sm text-gray-500">{filtered?.length || 0} assets</span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-500">{filtered?.length || 0} assets</span>
+          <button
+            onClick={() => { setEditAsset(null); setShowForm(true); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium"
+            style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
+          >
+            <Plus className="w-4 h-4" />
+            Create Asset
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-3 items-center">
@@ -84,6 +108,7 @@ export function AssetTable() {
                 <th className="text-left px-4 py-3">Role</th>
                 <th className="text-left px-4 py-3">Area</th>
                 <th className="text-left px-4 py-3">Status</th>
+                <th className="text-right px-4 py-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
@@ -105,11 +130,38 @@ export function AssetTable() {
                   <td className="px-4 py-3">
                     <StatusBadge status={a.lifecycle_status} />
                   </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => { setEditAsset(a); setShowForm(true); }}
+                        className="p-1 rounded hover:bg-gray-700"
+                        title="Edit"
+                      >
+                        <Pencil className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(a.asset_id)}
+                        className="p-1 rounded hover:bg-gray-700"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" style={{ color: '#ef4444' }} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {showForm && (
+        <AssetForm
+          mode={editAsset ? "edit" : "create"}
+          asset={editAsset}
+          onClose={() => { setShowForm(false); setEditAsset(null); }}
+          onSaved={() => {}}
+        />
       )}
     </div>
   );
