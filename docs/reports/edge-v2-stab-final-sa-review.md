@@ -59,10 +59,16 @@ Fix:             docker compose up -d --build (when infra restored)
 
 ## 5. SA Decision
 
-```
-[ ] APPROVED — proceed to E2V2-7
-[ ] CONDITIONALLY — Docker smoke required before production
-[ ] NOT APPROVED
+```text
+[x] CONDITIONALLY — Proceed to E2V2-7 Controlled Migration preparation.
+    Data E2E and Command E2E have passed on VPS.
+    Docker smoke remains pending due infrastructure issue and must pass
+    before packaging/product readiness approval.
 
 SA Notes:
+- Approved to start E2V2-7 planning and non-production controlled migration preparation.
+- Do not claim Docker/package readiness until Docker smoke passes.
+- Do not disable Edge v1 during E2V2-7.
+- Migration must be parallel/mirror-first with rollback.
+- Docker smoke can be verified on another environment if VPS Docker Hub TLS issue persists.
 ```
