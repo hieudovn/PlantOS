@@ -68,12 +68,22 @@
           <div class="card protocol-card" onclick="selectProtocol('modbus_tcp')" style="cursor:pointer;text-align:center;">
             <div style="font-size:32px;margin-bottom:8px;">🔧</div>
             <div style="font-weight:600;">Modbus TCP</div>
-            <div class="text-muted" style="font-size:12px;">PLC & RTU</div>
+            <div class="text-muted" style="font-size:12px;">Ethernet PLC & RTU</div>
+          </div>
+          <div class="card protocol-card" onclick="selectProtocol('modbus_rtu')" style="cursor:pointer;text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">🔌</div>
+            <div style="font-weight:600;">Modbus RTU</div>
+            <div class="text-muted" style="font-size:12px;">Serial RS-485/232</div>
           </div>
           <div class="card protocol-card" onclick="selectProtocol('mqtt')" style="cursor:pointer;text-align:center;">
             <div style="font-size:32px;margin-bottom:8px;">📡</div>
             <div style="font-weight:600;">MQTT</div>
             <div class="text-muted" style="font-size:12px;">Subscribe & ingest</div>
+          </div>
+          <div class="card protocol-card" onclick="selectProtocol('http_poll')" style="cursor:pointer;text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">🌐</div>
+            <div style="font-weight:600;">HTTP Poll</div>
+            <div class="text-muted" style="font-size:12px;">REST API polling</div>
           </div>
         </div>
         <div class="mt-lg flex justify-between">
@@ -370,6 +380,69 @@
               <option value="jsonpath" ${(wizardState.parse_mode || "jsonpath") === "jsonpath" ? "selected" : ""}>JSONPath</option>
               <option value="plain_text" ${wizardState.parse_mode === "plain_text" ? "selected" : ""}>Plain Text</option>
             </select>
+          </div>
+        `;
+      } else if (type === "modbus_rtu") {
+        html = `
+          <div class="form-group">
+            <label>Serial Port</label>
+            <input class="form-input" id="param_port" value="${conn.port || "/dev/ttyUSB0"}"
+                   placeholder="/dev/ttyUSB0 or COM3"
+                   onchange="wizardState.connection.port = this.value">
+          </div>
+          <div class="form-group">
+            <label>Baud Rate</label>
+            <select class="form-input" id="param_baud" onchange="wizardState.connection.baudrate = parseInt(this.value)">
+              <option value="9600" ${(conn.baudrate || 9600) === 9600 ? "selected" : ""}>9600</option>
+              <option value="19200" ${conn.baudrate === 19200 ? "selected" : ""}>19200</option>
+              <option value="38400" ${conn.baudrate === 38400 ? "selected" : ""}>38400</option>
+              <option value="115200" ${conn.baudrate === 115200 ? "selected" : ""}>115200</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Parity</label>
+            <select class="form-input" id="param_parity" onchange="wizardState.connection.parity = this.value">
+              <option value="N" ${(conn.parity || "N") === "N" ? "selected" : ""}>None</option>
+              <option value="E" ${conn.parity === "E" ? "selected" : ""}>Even</option>
+              <option value="O" ${conn.parity === "O" ? "selected" : ""}>Odd</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Stop Bits</label>
+            <select class="form-input" id="param_stop" onchange="wizardState.connection.stopbits = parseInt(this.value)">
+              <option value="1" ${(conn.stopbits || 1) === 1 ? "selected" : ""}>1</option>
+              <option value="2" ${conn.stopbits === 2 ? "selected" : ""}>2</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Unit ID</label>
+            <input class="form-input" id="param_unit" value="${conn.unit_id || 1}" type="number"
+                   onchange="wizardState.connection.unit_id = parseInt(this.value)">
+          </div>
+          <div class="form-group">
+            <label>Poll Interval (ms)</label>
+            <input class="form-input" id="param_poll" value="${wizardState.poll_interval_ms || 1000}" type="number"
+                   onchange="wizardState.poll_interval_ms = parseInt(this.value)">
+          </div>
+        `;
+      } else if (type === "http_poll") {
+        html = `
+          <div class="form-group">
+            <label>URL (GET only)</label>
+            <input class="form-input" id="param_url" value="${conn.url || "http://localhost:8080/api/test/measurements"}"
+                   placeholder="http://..."
+                   onchange="wizardState.connection.url = this.value">
+          </div>
+          <div class="form-group">
+            <label>Custom Headers (JSON, optional)</label>
+            <input class="form-input" id="param_headers" value='${JSON.stringify(conn.headers || {})}'
+                   placeholder='{"Authorization": "Bearer ..."}'
+                   onchange="try { wizardState.connection.headers = JSON.parse(this.value); } catch(e) {}">
+          </div>
+          <div class="form-group">
+            <label>Poll Interval (ms)</label>
+            <input class="form-input" id="param_poll" value="${wizardState.poll_interval_ms || 5000}" type="number"
+                   onchange="wizardState.poll_interval_ms = parseInt(this.value)">
           </div>
         `;
       }
