@@ -5,7 +5,7 @@ CSRF tokens are generated per-session and stored in session data.
 
 SECURITY: Fail fast if bcrypt or itsdangerous are missing (unless EDGE_DEV_INSECURE_AUTH=true).
 """
-
+from __future__ import annotations
 import hashlib
 import logging
 import os
