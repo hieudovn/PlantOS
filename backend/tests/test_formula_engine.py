@@ -65,3 +65,78 @@ def test_wtp_realistic():
     assert e.validate(formula, ["DP", "TB"]) == []
     result = e.evaluate(formula, {"DP": 45, "TB": 0.5})
     assert 0 <= result <= 1
+
+
+# ---- SA-requested hardening tests (P2) ----
+
+def test_reject_dict_literal():
+    e = SafeFormulaEngine()
+    errors = e.validate("{'a': 1}", [])
+    assert len(errors) > 0
+
+
+def test_reject_list_literal():
+    e = SafeFormulaEngine()
+    errors = e.validate("[1, 2, 3]", [])
+    assert len(errors) > 0
+
+
+def test_reject_list_comprehension():
+    e = SafeFormulaEngine()
+    errors = e.validate("[x for x in range(10)]", [])
+    assert len(errors) > 0
+
+
+def test_reject_eval_call():
+    e = SafeFormulaEngine()
+    errors = e.validate("eval('1+1')", [])
+    assert len(errors) > 0
+
+
+def test_reject_open_call():
+    e = SafeFormulaEngine()
+    errors = e.validate("open('file')", [])
+    assert len(errors) > 0
+
+
+def test_reject_fstring():
+    e = SafeFormulaEngine()
+    errors = e.validate("f'{A}'", ["A"])
+    assert len(errors) > 0
+
+
+def test_reject_walrus():
+    e = SafeFormulaEngine()
+    errors = e.validate("(x := 1)", [])
+    assert len(errors) > 0
+
+
+def test_reject_subscript():
+    e = SafeFormulaEngine()
+    errors = e.validate("A[0]", ["A"])
+    assert len(errors) > 0
+
+
+def test_division_by_zero_raises():
+    e = SafeFormulaEngine()
+    with pytest.raises((FormulaError, ZeroDivisionError)):
+        e.evaluate("1 / 0", {})
+
+
+def test_normalize_edge_case():
+    """normalize with equal bounds should return 0."""
+    e = SafeFormulaEngine()
+    result = e.evaluate("normalize(A, 1, 1)", {"A": 5})
+    assert result == 0
+
+
+def test_unknown_function_rejected():
+    e = SafeFormulaEngine()
+    errors = e.validate("unknown_func(A)", ["A"])
+    assert len(errors) > 0
+
+
+def test_keyword_arguments_rejected():
+    e = SafeFormulaEngine()
+    errors = e.validate("round(A, ndigits=2)", ["A"])
+    assert len(errors) > 0

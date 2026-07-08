@@ -3,7 +3,10 @@
 > **To:** Solution Architect  
 > **From:** PM-Designer  
 > **Date:** 2026-07-08  
-> **Subject:** Phase 10 — Asset Model Builder MVP (AM-1 to AM-5) — Implementation Complete  
+> **Subject:** Phase 10 — Asset Model Builder MVP (AM-1 to AM-5)  
+
+> **Status:** ✅ **CLOSED — SA APPROVED for internal demo / MVP.**  
+> Not production-ready. Remaining P1/P2 items carried to AM-6/AM-7.
 
 ---
 
@@ -80,7 +83,7 @@ Operations: http://103.97.132.249/operations → "API" badge
 | Deliverable | File | Status |
 |------------|------|--------|
 | SafeFormulaEngine (AST-based, no eval) | `formulas/engine.py` | ✅ |
-| Unit tests (9/9 pass) | `tests/test_formula_engine.py` | ✅ |
+| Unit tests | `tests/test_formula_engine.py` | ✅ (22 tests) |
 | Migration 007: `calculated_signals` | `migrations/versions/007_*.py` | ✅ |
 | Migration 008: `kpi_definitions` | `migrations/versions/007_*.py` | ✅ |
 | ORM: CalculatedSignal, KpiDefinition | `formulas/models.py` | ✅ |
@@ -98,10 +101,20 @@ Operations: http://103.97.132.249/operations → "API" badge
 | `lambda x: x` | ❌ Rejected |
 | `clamp(A, 0, 100)` | ✅ |
 | `normalize(DP, 0, 100) * 0.7 + normalize(TB, 0, 2) * 0.3` | ✅ (WTP realistic) |
-| `1 if A > 10 else 0` | ✅ |
+| `eval("1+1")` | ❌ Rejected |
+| `open("file")` | ❌ Rejected |
+| `f"{A}"` | ❌ Rejected |
+| `(x := 1)` | ❌ Rejected |
+| `[x for x in range(10)]` | ❌ Rejected |
+| `{"a": 1}` | ❌ Rejected |
+| `A[0]` | ❌ Rejected |
+| `unknown_func(A)` | ❌ Rejected |
+| `round(A, ndigits=2)` | ❌ Rejected (no kwargs) |
+| `normalize(A, 1, 1)` | ✅ Returns 0 |
+| `1 if A > 10 else 0` | ✅ (ternary) |
 
-**Allowed:** `+ - * / ** %`, comparison, `abs/round/min/max/sum/clamp/normalize/if`, ternary  
-**Forbidden:** `__import__`, attribute access, lambda, comprehension, subscript, assignment, loop
+**Allowed:** `+ - * / ** %`, comparison, `abs/round/min/max/sum/clamp/normalize`, **ternary expression** (`x if cond else y`)  
+**Forbidden:** `__import__`, `eval`, `open`, attribute access, lambda, comprehension, subscript, assignment, f-string, walrus, kwargs
 
 ### 2.5 Phase AM-5 — Process View Backend-Driven
 
@@ -286,6 +299,8 @@ c64d29a docs: AM-3 coder prompt — Asset Template + Signal Binding
 
 **All 15 SA acceptance criteria: PASS**
 
+**Clarification:** Process View backend API currently uses hardcoded WTP config in `process_view/router.py`. DB-driven config (reading from bindings + KPI tables) and Contract Registry integration are planned for AM-7/AM-8.
+
 ---
 
-> **PM Decision:** Asset Model Builder MVP is production-ready for internal demo. Recommend SA review and approval to proceed to AM-6 (scheduled execution) or Phase 7 (productization).
+> **PM Decision:** Asset Model Builder MVP is **approved for internal demo / MVP closure**. Not production-ready yet — see §7 for remaining P2/P3 technical debt and recommended next phases (AM-6 through AM-9).
