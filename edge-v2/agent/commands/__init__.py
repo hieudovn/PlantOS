@@ -1,18 +1,6 @@
-"""Command Poller — stub for E2V2-0.
+"""Command Poller — pull-based command execution from Center."""
 
-Full pull-based command execution added in E2V2-4.
-"""
+from agent.commands.poller import CommandPoller
 
-import logging
+__all__ = ["CommandPoller"]
 
-logger = logging.getLogger(__name__)
-
-
-class CommandPoller:
-    """Stub command poller. No-op until E2V2-4."""
-
-    def __init__(self, config):
-        self.config = config
-
-    async def poll(self):
-        pass

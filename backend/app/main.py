@@ -27,8 +27,14 @@ async def lifespan(app: FastAPI):
     # Register EventDispatcher subscribers
     _register_event_subscribers()
 
+    # Start offline detection background task
+    from app.core.edge_offline_detector import get_offline_detector_task
+    offline_task = get_offline_detector_task()
+    logger.info("Edge offline detection started")
+
     yield
-    # Shutdown — dispose DB engine
+    # Shutdown — cancel offline detector, dispose DB engine
+    offline_task.cancel()
     dispose_engine()
 
 

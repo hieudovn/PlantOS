@@ -108,8 +108,8 @@ class EdgeAgentV2:
         # Processing engine — 7 MVP steps, raw → processed pipeline
         self.processing = ProcessingEngine(buffer=self.buffer)
 
-        # Command poller — new, stub for now, full implementation in E2V2-4
-        self.commands = CommandPoller(self.config)
+        # Command poller — pull-based, executes sync_now/reload_config/restart_connector
+        self.commands = CommandPoller(self.config, edge_agent=self)
 
         # Web server — aiohttp, auth middleware, static files
         self.web = WebServer(

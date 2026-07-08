@@ -69,9 +69,21 @@ export interface EdgeNode {
   edge_version: string | null;
   signal_count: number;
   backlog_count: number;
+  center_sync?: string;
+  disk_usage_mb?: number;
+  workspace_id?: string;
 }
 
 export const getEdgeNodes = () => fetchAPI<EdgeNode[]>("/api/v1/edge-nodes");
+export const getEdgeNode = (id: string) => fetchAPI<any>(`/api/v1/edge-nodes/${id}`);
+export const getEdgeConnectors = (id: string) => fetchAPI<any[]>(`/api/v1/edge-nodes/${id}/connectors`);
+export const getEdgeHeartbeats = (id: string, limit = 100) => fetchAPI<any[]>(`/api/v1/edge-nodes/${id}/heartbeats?limit=${limit}`);
+export const getEdgeCommands = (id: string) => fetchAPI<any[]>(`/api/v1/edge-nodes/${id}/commands`);
+export const createEdgeCommand = (id: string, commandType: string, target?: string) =>
+  fetchAPI<any>(`/api/v1/edge-nodes/${id}/commands`, {
+    method: "POST",
+    body: JSON.stringify({ command_type: commandType, target }),
+  });
 
 // ---- System Metrics ----
 export const getSystemMetrics = () => fetchAPI<any>("/api/v1/system/metrics");

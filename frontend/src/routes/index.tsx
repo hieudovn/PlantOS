@@ -9,6 +9,7 @@ import { HistorianPage } from "@/features/historian/HistorianPage";
 import { DiagramPage } from "@/features/visualization/DiagramPage";
 import { GisMapPage } from "@/features/visualization/GisMapPage";
 import { EdgeFleetPage } from "@/features/edge-fleet/EdgeFleetPage";
+import { EdgeDetailPage } from "@/features/edge-fleet/EdgeDetailPage";
 import { AlarmPage } from "@/features/alarms/AlarmPage";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { ReportsPage } from "@/features/reports/ReportsPage";
@@ -47,6 +48,7 @@ export const router = createBrowserRouter([
       { path: "gis", element: <GisMapPage /> },
       { path: "alarms", element: <AlarmPage /> },
       { path: "edge", element: <EdgeFleetPage /> },
+      { path: "edge/:edgeNodeId", element: <EdgeDetailPage /> },
       { path: "system", element: <SystemHealthPage /> },
       { path: "operations", element: <ProcessViewWorkspace /> },
       { path: "operations/area/:areaId", element: <ProcessViewWorkspace /> },
