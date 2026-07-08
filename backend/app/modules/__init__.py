@@ -4,3 +4,4 @@ from app.modules.signals.models import Signal  # noqa: F401
 from app.modules.edge_nodes.models import EdgeNode  # noqa: F401
 from app.modules.events.models import StateEvent, DowntimeEvent, ProductionEvent  # noqa: F401
 from app.modules.asset_templates.models import AssetTemplate, AssetAttributeBinding  # noqa: F401
+from app.modules.formulas.models import CalculatedSignal, KpiDefinition  # noqa: F401

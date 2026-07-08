@@ -73,8 +73,10 @@ class AssetRepository:
         stmt = select(Asset)
         if area_id:
             stmt = stmt.join(Area).where(Area.area_id == area_id)
-        if plant_id:
+        if plant_id and not area_id:
             stmt = stmt.join(Area).join(Plant).where(Plant.plant_id == plant_id)
+        elif plant_id and area_id:
+            stmt = stmt.join(Plant, Area.plant).where(Plant.plant_id == plant_id)
         if asset_type:
             stmt = stmt.where(Asset.asset_type == asset_type)
         return list(self.session.scalars(stmt).all())
