@@ -6,7 +6,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.gzip import GZipMiddleware
 
 from app.api import v1_router
 from app.api.ws import router as ws_router, broadcast_measurements
@@ -22,21 +21,14 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle."""
-    # Startup — validate config, initialize DB engine
-    settings.validate_config()
+    # Startup — initialize DB engine
     get_engine()
 
     # Register EventDispatcher subscribers
     _register_event_subscribers()
 
-    # Start MQTT publisher
-    from app.modules.events.publisher import MqttPublisher
-    MqttPublisher.get_instance().start()
-
     yield
-
-    # Shutdown — stop MQTT publisher, dispose DB engine
-    MqttPublisher.get_instance().stop()
+    # Shutdown — dispose DB engine
     dispose_engine()
 
 
@@ -49,6 +41,7 @@ def _register_event_subscribers():
     from app.modules.alarms.calculator import SignalCalculator
     from app.modules.alarms.service import AlarmEvaluator
     from app.modules.historian.stub_adapter import StubHistorianAdapter
+    from app.modules.events.subscribers import on_edge_heartbeat
 
     async def _broadcast_handler(data: dict):
         measurements = data.get("measurements", [])
@@ -71,21 +64,8 @@ def _register_event_subscribers():
     subscribe("measurements.ingested", _broadcast_handler)
     subscribe("measurements.ingested", _alarm_eval_handler)
     subscribe("measurements.ingested", _calc_eval_handler)
-
-    # MQTT event publishing subscribers
-    from app.modules.events.subscribers import (
-        on_measurements_ingested,
-        on_alarm_raised,
-        on_alarm_cleared,
-        on_edge_heartbeat,
-    )
-
-    subscribe("measurements.ingested", on_measurements_ingested)
-    subscribe("alarm.raised", on_alarm_raised)
-    subscribe("alarm.cleared", on_alarm_cleared)
     subscribe("edge.heartbeat", on_edge_heartbeat)
-
-    logger.info("EventDispatcher subscribers registered")
+    logger.info("EventDispatcher subscribers registered for 'measurements.ingested' and 'edge.heartbeat'")
 
 
 app = FastAPI(
@@ -94,7 +74,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.add_middleware(GZipMiddleware, minimum_size=1024)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],

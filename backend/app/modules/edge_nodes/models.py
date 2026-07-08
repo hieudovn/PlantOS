@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import String, DateTime
+from sqlalchemy import String, DateTime, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -26,6 +26,11 @@ class EdgeNode(Base):
     node_type: Mapped[str] = mapped_column(String(64), default="simulator")
     status: Mapped[str] = mapped_column(String(32), default="offline")
     last_heartbeat: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    hostname: Mapped[str | None] = mapped_column(String(255), nullable=True, default=None)
+    ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True, default=None)
+    edge_version: Mapped[str | None] = mapped_column(String(32), nullable=True, default=None)
+    signal_count: Mapped[int] = mapped_column(Integer, default=0)
+    backlog_count: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
 
