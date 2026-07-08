@@ -59,7 +59,8 @@ if [[ ! -f "$SCRIPT_DIR/agent/main.py" ]]; then
     log_info "Cloning repository..."
     apt-get install -y git
     TMP_DIR=$(mktemp -d)
-    git clone --depth 1 --branch feature/edge-v2 https://github.com/PlantOS/plantos.git "$TMP_DIR"
+    # Note: Update this URL to your actual repository
+    git clone --depth 1 --branch main https://github.com/hieudovn/PlantOS.git "$TMP_DIR"
     SCRIPT_DIR="$TMP_DIR/edge-v2"
 fi
 

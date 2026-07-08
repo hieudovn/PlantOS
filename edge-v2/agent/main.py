@@ -168,16 +168,29 @@ class EdgeAgentV2:
                         readings = await connector.read_tags(tag_configs)
                         for reading in readings:
                             # Store raw reading
-                            self.processing.write_raw(reading)
+                            self.processing.write_raw(
+                                signal_id=reading.signal_id,
+                                raw_value=reading.raw_value,
+                                source_ref=reading.source_ref,
+                                connector=conn_id,
+                                quality_hint=reading.quality_hint or "GOOD",
+                                timestamp=reading.timestamp,
+                            )
                             # Get processing profile for this signal
                             profile = self.processing.get_profile_for_signal(reading.signal_id)
                             # Apply processing (or passthrough if no profile)
-                            result = self.processing.apply(reading.raw_value, profile,
-                                                           history=self.processing._history.get(reading.signal_id, []))
-                            # Track history for moving_average etc.
-                            self.processing._history[reading.signal_id] = \
-                                (self.processing._history.get(reading.signal_id, []) + [result.value])[-100:]
-                            # Store processed result to buffer for sync
+                            result = self.processing.apply(
+                                raw_value=reading.raw_value,
+                                profile=profile,
+                                signal_id=reading.signal_id,
+                                timestamp=reading.timestamp,
+                            )
+                            # Update history (engine also does this, but keep for pipeline step access)
+                            if result.value is not None:
+                                self.processing._history.setdefault(reading.signal_id, []).append(result.value)
+                                if len(self.processing._history[reading.signal_id]) > 100:
+                                    self.processing._history[reading.signal_id] = self.processing._history[reading.signal_id][-100:]
+                            # Store processed result to buffer for sync (legacy measurements table)
                             self.buffer.write([{
                                 "timestamp": result.timestamp.isoformat(),
                                 "signal_id": result.signal_id,

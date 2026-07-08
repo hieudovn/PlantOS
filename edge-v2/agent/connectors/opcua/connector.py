@@ -118,8 +118,6 @@ class OpcUaConnector(BaseConnector):
                 if raw:
                     readings = self.mapper.map_values(raw)
                     self._last_success = datetime.now(timezone.utc)
-                    if readings:
-                        yield readings  # Generator for processing pipeline
                 await asyncio.sleep(self._interval)
             except asyncio.CancelledError:
                 break

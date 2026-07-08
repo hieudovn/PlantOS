@@ -2,18 +2,28 @@
 
 No plaintext passwords stored. Session cookies are signed with itsdangerous.
 CSRF tokens are generated per-session and stored in session data.
+
+SECURITY: Fail fast if bcrypt or itsdangerous are missing (unless EDGE_DEV_INSECURE_AUTH=true).
 """
 
-import secrets
 import hashlib
 import logging
+import os
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
 try:
     import bcrypt
+    HAS_BCRYPT = True
 except ImportError:
-    bcrypt = None  # Fallback handled below
+    HAS_BCRYPT = False
+
+try:
+    from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+    HAS_ITSDAENGEROUS = True
+except ImportError:
+    HAS_ITSDAENGEROUS = False
 
 logger = logging.getLogger(__name__)
 
@@ -21,19 +31,37 @@ SESSION_TTL = timedelta(hours=24)
 CSRF_BYTES = 32
 
 
+# ---- Production safety check --------------------------------------------
+
+def _check_crypto():
+    """Fail fast if production crypto libs are missing, unless dev mode set."""
+    dev_mode = os.environ.get("EDGE_DEV_INSECURE_AUTH", "").lower() in ("true", "1", "yes")
+    if not HAS_BCRYPT:
+        msg = "bcrypt required for production. Install: pip install bcrypt"
+        if dev_mode:
+            logger.warning("%s — running with INSECURE SHA-256 fallback", msg)
+        else:
+            raise RuntimeError(msg)
+    if not HAS_ITSDAENGEROUS:
+        msg = "itsdangerous required for production. Install: pip install itsdangerous"
+        if dev_mode:
+            logger.warning("%s — running with INSECURE HMAC fallback", msg)
+        else:
+            raise RuntimeError(msg)
+
+
 # ---- Password helpers (with bcrypt) -------------------------------------
 
 def _hash_password(password: str) -> str:
-    if bcrypt:
+    if HAS_BCRYPT:
         pw = password.encode("utf-8")
         return bcrypt.hashpw(pw, bcrypt.gensalt()).decode("utf-8")
-    # Fallback — SHA-256 (for environments without bcrypt)
-    logger.warning("bcrypt not available; using SHA-256 fallback (NOT production-safe)")
+    logger.warning("Using INSECURE SHA-256 password hashing (EDGE_DEV_INSECURE_AUTH mode)")
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
 def _check_password(password: str, hashed: str) -> bool:
-    if bcrypt:
+    if HAS_BCRYPT:
         try:
             return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
         except (ValueError, TypeError):
@@ -43,45 +71,36 @@ def _check_password(password: str, hashed: str) -> bool:
 
 # ---- Session helpers (itsdangerous) -------------------------------------
 
-try:
-    from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-
-    def _make_serializer(secret: str) -> URLSafeTimedSerializer:
+def _make_serializer(secret: str) -> URLSafeTimedSerializer | str:
+    if HAS_ITSDAENGEROUS:
         return URLSafeTimedSerializer(secret, salt="plantos-edge-session")
+    return secret
 
-    def _sign_session(serializer: URLSafeTimedSerializer, data: dict) -> str:
+
+def _sign_session(serializer: URLSafeTimedSerializer | str, data: dict) -> str:
+    if HAS_ITSDAENGEROUS:
         return serializer.dumps(data)
+    import hmac, json
+    payload = json.dumps(data)
+    sig = hmac.new(serializer.encode(), payload.encode(), hashlib.sha256).hexdigest()[:16]
+    return f"{sig}:{payload}"
 
-    def _unsign_session(serializer: URLSafeTimedSerializer, cookie: str) -> dict | None:
+
+def _unsign_session(serializer: URLSafeTimedSerializer | str, cookie: str) -> dict | None:
+    if HAS_ITSDAENGEROUS:
         try:
             return serializer.loads(cookie, max_age=int(SESSION_TTL.total_seconds()))
         except (BadSignature, SignatureExpired):
             return None
-except ImportError:
-    # Fallback — simple HMAC-like signing (NOT production-safe)
-    import hmac
-
-    logger.warning("itsdangerous not available; using HMAC fallback (NOT production-safe)")
-
-    def _make_serializer(secret: str) -> str:
-        return secret
-
-    def _sign_session(secret: str, data: dict) -> str:
-        import json
-        payload = json.dumps(data)
-        sig = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()[:16]
-        return f"{sig}:{payload}"
-
-    def _unsign_session(secret: str, cookie: str) -> dict | None:
-        try:
-            sig, payload = cookie.split(":", 1)
-            expected = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()[:16]
-            if not hmac.compare_digest(sig, expected):
-                return None
-            import json
-            return json.loads(payload)
-        except (ValueError, Exception):
+    import hmac, json
+    try:
+        sig, payload = cookie.split(":", 1)
+        expected = hmac.new(serializer.encode(), payload.encode(), hashlib.sha256).hexdigest()[:16]
+        if not hmac.compare_digest(sig, expected):
             return None
+        return json.loads(payload)
+    except (ValueError, Exception):
+        return None
 
 
 class Session:
@@ -123,6 +142,8 @@ class LocalAuthManager:
     """
 
     def __init__(self, config):
+        # Fail fast if production crypto libs are missing
+        _check_crypto()
         self.config = config
         self._serializer = _make_serializer(config.get("session_secret", "plantos-edge-default-secret"))
         # In-memory session store for CSRF token lookup (cookie carries the rest)

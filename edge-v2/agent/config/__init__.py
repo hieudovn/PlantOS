@@ -128,31 +128,54 @@ class ConfigManager:
             yaml_lib.dump(self._data, f, default_flow_style=False)
 
     # -- Safe Apply (connector drafts) ----------------------------------------
+    #
+    # Canonical paths:
+    #   Active:   connectors.<connector_id>
+    #   Draft:    _drafts.connectors.<connector_id>.<version>
+    #   Backup:   _backups.connectors.<connector_id>.<timestamp>
+
+    def _draft_section(self, section: str) -> str:
+        """Normalize section to canonical draft path."""
+        if section.startswith("connectors."):
+            return section
+        if section.startswith("connector_"):
+            # Legacy: connector_opcua_01 → connectors.opcua_01
+            return section.replace("connector_", "connectors.", 1)
+        return f"connectors.{section}"
 
     def save_draft(self, section: str, fragment: dict) -> int:
         """Save a connector draft config. Returns draft version number."""
+        canon = self._draft_section(section)
         drafts = self._data.setdefault("_drafts", {})
-        version = drafts.get(f"{section}_version", 0) + 1
-        drafts[f"{section}_v{version}"] = fragment
-        drafts[f"{section}_version"] = version
+        connectors_drafts = drafts.setdefault("connectors", {})
+        conn_drafts = connectors_drafts.setdefault(canon, {})
+        version = conn_drafts.get("_version", 0) + 1
+        conn_drafts[f"v{version}"] = fragment
+        conn_drafts["_version"] = version
         self._save()
         return version
 
     def get_draft(self, section: str) -> dict | None:
         """Get the latest draft for a section."""
+        canon = self._draft_section(section)
         drafts = self._data.get("_drafts", {})
-        version = drafts.get(f"{section}_version", 0)
+        connectors_drafts = drafts.get("connectors", {})
+        conn_drafts = connectors_drafts.get(canon, {})
+        version = conn_drafts.get("_version", 0)
         if version == 0:
             return None
-        return drafts.get(f"{section}_v{version}")
+        return conn_drafts.get(f"v{version}")
 
     def list_drafts(self, section: str) -> list[dict]:
         """List all drafts for a section."""
+        canon = self._draft_section(section)
         drafts = self._data.get("_drafts", {})
+        connectors_drafts = drafts.get("connectors", {})
+        conn_drafts = connectors_drafts.get(canon, {})
         result = []
         i = 1
-        while drafts.get(f"{section}_v{i}"):
-            result.append(drafts[f"{section}_v{i}"])
+        while conn_drafts.get(f"v{i}"):
+            result.append(conn_drafts[f"v{i}"])
             i += 1
         return result
 
@@ -174,11 +197,21 @@ class ConfigManager:
         if not draft:
             return None
         from datetime import datetime, timezone
-        backup_key = f"{section}_backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+        canon = self._draft_section(section)
+        # Extract connector_id from canonical path (connectors.<id>)
+        conn_id = canon.split(".", 1)[1] if "." in canon else canon
+        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
+        backup_key = f"_backups.connectors.{conn_id}.{timestamp}"
         backups = self._data.setdefault("_backups", {})
-        current = self._data.get(section, {})
-        backups[backup_key] = dict(current) if isinstance(current, dict) else current
-        self._data[section] = dict(draft)
+        bs_conn = backups.setdefault("connectors", {})
+
+        # Backup current active config
+        connectors = self._data.setdefault("connectors", {})
+        current = connectors.get(conn_id, {})
+        bs_conn[f"{conn_id}.{timestamp}"] = dict(current) if isinstance(current, dict) else current
+
+        # Apply draft to active
+        connectors[conn_id] = dict(draft)
         self._save()
         return backup_key
 
@@ -187,24 +220,32 @@ class ConfigManager:
         if success:
             logger.info("Apply confirmed for '%s' — backup retained", section)
             return
-        backups = self._data.get("_backups", {})
-        backup_keys = sorted([k for k in backups if k.startswith(f"{section}_backup_")],
-                             reverse=True)
+        backups = self._data.get("_backups", {}).get("connectors", {})
+        canon = self._draft_section(section)
+        conn_id = canon.split(".", 1)[1] if "." in canon else canon
+        backup_keys = sorted([k for k in backups if k.startswith(f"{conn_id}.")], reverse=True)
         if backup_keys:
-            self._data[section] = dict(backups[backup_keys[0]])
+            connectors = self._data.setdefault("connectors", {})
+            connectors[conn_id] = dict(backups[backup_keys[0]])
             self._save()
             logger.info("Rolled back '%s' to backup %s", section, backup_keys[0])
 
     def rollback(self, section: str, backup_path: str | None = None):
         """Rollback a section to a specific backup."""
-        backups = self._data.get("_backups", {})
-        if backup_path and backup_path in backups:
-            self._data[section] = dict(backups[backup_path])
+        backups = self._data.get("_backups", {}).get("connectors", {})
+        canon = self._draft_section(section)
+        conn_id = canon.split(".", 1)[1] if "." in canon else canon
+        connectors = self._data.setdefault("connectors", {})
+        if backup_path:
+            # Extract connector key from backup_path
+            for key in backups:
+                if key == backup_path or key.endswith(backup_path):
+                    connectors[conn_id] = dict(backups[key])
+                    break
         else:
-            backup_keys = sorted([k for k in backups if k.startswith(f"{section}_backup_")],
-                                 reverse=True)
+            backup_keys = sorted([k for k in backups if k.startswith(f"{conn_id}.")], reverse=True)
             if backup_keys:
-                self._data[section] = dict(backups[backup_keys[0]])
+                connectors[conn_id] = dict(backups[backup_keys[0]])
         self._save()
         logger.info("Rolled back '%s'", section)
 
