@@ -1,8 +1,8 @@
 # Edge v2 Migration Preparation Report
 
 > **Date:** 2026-07-09
-> **Status:** Preparation Complete — Pending SA GO/NO-GO
-> **Author:** Coder (DeepSeek V4 Flash)
+> **Status:** Artifacts Ready — Pending Execution (side-by-side, dry-run)
+> **Author:** Coder (DeepSeek V4 Flash), PM Review (DeepSeek V4 Pro)
 > **SA Gate:** ✅ CONDITIONALLY APPROVED 2026-07-09
 > **Constraint:** Edge v1 remains PRIMARY. Mirror-first. No production switch.
 
@@ -10,9 +10,7 @@
 
 ## Executive Summary
 
-Edge v2 migration preparation is complete. All artifacts (config migration utility, comparison tool, runbooks) are ready. Execution requires Docker smoke pass and SA GO decision.
-
----
+All preparation artifacts complete: mirror config merged into `config.edge-v2.yaml`, migration utility fixed, seed script created. Execution tasks (side-by-side comparison, dry-run) require VPS access and Center API availability. Docker smoke still blocked by infrastructure.
 
 ## 1. Mirror Configuration Status
 
@@ -81,15 +79,14 @@ Both runbooks are marked **NOT YET ACTIVE** — SA approval required before exec
 
 ## 4. Dry-Run Test Results
 
-*To be executed after SA approval:*
-
 | Test | Status | Expected | Actual |
 |---|---|---|---|
-| Config migration dry-run | ⏳ PENDING | 2 connectors, 29 tags | |
-| 1-hour side-by-side | ⏳ PENDING | All signals <5% tolerance | |
-| Center offline simulation | ⏳ PENDING | Both buffer, flush without duplicates | |
-| Rollback dry-run | ⏳ PENDING | v1 resume <60s, gap <30s | |
-| Full cycle (test workspace) | ⏳ PENDING | All phases pass | |
+| Config migration dry-run | ✅ PASS | 2 connectors, 29 tags | mirror_wtp_signals (3) + mirror_vf_compressor (26) |
+| Config merged to correct path | ✅ FIXED | `edge-v2/agent/config/config.edge-v2.yaml` | PM merged + fixed tool default |
+| 1-hour side-by-side | ⏳ PENDING | All signals <5% tolerance | Needs VPS: both v1+v2 running |
+| Center offline simulation | ⏳ PENDING | Both buffer, flush without duplicates | Needs VPS |
+| Rollback dry-run | ⏳ PENDING | v1 resume <60s, gap <30s | Needs VPS |
+| Full cycle (test workspace) | ⏳ PENDING | All phases pass | Seed script ready: `scripts/seed_edgev2_test.py` |
 
 ---
 
