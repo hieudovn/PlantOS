@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantOS Edge Lite — Logs</title>
+  <link rel="stylesheet" href="/css/plantos-tokens.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main-content">
+      <div class="page-header flex justify-between items-center">
+        <h1>Logs</h1>
+        <div class="flex gap-sm items-center">
+          <!-- Severity filter -->
+          <select id="severityFilter" class="form-input" style="width:auto;" onchange="loadLogs()">
+            <option value="">All Severities</option>
+            <option value="INFO">INFO</option>
+            <option value="WARN">WARN</option>
+            <option value="ERROR">ERROR</option>
+          </select>
+          <!-- Time range filter -->
+          <select id="timeRange" class="form-input" style="width:auto;" onchange="loadLogs()">
+            <option value="15m">Last 15 min</option>
+            <option value="1h" selected>Last 1 hour</option>
+            <option value="6h">Last 6 hours</option>
+            <option value="24h">Last 24 hours</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="downloadLogs()">
+            ⬇ Download
+          </button>
+        </div>
+      </div>
+      <div class="page-body">
+        <div class="card">
+          <div id="logContainer" style="height:calc(100vh - 220px);overflow-y:auto;font-family:var(--font-mono);font-size:12px;line-height:1.6;">
+            <div class="text-muted" style="padding:16px;">Loading logs...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    let refreshInterval;
+
+    async function loadLogs() {
+      try {
+        const severity = document.getElementById("severityFilter").value;
+        const timeRange = document.getElementById("timeRange").value;
+
+        let url = `/api/logs?range=${timeRange}`;
+        if (severity) url += `&severity=${severity}`;
+
+        const resp = await fetch(url);
+        if (!resp.ok) {
+          document.getElementById("logContainer").innerHTML =
+            '<div class="text-muted" style="padding:16px;">Log endpoint not yet available (E2V2-4)</div>';
+          return;
+        }
+
+        const data = await resp.json();
+        const logs = data.logs || [];
+
+        const container = document.getElementById("logContainer");
+        if (logs.length === 0) {
+          container.innerHTML = '<div class="text-muted" style="padding:16px;">No logs found</div>';
+        } else {
+          container.innerHTML = logs.map(log => {
+            const severityClass = log.severity === "ERROR" ? "text-error"
+              : log.severity === "WARN" ? "text-warning"
+              : "text-muted";
+            return `<div><span class="text-muted">${log.timestamp || ""}</span> ` +
+                   `<span class="${severityClass}">[${log.severity || "INFO"}]</span> ` +
+                   `<span>${log.message || ""}</span></div>`;
+          }).join("");
+          container.scrollTop = container.scrollHeight;
+        }
+      } catch (err) {
+        console.error("Log load error:", err);
+      }
+    }
+
+    function downloadLogs() {
+      // Placeholder — actual download implementation in E2V2-4
+      alert("Log download will be available in a future update.");
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await Auth.requireAuth();
+      if (user) {
+        loadLogs();
+        refreshInterval = setInterval(loadLogs, 10000);
+      }
+    });
+
+    window.addEventListener("beforeunload", () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    });
+  </script>
+</body>
+</html>

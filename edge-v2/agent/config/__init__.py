@@ -88,8 +88,54 @@ class ConfigManager:
     def web_port(self) -> int:
         return self._data.get("web", {}).get("port", 8011)
 
+    def _save(self):
+        """Persist current config back to YAML file."""
+        with open(self.config_path, 'w') as f:
+            yaml.dump(self._data, f, default_flow_style=False, allow_unicode=True)
+
+    # -- Auth config (managed by LocalAuthManager) --
+    @property
+    def admin_hash(self) -> str | None:
+        return self._data.get("auth", {}).get("admin_hash")
+
+    def set_admin_hash(self, hashed: str):
+        self._data.setdefault("auth", {})["admin_hash"] = hashed
+        self._save()
+
+    @property
+    def session_secret(self) -> str:
+        return self._data.get("auth", {}).get("session_secret", "plantos-edge-default-secret")
+
     def get(self, key: str, default: Any = None) -> Any:
+        """Get a config value, supporting dot-separated nested keys."""
+        parts = key.split(".")
+        node = self._data
+        for p in parts:
+            if isinstance(node, dict):
+                node = node.get(p)
+            else:
+                return default
+        return node if node is not None else default
+        if "." in key:
+            parts = key.split(".")
+            obj = self._data
+            for part in parts:
+                if isinstance(obj, dict):
+                    obj = obj.get(part)
+                    if obj is None:
+                        return default
+                else:
+                    return default
+            return obj
         return self._data.get(key, default)
+
+    def _save(self):
+        """Write current config back to disk."""
+        import yaml as yaml_lib
+        # Preserve original file if possible
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.config_path, "w") as f:
+            yaml_lib.dump(self._data, f, default_flow_style=False)
 
     def export_sanitized(self) -> dict:
         """Export config with secrets masked."""

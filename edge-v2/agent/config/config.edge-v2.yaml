@@ -6,6 +6,11 @@ edge_node_id: EDGEV2-PC-01
 plant_id: EDGEV2-DEMO
 center_url: http://localhost:8000
 api_key: plantos-edge-key-2026
+session_secret: plantos-edge-default-secret
+
+auth:
+  # admin_hash is auto-populated on first-run setup
+  # Do NOT set this manually — use POST /api/auth/setup
 
 buffer:
   path: edge-v2/data/edge_data.duckdb

@@ -69,7 +69,7 @@ class EdgeAgentV2:
         # Config — new, ownership model added in later phases
         self.config = ConfigManager(config_path)
 
-        # Auth — new, stub for now, full implementation in E2V2-1
+        # Auth — bcrypt hashing, signed sessions, CSRF protection
         self.auth = LocalAuthManager(self.config)
 
         # Buffer — reused from edge.agent.buffer
@@ -111,7 +111,7 @@ class EdgeAgentV2:
         # Command poller — new, stub for now, full implementation in E2V2-4
         self.commands = CommandPoller(self.config)
 
-        # Web server — new, stub for now, full implementation in E2V2-1
+        # Web server — aiohttp, auth middleware, static files
         self.web = WebServer(
             config=self.config,
             auth=self.auth,
@@ -119,6 +119,7 @@ class EdgeAgentV2:
             connectors=self.connectors,
             processing=self.processing,
             sync=self.sync,
+            health=self.health,
         )
 
         self._running = False

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantOS Edge Lite — Settings</title>
+  <link rel="stylesheet" href="/css/plantos-tokens.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Settings</h1>
+      </div>
+      <div class="page-body">
+        <!-- Edge Identity -->
+        <div class="card mb-md">
+          <div class="card-header">Edge Identity</div>
+          <div class="mt-sm" id="identitySection">
+            <div class="text-muted">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Center Connection -->
+        <div class="card mb-md">
+          <div class="card-header">Center Connection</div>
+          <div class="mt-sm" id="centerSection">
+            <div class="text-muted">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card mb-md">
+          <div class="card-header">Change Password</div>
+          <div class="mt-sm">
+            <div id="passwordError" class="login-error"></div>
+            <div id="passwordSuccess" style="background:var(--color-success-bg);color:var(--color-success);padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:12px;display:none;"></div>
+            <div class="form-group">
+              <label for="oldPassword">Current Password</label>
+              <input type="password" id="oldPassword" class="form-input" style="max-width:400px;" autocomplete="current-password">
+            </div>
+            <div class="form-group">
+              <label for="newPassword">New Password</label>
+              <input type="password" id="newPassword" class="form-input" style="max-width:400px;" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm New Password</label>
+              <input type="password" id="confirmPassword" class="form-input" style="max-width:400px;" autocomplete="new-password">
+            </div>
+            <button class="btn btn-primary" onclick="handleChangePassword()">Change Password</button>
+          </div>
+        </div>
+
+        <!-- Config Ownership Status -->
+        <div class="card mb-md">
+          <div class="card-header">Config Ownership</div>
+          <div class="mt-sm" id="configOwnership">
+            <div class="flex justify-between mb-sm">
+              <span class="text-muted">Local-owned</span>
+              <span class="badge badge-success">Active</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-muted">Center-owned</span>
+              <span class="badge badge-info">Pending (E2V2-4)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export -->
+        <div class="card">
+          <div class="card-header">Configuration Export</div>
+          <div class="mt-sm">
+            <button class="btn btn-secondary" onclick="exportConfig()">
+              📥 Export Sanitized Config
+            </button>
+            <span id="exportResult" class="text-muted" style="margin-left:12px;font-size:13px;"></span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    async function loadSettings() {
+      try {
+        const status = await API.getStatus();
+        const config = await API.getConfig();
+
+        // Identity
+        document.getElementById("identitySection").innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:500px;">
+            <div>
+              <div class="text-muted" style="font-size:13px;">Node ID</div>
+              <div class="mono">${status.edge_node_id || "—"}</div>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:13px;">Plant ID</div>
+              <div class="mono">${status.plant_id || "—"}</div>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:13px;">Version</div>
+              <div class="mono">${status.version || "—"}</div>
+            </div>
+          </div>
+        `;
+
+        // Center connection
+        document.getElementById("centerSection").innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:500px;">
+            <div>
+              <div class="text-muted" style="font-size:13px;">Center URL</div>
+              <div class="mono">${config.center_url || "—"}</div>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:13px;">API Key</div>
+              <div class="mono">${config.api_key || "—"}</div>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:13px;">Heartbeat URL</div>
+              <div class="mono" style="font-size:11px;">${config.heartbeat?.url || "—"}</div>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:13px;">Ingest URL</div>
+              <div class="mono" style="font-size:11px;">${config.http?.ingest_url || "—"}</div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.error("Settings load error:", err);
+      }
+    }
+
+    async function handleChangePassword() {
+      const oldPw = document.getElementById("oldPassword").value;
+      const newPw = document.getElementById("newPassword").value;
+      const confirmPw = document.getElementById("confirmPassword").value;
+      const errorEl = document.getElementById("passwordError");
+      const successEl = document.getElementById("passwordSuccess");
+
+      errorEl.classList.remove("visible");
+      successEl.style.display = "none";
+
+      if (!oldPw || !newPw) {
+        errorEl.textContent = "Please fill in all fields";
+        errorEl.classList.add("visible");
+        return;
+      }
+      if (newPw.length < 6) {
+        errorEl.textContent = "New password must be at least 6 characters";
+        errorEl.classList.add("visible");
+        return;
+      }
+      if (newPw !== confirmPw) {
+        errorEl.textContent = "New passwords do not match";
+        errorEl.classList.add("visible");
+        return;
+      }
+
+      try {
+        await API.changePassword(oldPw, newPw);
+        successEl.textContent = "Password changed successfully. Please log in again.";
+        successEl.style.display = "block";
+        document.getElementById("oldPassword").value = "";
+        document.getElementById("newPassword").value = "";
+        document.getElementById("confirmPassword").value = "";
+        setTimeout(() => {
+          window.location.href = "/login.html";
+        }, 2000);
+      } catch (err) {
+        errorEl.textContent = err.message || "Failed to change password";
+        errorEl.classList.add("visible");
+      }
+    }
+
+    async function exportConfig() {
+      const resultEl = document.getElementById("exportResult");
+      try {
+        const config = await API.exportConfig();
+        const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `plantos-edge-config-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        resultEl.textContent = "Config exported";
+        resultEl.className = "text-success";
+      } catch (err) {
+        resultEl.textContent = "Export failed";
+        resultEl.className = "text-error";
+      }
+      setTimeout(() => { resultEl.textContent = ""; }, 3000);
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await Auth.requireAuth();
+      if (user) loadSettings();
+    });
+  </script>
+</body>
+</html>

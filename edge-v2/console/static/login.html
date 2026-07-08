@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantOS Edge Lite — Login</title>
+  <link rel="stylesheet" href="/css/plantos-tokens.css">
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-card">
+      <div class="login-logo">
+        <h1>PlantOS</h1>
+        <p>Edge Lite — Local Console</p>
+      </div>
+
+      <div id="loginError" class="login-error"></div>
+      <div id="setupError" class="login-error"></div>
+
+      <!-- Login Form -->
+      <div id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" class="form-input" placeholder="admin" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="Enter password" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="handleLogin()">
+          Sign In
+        </button>
+        <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--color-text-muted);">
+          <a href="#" onclick="showSetup(); return false;">First time? Create admin password</a>
+        </p>
+      </div>
+
+      <!-- Setup Form (first-run only) -->
+      <div id="setupForm" style="display:none;">
+        <div class="form-group">
+          <label for="setupPassword">Create Admin Password</label>
+          <input type="password" id="setupPassword" class="form-input" placeholder="At least 6 characters" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label for="setupPasswordConfirm">Confirm Password</label>
+          <input type="password" id="setupPasswordConfirm" class="form-input" placeholder="Repeat password" autocomplete="new-password">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="handleSetup()">
+          Create Admin Account
+        </button>
+        <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--color-text-muted);">
+          <a href="#" onclick="showLogin(); return false;">Back to login</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    // Auto-detect first-run on page load
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const status = await API.getStatus();
+        if (status.first_run) {
+          showSetup();
+        }
+      } catch {
+        // If API unavailable, show login form
+      }
+    });
+
+    function showError(elementId, message) {
+      const el = document.getElementById(elementId);
+      el.textContent = message;
+      el.classList.add("visible");
+      setTimeout(() => el.classList.remove("visible"), 5000);
+    }
+
+    function showSetup() {
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("setupForm").style.display = "block";
+      document.getElementById("setupError").classList.remove("visible");
+    }
+
+    function showLogin() {
+      document.getElementById("setupForm").style.display = "none";
+      document.getElementById("loginForm").style.display = "block";
+      document.getElementById("loginError").classList.remove("visible");
+    }
+
+    async function handleLogin() {
+      const username = document.getElementById("username").value.trim() || "admin";
+      const password = document.getElementById("password").value;
+
+      if (!password) {
+        showError("loginError", "Please enter your password");
+        return;
+      }
+
+      try {
+        const result = await API.login(username, password);
+        window.location.href = result.redirect || "/dashboard.html";
+      } catch (err) {
+        showError("loginError", err.message || "Invalid credentials");
+      }
+    }
+
+    async function handleSetup() {
+      const password = document.getElementById("setupPassword").value;
+      const confirm = document.getElementById("setupPasswordConfirm").value;
+
+      if (password.length < 6) {
+        showError("setupError", "Password must be at least 6 characters");
+        return;
+      }
+      if (password !== confirm) {
+        showError("setupError", "Passwords do not match");
+        return;
+      }
+
+      try {
+        await API.setup(password);
+        // Auto-login after setup
+        const result = await API.login("admin", password);
+        window.location.href = result.redirect || "/dashboard.html";
+      } catch (err) {
+        showError("setupError", err.message || "Setup failed");
+      }
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        if (document.getElementById("setupForm").style.display !== "none") {
+          handleSetup();
+        } else {
+          handleLogin();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

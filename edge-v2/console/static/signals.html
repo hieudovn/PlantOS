@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantOS Edge Lite — Signals</title>
+  <link rel="stylesheet" href="/css/plantos-tokens.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main-content">
+      <div class="page-header flex justify-between items-center">
+        <h1>Signals</h1>
+        <div class="flex gap-sm items-center">
+          <label class="text-muted" style="font-size:13px;">Filter:</label>
+          <select id="qualityFilter" class="form-input" style="width:auto;" onchange="loadSignals()">
+            <option value="">All Qualities</option>
+            <option value="GOOD">GOOD</option>
+            <option value="STALE">STALE</option>
+            <option value="BAD">BAD</option>
+          </select>
+          <input type="text" id="searchFilter" class="form-input" style="width:200px;"
+                 placeholder="Search signal ID..." oninput="debounceSearch()">
+        </div>
+      </div>
+      <div class="page-body">
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Signal ID</th>
+                <th>Value</th>
+                <th>Quality</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="signalTableBody">
+              <tr><td colspan="4" class="text-muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    let refreshInterval;
+    let debounceTimer;
+
+    function debounceSearch() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(loadSignals, 300);
+    }
+
+    async function loadSignals() {
+      try {
+        const measurements = await API.getLatestMeasurements(100);
+        const qualityFilter = document.getElementById("qualityFilter").value;
+        const searchFilter = document.getElementById("searchFilter").value.toLowerCase();
+
+        let filtered = measurements;
+        if (qualityFilter) {
+          filtered = filtered.filter(m => m.quality === qualityFilter);
+        }
+        if (searchFilter) {
+          filtered = filtered.filter(m =>
+            m.signal_id.toLowerCase().includes(searchFilter)
+          );
+        }
+
+        const tbody = document.getElementById("signalTableBody");
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-muted">No signals found</td></tr>';
+        } else {
+          tbody.innerHTML = filtered.map(m => `
+            <tr>
+              <td class="mono">${m.signal_id}</td>
+              <td style="font-weight:600;">${m.value}</td>
+              <td><span class="badge ${qualityBadge(m.quality)}">${m.quality}</span></td>
+              <td class="mono text-muted">${formatTime(m.timestamp)}</td>
+            </tr>
+          `).join("");
+        }
+      } catch (err) {
+        console.error("Signal load error:", err);
+      }
+    }
+
+    function qualityBadge(quality) {
+      switch (quality) {
+        case "GOOD": return "badge-success";
+        case "STALE": return "badge-warning";
+        case "BAD": return "badge-error";
+        default: return "badge-info";
+      }
+    }
+
+    function formatTime(iso) {
+      if (!iso) return "—";
+      return new Date(iso).toLocaleString();
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await Auth.requireAuth();
+      if (user) {
+        loadSignals();
+        refreshInterval = setInterval(loadSignals, 5000);
+      }
+    });
+
+    window.addEventListener("beforeunload", () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    });
+  </script>
+</body>
+</html>

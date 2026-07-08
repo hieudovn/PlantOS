@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantOS Edge Lite — Sync Status</title>
+  <link rel="stylesheet" href="/css/plantos-tokens.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Sync Status</h1>
+      </div>
+      <div class="page-body">
+        <div class="card-grid" style="grid-template-columns:1fr 1fr;">
+          <!-- Center Connection -->
+          <div class="card">
+            <div class="card-header">Center Connection</div>
+            <div class="mt-sm" id="centerDetails">
+              <div class="text-muted">Loading...</div>
+            </div>
+          </div>
+
+          <!-- Heartbeat -->
+          <div class="card">
+            <div class="card-header">Heartbeat</div>
+            <div class="mt-sm" id="heartbeatDetails">
+              <div class="text-muted">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sync Stats -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">Sync Statistics</div>
+          <div class="mt-sm" id="syncStats">
+            <div class="text-muted">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">Actions</div>
+          <div class="mt-sm">
+            <button class="btn btn-primary" onclick="syncNow()">
+              🔄 Sync Now
+            </button>
+            <span id="syncResult" class="text-muted" style="margin-left:12px;font-size:13px;"></span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    let refreshInterval;
+
+    async function loadSyncStatus() {
+      try {
+        const status = await API.getStatus();
+
+        // Center details
+        document.getElementById("centerDetails").innerHTML = `
+          <div class="flex justify-between mb-sm">
+            <span class="text-muted">URL</span>
+            <span class="mono">${status.center?.url || "—"}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-muted">Status</span>
+            <span class="badge badge-info">Configured</span>
+          </div>
+        `;
+
+        // Heartbeat details
+        document.getElementById("heartbeatDetails").innerHTML = `
+          <div class="flex justify-between mb-sm">
+            <span class="text-muted">Node ID</span>
+            <span class="mono">${status.edge_node_id || "—"}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-muted">Status</span>
+            <span class="badge ${status.status === "running" ? "badge-success" : "badge-warning"}">
+              ${status.status || "unknown"}
+            </span>
+          </div>
+        `;
+
+        // Sync stats
+        const sync = status.sync || {};
+        document.getElementById("syncStats").innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+            <div>
+              <div class="text-muted" style="font-size:13px;">Backlog</div>
+              <div style="font-size:24px;font-weight:700;">${(sync.backlog || 0).toLocaleString()}</div>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:13px;">Dead Letters</div>
+              <div style="font-size:24px;font-weight:700;">0</div>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:13px;">Last Sync</div>
+              <div style="font-size:14px;font-weight:600;">—</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="flex justify-between">
+              <span class="text-muted">Sync Interval</span>
+              <span class="mono">${sync.interval_seconds || "?"}s</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-muted">Batch Size</span>
+              <span class="mono">${sync.batch_size || "?"}</span>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.error("Sync load error:", err);
+      }
+    }
+
+    async function syncNow() {
+      const resultEl = document.getElementById("syncResult");
+      resultEl.textContent = "Triggering sync...";
+      resultEl.className = "text-muted";
+
+      try {
+        const resp = await fetch("/api/sync/now", { method: "POST" });
+        if (resp.ok) {
+          resultEl.textContent = "Sync triggered successfully";
+          resultEl.className = "text-success";
+          setTimeout(() => loadSyncStatus(), 2000);
+        } else {
+          resultEl.textContent = "Sync endpoint not yet available (E2V2-4)";
+          resultEl.className = "text-warning";
+        }
+      } catch {
+        resultEl.textContent = "Sync endpoint not yet available (E2V2-4)";
+        resultEl.className = "text-warning";
+      }
+
+      setTimeout(() => { resultEl.textContent = ""; }, 5000);
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await Auth.requireAuth();
+      if (user) {
+        loadSyncStatus();
+        refreshInterval = setInterval(loadSyncStatus, 5000);
+      }
+    });
+
+    window.addEventListener("beforeunload", () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    });
+  </script>
+</body>
+</html>

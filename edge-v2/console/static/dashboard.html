@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantOS Edge Lite — Dashboard</title>
+  <link rel="stylesheet" href="/css/plantos-tokens.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+      </div>
+      <div class="page-body">
+        <!-- Status Cards -->
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-header">Agent Status</div>
+            <div class="card-value" id="agentStatus">—</div>
+          </div>
+          <div class="card">
+            <div class="card-header">Center Connection</div>
+            <div class="card-value" id="centerStatus">—</div>
+          </div>
+          <div class="card">
+            <div class="card-header">Connected Signals</div>
+            <div class="card-value" id="signalCount">—</div>
+          </div>
+          <div class="card">
+            <div class="card-header">Buffer Rows</div>
+            <div class="card-value" id="bufferRows">—</div>
+          </div>
+          <div class="card">
+            <div class="card-header">Sync Backlog</div>
+            <div class="card-value" id="syncBacklog">—</div>
+          </div>
+          <div class="card">
+            <div class="card-header">Connectors</div>
+            <div class="card-value" id="connectorCount">—</div>
+          </div>
+        </div>
+
+        <!-- Buffer & Sync Details -->
+        <div class="card-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="card">
+            <div class="card-header">Buffer Stats</div>
+            <div class="mt-sm" id="bufferDetails">
+              <div class="text-muted" style="font-size:13px;">Loading...</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">Sync Status</div>
+            <div class="mt-sm" id="syncDetails">
+              <div class="text-muted" style="font-size:13px;">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Signals -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">Recent Signals</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Signal ID</th>
+                <th>Value</th>
+                <th>Quality</th>
+              </tr>
+            </thead>
+            <tbody id="recentSignals">
+              <tr><td colspan="4" class="text-muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-lg text-muted" style="font-size:12px;display:flex;justify-content:space-between;">
+          <span id="versionInfo">Version: —</span>
+          <span id="nodeInfo">Node: —</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    let refreshInterval;
+
+    async function loadDashboard() {
+      try {
+        const status = await API.getStatus();
+        const measurements = await API.getLatestMeasurements(20);
+
+        // Status cards
+        document.getElementById("agentStatus").textContent = status.status || "unknown";
+        document.getElementById("agentStatus").className = "card-value text-success";
+
+        document.getElementById("centerStatus").textContent =
+          status.center?.url ? "Configured" : "Unknown";
+        document.getElementById("centerStatus").className = "card-value text-secondary";
+
+        document.getElementById("signalCount").textContent = measurements.length;
+        document.getElementById("bufferRows").textContent =
+          status.buffer?.row_count?.toLocaleString() || "0";
+        document.getElementById("syncBacklog").textContent =
+          status.sync?.backlog?.toLocaleString() || "0";
+        document.getElementById("connectorCount").textContent =
+          status.connectors?.active || "0";
+
+        // Buffer details
+        const buf = status.buffer || {};
+        document.getElementById("bufferDetails").innerHTML = `
+          <div class="flex justify-between mb-sm">
+            <span class="text-muted">Row Count</span>
+            <span class="mono">${(buf.row_count || 0).toLocaleString()}</span>
+          </div>
+          <div class="flex justify-between mb-sm">
+            <span class="text-muted">Size</span>
+            <span class="mono">${formatBytes(buf.size_bytes || 0)}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-muted">Retention</span>
+            <span class="mono">${buf.retention_days || "?"} days</span>
+          </div>
+        `;
+
+        // Sync details
+        const sync = status.sync || {};
+        document.getElementById("syncDetails").innerHTML = `
+          <div class="flex justify-between mb-sm">
+            <span class="text-muted">Backlog</span>
+            <span class="mono">${(sync.backlog || 0).toLocaleString()}</span>
+          </div>
+          <div class="flex justify-between mb-sm">
+            <span class="text-muted">Interval</span>
+            <span class="mono">${sync.interval_seconds || "?"}s</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-muted">Batch Size</span>
+            <span class="mono">${sync.batch_size || "?"}</span>
+          </div>
+        `;
+
+        // Recent signals table
+        const tbody = document.getElementById("recentSignals");
+        if (measurements.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-muted">No data yet</td></tr>';
+        } else {
+          tbody.innerHTML = measurements.map(m => `
+            <tr>
+              <td class="mono">${formatTime(m.timestamp)}</td>
+              <td class="mono">${m.signal_id}</td>
+              <td>${m.value}</td>
+              <td><span class="badge ${m.quality === "GOOD" ? "badge-success" : "badge-warning"}">${m.quality}</span></td>
+            </tr>
+          `).join("");
+        }
+
+        // Footer
+        document.getElementById("versionInfo").textContent =
+          `Version: ${status.version || "?"}`;
+        document.getElementById("nodeInfo").textContent =
+          `Node: ${status.edge_node_id || "?"}`;
+
+      } catch (err) {
+        console.error("Dashboard load error:", err);
+      }
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return "0 B";
+      const k = 1024;
+      const sizes = ["B", "KB", "MB", "GB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+    }
+
+    function formatTime(iso) {
+      if (!iso) return "—";
+      return new Date(iso).toLocaleTimeString();
+    }
+
+    // Auto-refresh every 5 seconds
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await Auth.requireAuth();
+      if (user) {
+        loadDashboard();
+        refreshInterval = setInterval(loadDashboard, 5000);
+      }
+    });
+
+    // Cleanup on page unload
+    window.addEventListener("beforeunload", () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    });
+  </script>
+</body>
+</html>
