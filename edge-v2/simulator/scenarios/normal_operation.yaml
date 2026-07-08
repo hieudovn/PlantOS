@@ -1,0 +1,92 @@
+# Edge v2 Simulator Scenario: Normal Operation
+# Simulates steady-state industrial process with occasional transients.
+
+scenario:
+  name: normal_operation
+  description: "Steady-state operation with occasional pump cycling and level variation"
+  duration_minutes: 60
+  loop: true
+
+assets:
+  - id: EDGEV2-PUMP-101
+    type: pump
+    signals:
+      - name: flow_rate
+        unit: m³/h
+        pattern: sine
+        min: 30
+        max: 80
+        period_seconds: 12
+        noise: 0.5
+        transients:
+          - at_minute: 15
+            duration_seconds: 30
+            type: spike
+            multiplier: 1.3
+          - at_minute: 45
+            duration_seconds: 20
+            type: drop
+            multiplier: 0.4
+
+      - name: discharge_pressure
+        unit: bar
+        pattern: sine
+        min: 3.5
+        max: 7.5
+        period_seconds: 8
+        noise: 0.1
+
+      - name: vibration
+        unit: mm/s
+        pattern: sine
+        min: 2.0
+        max: 8.0
+        period_seconds: 3
+        noise: 0.3
+        transients:
+          - at_minute: 30
+            duration_seconds: 60
+            type: spike
+            multiplier: 2.0
+
+  - id: EDGEV2-TANK-101
+    type: tank
+    signals:
+      - name: level
+        unit: "%"
+        pattern: sine
+        min: 30
+        max: 90
+        period_seconds: 30
+        noise: 1.0
+
+  - id: EDGEV2-MOTOR-101
+    type: motor
+    signals:
+      - name: running_status
+        unit: ""
+        pattern: binary
+        on_duration_seconds: 25
+        off_duration_seconds: 5
+
+  - id: EDGEV2-QUALITY-STATION-101
+    type: quality_station
+    signals:
+      - name: turbidity
+        unit: NTU
+        pattern: sine
+        min: 5
+        max: 25
+        period_seconds: 20
+        noise: 0.8
+
+  - id: EDGEV2-ENERGY-METER-101
+    type: energy_meter
+    signals:
+      - name: active_power
+        unit: kW
+        pattern: sine
+        min: 100
+        max: 400
+        period_seconds: 15
+        noise: 2.0
