@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+"""
+Edge v1 → v2 Config Migration Utility
+
+Reads Edge v1 config.yaml and outputs equivalent Edge v2 connector configs.
+Dry-run mode: prints what WOULD be generated (no files modified).
+
+Usage:
+    python tools/migrate_v1_config_to_v2.py edge/agent/config.yaml [--dry-run] [--output edge-v2/config/edge_config.yaml]
+
+SA Constraint: Mirror-first. Edge v1 remains PRIMARY. Do NOT modify v1 config.
+"""
+
+import argparse
+import sys
+import yaml
+from pathlib import Path
+
+
+def load_v1_config(path: str) -> dict:
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+
+def translate_signals(v1_cfg: dict) -> list[dict]:
+    """Translate v1 signals section to v2 HTTP Poll connector tags."""
+    tags = []
+    for sig in v1_cfg.get("signals", []):
+        signal_id = sig["signal_id"]
+        tags.append({
+            "tag_id": signal_id.replace(".", "_").replace("-", "_"),
+            "source_ref": signal_id,
+            "signal_id": signal_id,
+            "data_type": sig.get("data_type", "float"),
+            "enabled": True,
+        })
+    return tags
+
+
+def translate_opcua(v1_cfg: dict) -> dict | None:
+    """Translate v1 OPC UA config to v2 OPC UA connector config."""
+    opcua = v1_cfg.get("opcua")
+    if not opcua or not opcua.get("enabled"):
+        return None
+
+    tags = []
+    for tag in opcua.get("tags", []):
+        t = {
+            "tag_id": tag["signal_id"].replace(".", "_").replace("-", "_"),
+            "source_ref": tag["node_id"],
+            "signal_id": tag["signal_id"],
+            "data_type": "float",
+            "scale": tag.get("scale", 1.0),
+            "offset": tag.get("offset", 0.0),
+            "enabled": True,
+        }
+        tags.append(t)
+
+    return {
+        "type": "opcua",
+        "enabled": True,
+        "connection": {
+            "endpoint": opcua.get("endpoint", "opc.tcp://localhost:4840"),
+            "timeout": opcua.get("timeout", 5.0),
+        },
+        "poll_interval_ms": opcua.get("poll_interval_ms", 1000),
+        "tags": tags,
+    }
+
+
+def translate_mqtt(v1_cfg: dict) -> dict | None:
+    """Translate v1 MQTT config to v2 MQTT Subscribe connector config."""
+    mqtt = v1_cfg.get("mqtt")
+    if not mqtt:
+        return None
+
+    return {
+        "type": "mqtt",
+        "enabled": False,
+        "connection": {
+            "host": mqtt.get("host", "localhost"),
+            "port": mqtt.get("port", 1883),
+            "topic_prefix": mqtt.get("topic_prefix", ""),
+        },
+        "parse_mode": "jsonpath",
+        "tags": [],
+    }
+
+
+def generate_v2_config(v1_cfg: dict) -> dict:
+    """Generate v2 config sections from v1 config."""
+    v2_connectors = {}
+
+    # Signals → HTTP Poll connector (mirror)
+    signals = translate_signals(v1_cfg)
+    if signals:
+        v2_connectors["mirror_signals"] = {
+            "type": "http_poll",
+            "enabled": True,
+            "connection": {
+                "url": v1_cfg.get("http", {}).get("ingest_url", "http://localhost:8000/api/v1/measurements/ingest"),
+            },
+            "poll_interval_ms": v1_cfg.get("publish", {}).get("interval_seconds", 10) * 1000,
+            "tags": signals,
+        }
+
+    # OPC UA → OPC UA connector
+    opcua = translate_opcua(v1_cfg)
+    if opcua:
+        v2_connectors["vf_compressor"] = opcua
+
+    # MQTT → MQTT Subscribe connector
+    mqtt = translate_mqtt(v1_cfg)
+    if mqtt:
+        v2_connectors["mqtt_sub"] = mqtt
+
+    # Collect unmappable fields
+    unmappable = []
+    for key in v1_cfg:
+        if key not in ("edge_node_id", "plant_id", "center_url", "api_key",
+                       "buffer", "mqtt", "http", "heartbeat", "publish",
+                       "signals", "opcua", "modbus"):
+            unmappable.append(key)
+
+    return {
+        "connectors": v2_connectors,
+        "unmappable_fields": unmappable,
+        "warnings": _generate_warnings(v1_cfg),
+    }
+
+
+def _generate_warnings(v1_cfg: dict) -> list[str]:
+    warnings = []
+    modbus = v1_cfg.get("modbus", {})
+    if modbus.get("enabled"):
+        warnings.append("v1 Modbus is enabled but v2 Modbus TCP connector requires manual config")
+    if v1_cfg.get("edge_node_id") != "EDGEV2-PC-01":
+        warnings.append(f"v1 node_id='{v1_cfg.get('edge_node_id')}' → v2 must use 'EDGEV2-PC-01'")
+    if v1_cfg.get("plant_id") != "EDGEV2-DEMO":
+        warnings.append(f"v1 plant_id='{v1_cfg.get('plant_id')}' → v2 workspace is EDGEV2-DEMO (not {v1_cfg.get('plant_id')})")
+    return warnings
+
+
+def write_v2_config(v2_result: dict, output_path: str):
+    """Write v2 connector config to file."""
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+
+    # Only write the connectors section (not full config)
+    with open(output, "w") as f:
+        f.write("# Edge v2 — Migrated Connector Config\n")
+        f.write("# Generated by tools/migrate_v1_config_to_v2.py\n")
+        f.write(f"# Source: {v1_path}\n\n")
+        yaml.dump({"connectors": v2_result["connectors"]}, f, default_flow_style=False)
+
+    print(f"Written: {output}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Migrate Edge v1 config to v2")
+    parser.add_argument("v1_config", help="Path to Edge v1 config.yaml")
+    parser.add_argument("--dry-run", action="store_true", help="Print output without writing")
+    parser.add_argument("--output", default="edge-v2/config/edge_config.yaml",
+                        help="Output path for v2 config")
+    args = parser.parse_args()
+
+    print(f"Reading v1 config: {args.v1_config}")
+    v1_cfg = load_v1_config(args.v1_config)
+
+    print("Translating to v2 format...")
+    v2_result = generate_v2_config(v1_cfg)
+
+    if args.dry_run:
+        print("\n=== DRY RUN — No files modified ===\n")
+        print(yaml.dump({"connectors": v2_result["connectors"]}, default_flow_style=False))
+    else:
+        write_v2_config(v2_result, args.output)
+
+    # Report
+    print(f"\nConnectors generated: {len(v2_result['connectors'])}")
+    for name, cfg in v2_result["connectors"].items():
+        print(f"  - {name}: type={cfg['type']}, tags={len(cfg.get('tags', []))}")
+
+    if v2_result["unmappable_fields"]:
+        print(f"\nUnmappable fields: {', '.join(v2_result['unmappable_fields'])}")
+
+    if v2_result["warnings"]:
+        print(f"\nWarnings ({len(v2_result['warnings'])}):")
+        for w in v2_result["warnings"]:
+            print(f"  ⚠ {w}")
+
+    print("\nDone. Edge v1 not modified.")
+
+
+if __name__ == "__main__":
+    v1_path = "edge/agent/config.yaml"
+    main()

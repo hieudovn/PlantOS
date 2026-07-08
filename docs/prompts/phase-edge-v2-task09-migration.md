@@ -105,19 +105,16 @@ Edge v2 passed Data E2E + Command E2E on VPS (103.97.132.249). SA approved prepa
 
 ### Phase D: Runbooks
 
-- [ ] **7.7** Create migration runbook (`docs/runbooks/edge-v1-to-v2-migration.md`):
-  ```text
-  ⚠️ NOT YET ACTIVE — SA approval required before execution
-  Phases: PRE-MIGRATION → MIRROR → COMPARISON → SWITCH → VERIFY → COMMIT
-  Each step has: command, expected output, rollback trigger
-  ```
+- [ ] **7.7** Review & update existing migration runbook (`docs/runbooks/edge-v1-to-v2-migration.md`):
+  - Already exists with Phase 1-6 structure
+  - Phase 4-6 are marked 🔴 BLOCKED per SA conditional approval
+  - Verify all phases align with SA constraints (no v1 stop/deprecate)
+  - Each step must have: command, expected output, rollback trigger
 
-- [ ] **7.8** Create rollback runbook (`docs/runbooks/edge-v1-to-v2-rollback.md`):
-  ```text
-  Triggers: data quality drop, sync failure >5%, backlog growth, heartbeat loss
-  Execute: stop v2 → start v1 → verify v1 heartbeat → verify data flow
-  Recovery: check data gap, backfill if needed, notify, document
-  ```
+- [ ] **7.8** Review & update existing rollback runbook (`docs/runbooks/edge-v1-to-v2-rollback.md`):
+  - Already exists with 7-step procedure
+  - Step 2 updated: verify v1 still running (mirror mode, v1 never stopped)
+  - Verify triggers, procedure, recovery checklist are accurate
 
 ### Phase E: Dry-Run Test
 
@@ -156,23 +153,23 @@ Edge v2 passed Data E2E + Command E2E on VPS (103.97.132.249). SA approved prepa
 ## Files to Create
 
 ```
-docs/runbooks/
-  edge-v1-to-v2-migration.md
-  edge-v1-to-v2-rollback.md
 docs/reports/
-  edge-v2-migration-prep.md
+  edge-v2-migration-prep.md      — final migration prep report
 tools/
-  migrate_v1_config_to_v2.py
-  compare_v1_v2_data.py
+  migrate_v1_config_to_v2.py     — config migration utility
+  compare_v1_v2_data.py          — side-by-side data comparison script
+```
+
+## Files to Review/Update
+
+```
+docs/runbooks/
+  edge-v1-to-v2-migration.md     — exists, review for SA alignment (Phase 4-6 BLOCKED)
+  edge-v1-to-v2-rollback.md      — exists, review for SA alignment (Step 2 mirror mode)
 edge-v2/
-  README.md (if not exists)
-```
-
-## Files to Modify
-
-```
-edge-v2/config/edge_config.yaml — mirror WTP + VF signals (new connectors)
-```
+  README.md                      — exists, review for SA status + Docker note
+edge-v2/config/
+  edge_config.yaml               — add mirror connectors for WTP + VF signals
 
 ---
 
