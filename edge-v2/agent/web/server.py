@@ -15,6 +15,7 @@ from agent.web.routes.auth import register_auth_routes
 from agent.web.routes.status import register_status_routes
 from agent.web.routes.config import register_config_routes
 from agent.web.routes.connections import register_connection_routes
+from agent.web.routes.processing import register_processing_routes
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,7 @@ class WebServer:
                                auth=self.auth)
         register_config_routes(app, self.config)
         register_connection_routes(app, self.config, self.connectors)
+        register_processing_routes(app, self.processing, self.config)
 
         return app
 

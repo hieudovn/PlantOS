@@ -105,8 +105,8 @@ class EdgeAgentV2:
         # Connectors — OPC UA, Modbus TCP, MQTT Subscribe via safe apply
         self.connectors = ConnectorRegistry(self.config)
 
-        # Processing engine — new, stub for now, full implementation in E2V2-3
-        self.processing = ProcessingEngine()
+        # Processing engine — 7 MVP steps, raw → processed pipeline
+        self.processing = ProcessingEngine(buffer=self.buffer)
 
         # Command poller — new, stub for now, full implementation in E2V2-4
         self.commands = CommandPoller(self.config)
@@ -153,10 +153,47 @@ class EdgeAgentV2:
                 await self.commands.poll()
                 await asyncio.sleep(30)
 
+        async def processing_loop():
+            """Poll connectors, process raw readings, store results."""
+            while self._running:
+                try:
+                    for conn_id, connector in self.connectors._connectors.items():
+                        status = await connector.status()
+                        if status.status != "running":
+                            continue
+                        # Read latest tag values from connector
+                        tag_configs = self.config.get(f"connectors.{conn_id}.tags", [])
+                        if not tag_configs:
+                            continue
+                        readings = await connector.read_tags(tag_configs)
+                        for reading in readings:
+                            # Store raw reading
+                            self.processing.write_raw(reading)
+                            # Get processing profile for this signal
+                            profile = self.processing.get_profile_for_signal(reading.signal_id)
+                            # Apply processing (or passthrough if no profile)
+                            result = self.processing.apply(reading.raw_value, profile,
+                                                           history=self.processing._history.get(reading.signal_id, []))
+                            # Track history for moving_average etc.
+                            self.processing._history[reading.signal_id] = \
+                                (self.processing._history.get(reading.signal_id, []) + [result.value])[-100:]
+                            # Store processed result to buffer for sync
+                            self.buffer.write([{
+                                "timestamp": result.timestamp.isoformat(),
+                                "signal_id": result.signal_id,
+                                "value": result.value,
+                                "quality": result.quality,
+                                "source": self.config.edge_node_id,
+                            }])
+                except Exception:
+                    logger.exception("Processing loop error")
+                await asyncio.sleep(self.config.publish_interval)
+
         await asyncio.gather(
             heartbeat_loop(),
             sync_loop(),
             command_poll_loop(),
+            processing_loop(),
         )
 
     async def shutdown(self):

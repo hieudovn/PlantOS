@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantOS Edge Lite — Processing</title>
+  <link rel="stylesheet" href="/css/plantos-tokens.css">
+  <style>
+    .step-card { background: var(--color-bg); border: 1px solid var(--color-border-light);
+                 border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; }
+    .step-card.dragging { opacity: 0.5; }
+    .step-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .step-type-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px;
+                       background: var(--color-primary-bg); color: var(--color-primary-light); }
+    .preview-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .preview-table th, .preview-table td { padding: 6px 10px; border: 1px solid var(--color-border-light); text-align: center; }
+    .preview-table .pass { background: rgba(34,197,94,0.1); }
+    .preview-table .clamp { background: rgba(245,158,11,0.1); }
+    .preview-table .fail { background: rgba(239,68,68,0.1); }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100;
+                     align-items: center; justify-content: center; }
+    .modal-overlay.visible { display: flex; }
+    .modal-content { background: var(--color-surface); border: 1px solid var(--color-border);
+                     border-radius: var(--radius-xl); padding: var(--space-lg); max-width: 800px; width: 95%; max-height: 85vh; overflow-y: auto; }
+    .coming-soon { opacity: 0.4; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main-content">
+      <div class="page-header flex justify-between items-center">
+        <h1>Processing Profiles</h1>
+        <button class="btn btn-primary" onclick="openEditor()">+ New Profile</button>
+      </div>
+      <div class="page-body">
+        <!-- Profile List -->
+        <div id="profileList">
+          <div class="text-muted">Loading profiles...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Profile Editor Modal -->
+  <div id="editorModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-md">
+        <h2 id="editorTitle" style="font-size:18px;">New Profile</h2>
+        <button class="btn btn-secondary btn-sm" onclick="closeEditor()">✕</button>
+      </div>
+
+      <!-- Basic info -->
+      <div class="form-group">
+        <label>Profile ID</label>
+        <input class="form-input" id="editProfileId" placeholder="my_profile">
+      </div>
+      <div class="form-group">
+        <label>Name</label>
+        <input class="form-input" id="editName" placeholder="My Processing Profile">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input class="form-input" id="editDescription" placeholder="Optional description">
+      </div>
+
+      <!-- Steps -->
+      <div class="flex justify-between items-center mb-sm">
+        <label style="font-weight:600;">Steps</label>
+        <div>
+          <select id="addStepSelect" class="form-input" style="width:200px;display:inline-block;">
+            <option value="">Select step type...</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="addStep()">+ Add Step</button>
+        </div>
+      </div>
+      <div id="stepList" class="mb-md">
+        <div class="text-muted" style="font-size:13px;">No steps added yet.</div>
+      </div>
+
+      <div class="flex justify-between">
+        <button class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProfile()">💾 Save Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div id="previewModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-md">
+        <h2 style="font-size:18px;">Preview: <span id="previewTitle"></span></h2>
+        <button class="btn btn-secondary btn-sm" onclick="closePreview()">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label>Sample Values (comma-separated)</label>
+        <div class="flex gap-sm">
+          <input class="form-input" id="previewSamples" value="723, 721, 718, 725, 720"
+                 placeholder="e.g. 723, 721, 718, 725, 720">
+          <button class="btn btn-primary" onclick="runPreview()">🔍 Preview</button>
+        </div>
+      </div>
+
+      <div id="previewResult" class="mt-md"></div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/processing.js"></script>
+  <script>
+    let currentEditId = null;
+    let stepTypes = [];
+
+    // ---- Page Load ----
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await Auth.requireAuth();
+      if (user) {
+        await loadStepTypes();
+        await loadProfiles();
+      }
+    });
+
+    async function loadStepTypes() {
+      try {
+        const data = await ProcessingAPI.getStepTypes();
+        stepTypes = data.mvp || [];
+        const select = document.getElementById("addStepSelect");
+        select.innerHTML = '<option value="">Select step type...</option>';
+        stepTypes.forEach(st => {
+          select.innerHTML += `<option value="${st.type}">${st.name}</option>`;
+        });
+        // Add Coming Soon
+        (data.coming_soon || []).forEach(cs => {
+          select.innerHTML += `<option value="${cs.type}" disabled class="coming-soon">${cs.name} (Coming Soon)</option>`;
+        });
+      } catch (err) {
+        console.error("Failed to load step types:", err);
+      }
+    }
+
+    async function loadProfiles() {
+      try {
+        const profiles = await ProcessingAPI.listProfiles();
+        const container = document.getElementById("profileList");
+
+        if (profiles.length === 0) {
+          container.innerHTML = '<div class="text-muted">No processing profiles yet. Click "+ New Profile" to create one.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));">
+            ${profiles.map(p => `
+              <div class="card profile-card">
+                <div class="flex justify-between items-center mb-sm">
+                  <span style="font-weight:600;">${p.name}</span>
+                  <span class="badge badge-info">${p.step_count} steps</span>
+                </div>
+                <div class="text-muted mono" style="font-size:12px;margin-bottom:8px;">${p.profile_id}</div>
+                ${p.description ? `<div class="text-muted" style="font-size:13px;margin-bottom:8px;">${p.description}</div>` : ""}
+                <div style="font-size:12px;margin-bottom:8px;">
+                  ${p.steps.map(s => `<span class="step-type-badge">${s.type}</span>`).join(" ")}
+                </div>
+                <div class="flex gap-sm mt-sm">
+                  <button class="btn btn-secondary btn-sm" onclick="openEditor('${p.profile_id}')">✏️ Edit</button>
+                  <button class="btn btn-secondary btn-sm" onclick="openPreview('${p.profile_id}')">👁 Preview</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteProfile('${p.profile_id}')">🗑</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById("profileList").innerHTML =
+          `<div class="text-error">Failed to load profiles: ${err.message}</div>`;
+      }
+    }
+
+    // ---- Editor ----
+    async function openEditor(profileId) {
+      currentEditId = profileId || null;
+      document.getElementById("editorTitle").textContent = profileId ? `Edit: ${profileId}` : "New Profile";
+      document.getElementById("editProfileId").value = "";
+      document.getElementById("editName").value = "";
+      document.getElementById("editDescription").value = "";
+      document.getElementById("stepList").innerHTML = '<div class="text-muted" style="font-size:13px;">No steps added yet.</div>';
+      document.getElementById("editProfileId").disabled = !!profileId;
+
+      if (profileId) {
+        try {
+          const p = await ProcessingAPI.getProfile(profileId);
+          document.getElementById("editProfileId").value = p.profile_id;
+          document.getElementById("editName").value = p.name;
+          document.getElementById("editDescription").value = p.description || "";
+          renderSteps(p.steps);
+        } catch (err) {
+          alert("Failed to load profile: " + err.message);
+        }
+      }
+
+      document.getElementById("editorModal").classList.add("visible");
+    }
+
+    function closeEditor() {
+      document.getElementById("editorModal").classList.remove("visible");
+      loadProfiles();
+    }
+
+    function renderSteps(steps) {
+      const container = document.getElementById("stepList");
+      if (!steps || steps.length === 0) {
+        container.innerHTML = '<div class="text-muted" style="font-size:13px;">No steps added yet.</div>';
+        return;
+      }
+      container.innerHTML = steps.map((s, i) => `
+        <div class="step-card" data-index="${i}">
+          <div class="step-header">
+            <div>
+              <span class="step-type-badge">${s.type}</span>
+              <span class="text-muted" style="font-size:12px;margin-left:8px;">Step ${i + 1}</span>
+            </div>
+            <div class="flex gap-sm">
+              <button class="btn btn-secondary btn-sm" onclick="moveStep(${i}, -1)" ${i === 0 ? "disabled" : ""}>↑</button>
+              <button class="btn btn-secondary btn-sm" onclick="moveStep(${i}, 1)" ${i === steps.length - 1 ? "disabled" : ""}>↓</button>
+              <button class="btn btn-danger btn-sm" onclick="removeStep(${i})">✕</button>
+            </div>
+          </div>
+          <div class="step-params" id="stepParams_${i}"></div>
+        </div>
+      `).join("");
+
+      // Render param forms
+      steps.forEach((s, i) => renderStepParams(i, s));
+    }
+
+    function renderStepParams(index, step) {
+      const container = document.getElementById(`stepParams_${index}`);
+      const st = stepTypes.find(t => t.type === step.type);
+      if (!st || !st.params) {
+        container.innerHTML = '<div class="text-muted" style="font-size:12px;">No parameters</div>';
+        return;
+      }
+      container.innerHTML = Object.entries(st.params).map(([key, p]) => `
+        <div style="display:inline-block;margin-right:12px;margin-bottom:4px;">
+          <label style="font-size:12px;color:var(--color-text-muted);">${key}</label>
+          <input class="form-input step-param" data-index="${index}" data-key="${key}"
+                 style="width:100px;display:inline-block;font-size:12px;padding:4px 8px;"
+                 value="${step.params[key] !== undefined ? step.params[key] : p.default}"
+                 type="${p.type === "int" ? "number" : "number"}" step="${p.type === "int" ? "1" : "0.1"}">
+        </div>
+      `).join("");
+    }
+
+    function getEditedSteps() {
+      const cards = document.querySelectorAll(".step-card");
+      const steps = [];
+      const storedSteps = window._editorSteps || [];
+
+      cards.forEach((card, i) => {
+        if (storedSteps[i]) {
+          const step = { ...storedSteps[i] };
+          // Get params from inputs
+          const paramInputs = card.querySelectorAll(".step-param");
+          paramInputs.forEach(input => {
+            const key = input.dataset.key;
+            step.params = step.params || {};
+            step.params[key] = parseFloat(input.value) || 0;
+          });
+          steps.push(step);
+        }
+      });
+      return steps;
+    }
+
+    function addStep() {
+      const select = document.getElementById("addStepSelect");
+      const type = select.value;
+      if (!type) return;
+
+      if (!window._editorSteps) window._editorSteps = [];
+      const st = stepTypes.find(t => t.type === type);
+      const params = {};
+      if (st && st.params) {
+        Object.entries(st.params).forEach(([k, v]) => { params[k] = v.default; });
+      }
+      window._editorSteps.push({ type, params, order: window._editorSteps.length });
+      renderSteps(window._editorSteps);
+      select.value = "";
+    }
+
+    function removeStep(index) {
+      if (!window._editorSteps) return;
+      window._editorSteps.splice(index, 1);
+      window._editorSteps.forEach((s, i) => s.order = i);
+      renderSteps(window._editorSteps);
+    }
+
+    function moveStep(index, direction) {
+      if (!window._editorSteps) return;
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= window._editorSteps.length) return;
+      [window._editorSteps[index], window._editorSteps[newIndex]] =
+        [window._editorSteps[newIndex], window._editorSteps[index]];
+      window._editorSteps.forEach((s, i) => s.order = i);
+      renderSteps(window._editorSteps);
+    }
+
+    async function saveProfile() {
+      const profileId = document.getElementById("editProfileId").value.trim();
+      const name = document.getElementById("editName").value.trim() || profileId;
+      const description = document.getElementById("editDescription").value.trim();
+      const steps = getEditedSteps();
+
+      if (!profileId) {
+        alert("Profile ID is required");
+        return;
+      }
+
+      try {
+        if (currentEditId) {
+          await ProcessingAPI.updateProfile(currentEditId, { name, description, steps });
+        } else {
+          await ProcessingAPI.createProfile({ profile_id: profileId, name, description, steps });
+        }
+        closeEditor();
+      } catch (err) {
+        alert("Save failed: " + err.message);
+      }
+    }
+
+    async function deleteProfile(profileId) {
+      if (!confirm(`Delete profile '${profileId}'?`)) return;
+      try {
+        await ProcessingAPI.deleteProfile(profileId);
+        loadProfiles();
+      } catch (err) {
+        alert("Delete failed: " + err.message);
+      }
+    }
+
+    // ---- Preview ----
+    async function openPreview(profileId) {
+      document.getElementById("previewTitle").textContent = profileId;
+      document.getElementById("previewSamples").value = "723, 721, 718, 725, 720";
+      document.getElementById("previewResult").innerHTML = "";
+      document.getElementById("previewModal").classList.add("visible");
+      window._previewProfileId = profileId;
+    }
+
+    function closePreview() {
+      document.getElementById("previewModal").classList.remove("visible");
+    }
+
+    async function runPreview() {
+      const samplesStr = document.getElementById("previewSamples").value;
+      const samples = samplesStr.split(",").map(s => parseFloat(s.trim())).filter(v => !isNaN(v));
+      const profileId = window._previewProfileId;
+
+      if (samples.length === 0) {
+        document.getElementById("previewResult").innerHTML = '<div class="text-error">No valid samples</div>';
+        return;
+      }
+
+      try {
+        const result = await ProcessingAPI.previewProfile(profileId, samples);
+        renderPreview(result);
+      } catch (err) {
+        document.getElementById("previewResult").innerHTML =
+          `<div class="text-error">Preview failed: ${err.message}</div>`;
+      }
+    }
+
+    function renderPreview(result) {
+      const container = document.getElementById("previewResult");
+
+      // Warnings
+      const warningsHtml = result.warnings && result.warnings.length > 0
+        ? `<div class="card mb-md" style="padding:8px 12px;">
+            ${result.warnings.map(w => `<div class="text-warning" style="font-size:12px;">⚠ ${w}</div>`).join("")}
+           </div>`
+        : "";
+
+      // Per-sample table
+      let tableHtml = `<table class="preview-table"><thead><tr><th>Sample</th>`;
+      const sample0 = result.samples[0];
+      if (sample0 && sample0.steps) {
+        sample0.steps.forEach((s, i) => {
+          tableHtml += `<th>Step ${i + 1}<br><span style="font-size:10px;font-weight:400;">${s.step_type}</span></th>`;
+        });
+      }
+      tableHtml += `<th>Final</th><th>Quality</th></tr></thead><tbody>`;
+
+      result.samples.forEach(s => {
+        const rowClass = s.steps.some(st => st.output_quality === "BAD") ? "fail"
+                       : s.steps.some(st => st.warnings.length > 0) ? "clamp" : "pass";
+        tableHtml += `<tr class="${rowClass}"><td style="font-weight:600;">${s.raw_value}</td>`;
+        s.steps.forEach(st => {
+          tableHtml += `<td>${st.output_value.toFixed(3)}</td>`;
+        });
+        tableHtml += `<td style="font-weight:600;">${result.final_values[s.sample_index].toFixed(3)}</td>`;
+        tableHtml += `<td><span class="badge ${result.final_qualities[s.sample_index] === "GOOD" ? "badge-success" : "badge-error"}">${result.final_qualities[s.sample_index]}</span></td>`;
+        tableHtml += `</tr>`;
+      });
+
+      tableHtml += "</tbody></table>";
+
+      container.innerHTML = `
+        ${warningsHtml}
+        <div class="text-muted mb-sm" style="font-size:13px;">${result.step_count} step(s), ${result.samples.length} sample(s)</div>
+        ${tableHtml}
+        <div class="mt-sm flex gap-sm" style="font-size:12px;">
+          <span class="badge badge-success">● Pass</span>
+          <span class="badge badge-warning">● Clamped/Warning</span>
+          <span class="badge badge-error">● BAD Quality</span>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

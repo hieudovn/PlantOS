@@ -1,15 +1,12 @@
-"""Processing Engine — stub for E2V2-0.
+"""Processing Engine — 7 MVP steps, raw → processed pipeline, preview."""
 
-Full pipeline with 7 MVP steps added in E2V2-3.
-"""
+from agent.processing.engine import ProcessingEngine
+from agent.processing.profiles import (
+    ProcessingProfile, ProcessingStep, ProcessedReading,
+    MVP_STEP_TYPES, COMING_SOON_STEPS,
+)
 
-import logging
-
-logger = logging.getLogger(__name__)
-
-
-class ProcessingEngine:
-    """Stub processing engine. No-op until E2V2-3."""
-
-    def __init__(self):
-        self._profiles: dict[str, dict] = {}
+__all__ = [
+    "ProcessingEngine", "ProcessingProfile", "ProcessingStep",
+    "ProcessedReading", "MVP_STEP_TYPES", "COMING_SOON_STEPS",
+]
