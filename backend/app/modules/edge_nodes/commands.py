@@ -26,12 +26,8 @@ ALLOWED_COMMANDS: dict[str, dict] = {
         "requires_target": True,
         "target_description": "connector_id",
     },
-}
-
-# restart_agent is explicitly excluded — requires Docker/systemd supervisor (E2V2-5)
-ALLOWED_COMMANDS_E2V2_5 = {
     "restart_agent": {
-        "description": "Restart the edge agent process (requires supervisor)",
+        "description": "Restart the Edge agent process (requires Docker or systemd supervisor)",
         "requires_target": False,
     },
 }

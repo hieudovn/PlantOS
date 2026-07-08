@@ -7,6 +7,8 @@ Reports result back to Center after execution.
 
 import asyncio
 import logging
+import os
+import sys
 from typing import Any
 
 try:
@@ -17,19 +19,43 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-# Commands allowed in E2V2-4 (no supervisor required)
+# Commands allowed in E2V2-5 (restart_agent requires supervisor)
 ALLOWED_COMMANDS = {
     "sync_now",
     "reload_config",
     "restart_connector",
     "enable_connector",
     "disable_connector",
-}
-
-# Commands requiring supervisor (E2V2-5) — always rejected here
-ALLOWED_COMMANDS_E2V2_5 = {
     "restart_agent",
 }
+
+POLL_INTERVAL = 15  # seconds between polls
+
+
+def _running_under_supervisor() -> bool:
+    """Detect if running under Docker or systemd supervisor.
+
+    Returns True if supervisor can restart the process after exit.
+    """
+    # Docker detection: check for /.dockerenv or /proc/1/cgroup
+    if os.path.exists("/.dockerenv"):
+        return True
+    try:
+        with open("/proc/1/cgroup") as f:
+            content = f.read()
+        if "docker" in content or "containerd" in content:
+            return True
+    except Exception:
+        pass
+    # systemd detection: check if our parent is systemd
+    try:
+        with open("/proc/1/comm") as f:
+            parent_comm = f.read().strip()
+        if parent_comm == "systemd":
+            return True
+    except Exception:
+        pass
+    return False
 
 POLL_INTERVAL = 15  # seconds between polls
 
@@ -102,6 +128,9 @@ class CommandPoller:
                 await self._handle_enable_connector(target)
             elif cmd_type == "disable_connector":
                 await self._handle_disable_connector(target)
+            elif cmd_type == "restart_agent":
+                await self._handle_restart_agent(cmd_id, client, headers)
+                return  # _handle_restart_agent reports + exits
 
             await self._report(cmd_id, "success", f"Command '{cmd_type}' executed", client, headers)
 
@@ -183,3 +212,55 @@ class CommandPoller:
             logger.info("Connector '%s' disabled", connector_id)
         else:
             logger.warning("disable_connector: no connectors component available")
+
+    # ---- restart_agent (E2V2-5 — requires supervisor) -----------------------
+
+    async def _handle_restart_agent(self, cmd_id: str,
+                                     client: httpx.AsyncClient,
+                                     headers: dict):
+        """Restart the agent process via supervisor exit.
+
+        1. Check supervisor is available
+        2. Flush buffer (sync pending measurements)
+        3. Stop all connectors gracefully
+        4. Report success to Center
+        5. Exit with code 0 → supervisor (Docker/systemd) brings process back
+        """
+        logger.info("Executing restart_agent...")
+
+        if not _running_under_supervisor():
+            await self._report(
+                cmd_id, "failed",
+                "restart_agent requires Docker or systemd supervisor. "
+                "Start the agent with: docker compose up -d or systemctl start plantos-edge-v2",
+                client, headers,
+            )
+            return
+
+        # 1. Flush buffer
+        if self.agent and hasattr(self.agent, "sync"):
+            try:
+                await self.agent.sync.flush(batch_size=1000)
+                logger.info("restart_agent: buffer flushed")
+            except Exception as e:
+                logger.warning("restart_agent: flush error: %s", e)
+
+        # 2. Stop connectors
+        if self.agent and hasattr(self.agent, "connectors"):
+            try:
+                await self.agent.connectors.stop_all()
+                logger.info("restart_agent: connectors stopped")
+            except Exception as e:
+                logger.warning("restart_agent: connector stop error: %s", e)
+
+        # 3. Report success
+        await self._report(
+            cmd_id, "success",
+            "Agent restarting — supervisor will bring process back",
+            client, headers,
+        )
+
+        logger.info("restart_agent: exiting for supervisor restart")
+
+        # 4. Exit — supervisor (Docker restart policy / systemd Restart=) brings back
+        sys.exit(0)

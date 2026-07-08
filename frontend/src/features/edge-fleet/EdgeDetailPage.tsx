@@ -123,12 +123,14 @@ export function EdgeDetailPage() {
             Reload Config
           </button>
           <button
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled
-            title="Available after Edge v2 packaging (E2V2-5)"
+            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded text-sm font-medium transition-colors"
+            onClick={() => {
+              if (confirm("Restarting the agent will cause a brief interruption. Continue?")) {
+                cmdMutation.mutate({ type: "restart_agent" });
+              }
+            }}
           >
             Restart Agent
-            <span className="ml-2 text-xs text-gray-500">(E2V2-5)</span>
           </button>
         </div>
       </div>

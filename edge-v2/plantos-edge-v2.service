@@ -1,0 +1,28 @@
+[Unit]
+Description=PlantOS Edge Lite v2
+Documentation=https://github.com/PlantOS/plantos
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=plantos
+Group=plantos
+WorkingDirectory=/opt/plantos-edge-v2
+ExecStart=/opt/plantos-edge-v2/venv/bin/python -m agent.main
+Restart=on-failure
+RestartSec=10
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+ReadWritePaths=/opt/plantos-edge-v2/data /etc/plantos-edge-v2
+
+Environment=EDGE_CONFIG_PATH=/etc/plantos-edge-v2/config.yaml
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
