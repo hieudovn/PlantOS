@@ -62,6 +62,8 @@ class AssetCreate(BaseModel):
     asset_code: Optional[str] = None
     name: str = Field(..., max_length=255)
     asset_type: str = Field(..., max_length=64)
+    asset_role: str = Field("equipment", max_length=32,
+        description="Semantic role: equipment, functional_location, subsystem, component, logical_group")
     plant_id: Optional[str] = None  # business key, resolved to Plant
     area_id: Optional[str] = None   # business key, resolved to Area
     parent_asset_id: Optional[str] = None  # business key, self-ref
@@ -75,6 +77,7 @@ class AssetCreate(BaseModel):
 class AssetUpdate(BaseModel):
     name: Optional[str] = None
     asset_type: Optional[str] = None
+    asset_role: Optional[str] = Field(None, max_length=32)
     area_id: Optional[str] = None
     parent_asset_id: Optional[str] = None
     criticality: Optional[str] = None
@@ -89,6 +92,7 @@ class AssetResponse(BaseModel):
     asset_code: Optional[str] = None
     name: str
     asset_type: str
+    asset_role: str
     plant_id: Optional[str] = None   # resolved from area→plant
     area_id: Optional[str] = None
     parent_asset_id: Optional[str] = None

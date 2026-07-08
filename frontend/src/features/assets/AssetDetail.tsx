@@ -42,6 +42,14 @@ export function AssetDetail() {
           <div className="text-sm mt-1 capitalize">{asset.asset_type}</div>
         </div>
         <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
+          <div className="text-xs text-gray-500">Role</div>
+          <div className="text-sm mt-1">
+            <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--surface-hover)' }}>
+              {asset.asset_role}
+            </span>
+          </div>
+        </div>
+        <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
           <div className="text-xs text-gray-500">Area</div>
           <div className="text-sm mt-1">{asset.area_id || "—"}</div>
         </div>

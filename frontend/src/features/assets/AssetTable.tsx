@@ -81,6 +81,7 @@ export function AssetTable() {
                 <th className="text-left px-4 py-3">Asset ID</th>
                 <th className="text-left px-4 py-3">Name</th>
                 <th className="text-left px-4 py-3">Type</th>
+                <th className="text-left px-4 py-3">Role</th>
                 <th className="text-left px-4 py-3">Area</th>
                 <th className="text-left px-4 py-3">Status</th>
               </tr>
@@ -95,6 +96,11 @@ export function AssetTable() {
                   <td className="px-4 py-3 font-mono text-xs">{a.asset_id}</td>
                   <td className="px-4 py-3">{a.name}</td>
                   <td className="px-4 py-3 text-gray-400">{a.asset_type}</td>
+                  <td className="px-4 py-3">
+                    <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--surface-hover)' }}>
+                      {a.asset_role}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-gray-400">{a.area_id || "—"}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={a.lifecycle_status} />

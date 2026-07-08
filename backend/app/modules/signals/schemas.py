@@ -18,6 +18,7 @@ class SignalCreate(BaseModel):
     signal_name: str = Field(..., max_length=128)
     display_name: Optional[str] = None
     signal_type: str = "measurement"
+    signal_category: str = Field("measurement", max_length=32)
     data_type: str = "float"
     engineering_unit: Optional[str] = None
     min_value: Optional[float] = None
@@ -25,17 +26,20 @@ class SignalCreate(BaseModel):
     uns_path: Optional[str] = None
     source: Optional[SourceInfo] = None
     quality_policy: str = "GOOD"
+    external_refs: Optional[dict] = Field(None, description="Opaque external references metadata")
 
 
 class SignalUpdate(BaseModel):
     display_name: Optional[str] = None
     signal_type: Optional[str] = None
+    signal_category: Optional[str] = Field(None, max_length=32)
     engineering_unit: Optional[str] = None
     min_value: Optional[float] = None
     max_value: Optional[float] = None
     uns_path: Optional[str] = None
     source: Optional[SourceInfo] = None
     quality_policy: Optional[str] = None
+    external_refs: Optional[dict] = None
 
 
 class SignalResponse(BaseModel):
@@ -44,6 +48,7 @@ class SignalResponse(BaseModel):
     signal_name: str
     display_name: Optional[str] = None
     signal_type: str
+    signal_category: str
     data_type: str
     engineering_unit: Optional[str] = None
     min_value: Optional[float] = None
@@ -51,6 +56,7 @@ class SignalResponse(BaseModel):
     uns_path: Optional[str] = None
     source: Optional[SourceInfo] = None
     quality_policy: str
+    external_refs: Optional[dict] = None
     created_at: datetime
     updated_at: datetime
 

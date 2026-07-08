@@ -26,6 +26,7 @@ def _signal_to_response(signal: Signal) -> SignalResponse:
         signal_name=signal.signal_name,
         display_name=signal.display_name,
         signal_type=signal.signal_type,
+        signal_category=signal.signal_category,
         data_type=signal.data_type,
         engineering_unit=signal.engineering_unit,
         min_value=signal.min_value,
@@ -33,6 +34,7 @@ def _signal_to_response(signal: Signal) -> SignalResponse:
         uns_path=signal.uns_path,
         source=source,
         quality_policy=signal.quality_policy,
+        external_refs=signal.external_refs,
         created_at=signal.created_at,
         updated_at=signal.updated_at,
     )
