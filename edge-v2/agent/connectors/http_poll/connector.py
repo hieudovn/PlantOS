@@ -125,13 +125,17 @@ class HttpPollConnector(BaseConnector):
                     return []
                 data = resp.json()
                 for tag in tag_configs:
-                    if not tag.enabled:
+                    # Handle both TagConfig objects and plain dicts
+                    enabled = tag.enabled if hasattr(tag, 'enabled') else tag.get("enabled", True)
+                    src_ref = tag.source_ref if hasattr(tag, 'source_ref') else tag.get("source_ref", "")
+                    sig_id = tag.signal_id if hasattr(tag, 'signal_id') else tag.get("signal_id", "")
+                    if not enabled:
                         continue
-                    value = self._extract_value(data, tag.source_ref)
+                    value = self._extract_value(data, src_ref)
                     if value is not None:
                         readings.append(RawReading(
-                            source_ref=tag.source_ref,
-                            signal_id=tag.signal_id,
+                            source_ref=src_ref,
+                            signal_id=sig_id,
                             raw_value=float(value),
                             timestamp=now,
                         ))
