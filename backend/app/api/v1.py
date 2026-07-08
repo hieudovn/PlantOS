@@ -10,7 +10,7 @@ from app.modules.alarms.router import router as alarms_router
 from app.modules.events.router import router as events_router
 from app.modules.system.router import router as system_router
 from app.modules.contracts.router import router as contracts_router
-from app.modules.users.router import router as users_router
+from app.modules.asset_templates.router import router as templates_router
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(assets_router, tags=["Assets"])
@@ -21,7 +21,7 @@ router.include_router(alarms_router, tags=["Alarms"])
 router.include_router(events_router, tags=["Events"])
 router.include_router(system_router, tags=["System"])
 router.include_router(contracts_router, tags=["Contracts"])
-router.include_router(users_router, tags=["Users"])
+router.include_router(templates_router, tags=["Asset Templates"])
 
 
 # ---- Seed endpoint (idempotent) ----

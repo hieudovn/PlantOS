@@ -3,3 +3,4 @@ from app.modules.assets.models import Plant, Area, Asset  # noqa: F401
 from app.modules.signals.models import Signal  # noqa: F401
 from app.modules.edge_nodes.models import EdgeNode  # noqa: F401
 from app.modules.events.models import StateEvent, DowntimeEvent, ProductionEvent  # noqa: F401
+from app.modules.asset_templates.models import AssetTemplate, AssetAttributeBinding  # noqa: F401

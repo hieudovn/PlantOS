@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getVocabulary, getAreas, getAssets, createAsset, updateAsset, fetchAPI } from "@/lib/api";
+import { getVocabulary, getAreas, getAssets, getTemplates, createAsset, updateAsset, bindFromTemplate, fetchAPI } from "@/lib/api";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { X, Loader2 } from "lucide-react";
 
@@ -18,6 +18,7 @@ export function AssetForm({ mode, asset, onClose, onSaved }: AssetFormProps) {
   const { data: vocab } = useQuery({ queryKey: ["vocabulary"], queryFn: getVocabulary });
   const { data: areas } = useQuery({ queryKey: ["areas", plantId], queryFn: () => getAreas({ plant_id: plantId }) });
   const { data: allAssets } = useQuery({ queryKey: ["assets-all"], queryFn: () => getAssets() });
+  const { data: templates } = useQuery({ queryKey: ["templates"], queryFn: getTemplates });
 
   const [form, setForm] = useState({
     asset_id: "",
@@ -33,6 +34,7 @@ export function AssetForm({ mode, asset, onClose, onSaved }: AssetFormProps) {
     model: "",
   });
   const [error, setError] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
 
   useEffect(() => {
     if (mode === "edit" && asset) {
@@ -79,7 +81,15 @@ export function AssetForm({ mode, asset, onClose, onSaved }: AssetFormProps) {
         return updateAsset(asset!.asset_id, changed);
       }
     },
-    onSuccess: () => {
+    onSuccess: async (result) => {
+      // If a template was selected, auto-generate bindings
+      if (selectedTemplate && mode === "create" && result?.asset_id) {
+        try {
+          await bindFromTemplate(result.asset_id, selectedTemplate);
+        } catch (_) {
+          // Non-critical — template bindings are optional
+        }
+      }
       queryClient.invalidateQueries({ queryKey: ["assets"] });
       onSaved();
       onClose();
@@ -215,6 +225,33 @@ export function AssetForm({ mode, asset, onClose, onSaved }: AssetFormProps) {
               ))}
             </select>
           </div>
+
+          {/* template selector — shown only in create mode */}
+          {mode === "create" && form.asset_type && (
+            <div className="col-span-2">
+              <label className="block text-xs mb-1" style={{ color: "var(--text-secondary)" }}>
+                Template (optional)
+              </label>
+              <select
+                value={selectedTemplate}
+                onChange={(e) => setSelectedTemplate(e.target.value)}
+                className="w-full rounded px-3 py-2 text-sm border"
+                style={{ backgroundColor: "var(--surface-primary)", borderColor: "var(--border-default)", color: "var(--text-primary)" }}
+              >
+                <option value="">Custom (no template)</option>
+                {(templates || [])
+                  .filter((t: any) => t.asset_type === form.asset_type)
+                  .map((t: any) => (
+                    <option key={t.template_id} value={t.template_id}>{t.name}</option>
+                  ))}
+              </select>
+              {selectedTemplate && (
+                <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                  Attributes will be auto-generated from template after creation.
+                </div>
+              )}
+            </div>
+          )}
 
           {/* area_id */}
           <div className="col-span-1">

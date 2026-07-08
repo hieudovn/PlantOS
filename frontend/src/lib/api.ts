@@ -89,6 +89,21 @@ export const getAreas = (params?: Record<string, string>) => {
   return fetchAPI<any[]>(`/api/v1/areas${qs}`);
 };
 
+// ---- Asset Templates ----
+export const getTemplates = () => fetchAPI<any[]>("/api/v1/asset-templates");
+export const seedTemplates = () => fetchAPI<any>("/api/v1/asset-templates/seed", { method: "POST" });
+
+// ---- Asset Bindings ----
+export const getBindings = (assetId: string) => fetchAPI<any[]>(`/api/v1/assets/${assetId}/bindings`);
+export const createBinding = (assetId: string, data: any) =>
+  fetchAPI<any>(`/api/v1/assets/${assetId}/bindings`, { method: "POST", body: JSON.stringify(data) });
+export const deleteBinding = (assetId: string, bindingId: string) =>
+  fetchAPIRaw(`/api/v1/assets/${assetId}/bindings/${bindingId}`, { method: "DELETE" });
+export const validateBindings = (assetId: string) =>
+  fetchAPI<any>(`/api/v1/assets/${assetId}/bindings/validate`, { method: "POST" });
+export const bindFromTemplate = (assetId: string, templateId: string) =>
+  fetchAPI<any[]>(`/api/v1/assets/${assetId}/bindings/from-template/${templateId}`, { method: "POST" });
+
 // ---- Signals ----
 export const getSignals = (params?: Record<string, string>) => {
   const qs = params ? "?" + new URLSearchParams(params).toString() : "";

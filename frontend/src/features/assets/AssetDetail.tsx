@@ -1,14 +1,17 @@
+import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAsset, getSignals, deleteAsset } from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useRealtimeValues } from "@/lib/useRealtimeValues";
+import { AssetBindings } from "./AssetBindings";
 import { Trash2 } from "lucide-react";
 
 export function AssetDetail() {
   const { assetId } = useParams<{ assetId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<"overview" | "bindings">("overview");
 
   const { data: asset } = useQuery({
     queryKey: ["asset", assetId],
@@ -76,6 +79,32 @@ export function AssetDetail() {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-2 mb-2 border-b" style={{ borderColor: 'var(--border-default)' }}>
+        <button
+          onClick={() => setActiveTab("overview")}
+          className="px-4 py-2 text-sm font-medium border-b-2 transition-colors"
+          style={{
+            color: activeTab === "overview" ? 'var(--text-primary)' : 'var(--text-muted)',
+            borderColor: activeTab === "overview" ? 'var(--accent-primary)' : 'transparent',
+          }}
+        >
+          Overview
+        </button>
+        <button
+          onClick={() => setActiveTab("bindings")}
+          className="px-4 py-2 text-sm font-medium border-b-2 transition-colors"
+          style={{
+            color: activeTab === "bindings" ? 'var(--text-primary)' : 'var(--text-muted)',
+            borderColor: activeTab === "bindings" ? 'var(--accent-primary)' : 'transparent',
+          }}
+        >
+          Signals / Attributes
+        </button>
+      </div>
+
+      {activeTab === "overview" && (
+        <>
       {/* Current Values */}
       <div>
         <h2 className="text-lg font-semibold mb-3">Current Values</h2>
@@ -140,6 +169,12 @@ export function AssetDetail() {
           </table>
         </div>
       </div>
+        </>
+      )}
+
+      {activeTab === "bindings" && (
+        <AssetBindings assetId={assetId!} />
+      )}
     </div>
   );
 }
