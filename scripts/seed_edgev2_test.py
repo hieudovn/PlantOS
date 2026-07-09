@@ -11,6 +11,7 @@ Usage:
 """
 
 import argparse
+import os
 import sys
 import httpx
 
@@ -20,13 +21,19 @@ HEADERS = {}
 
 
 def login(api_url: str):
-    """Authenticate and get JWT token."""
+    """Authenticate and get JWT token using env vars."""
     global TOKEN, HEADERS
+    username = os.environ.get("PLANTOS_CENTER_USERNAME", "admin")
+    password = os.environ.get("PLANTOS_CENTER_PASSWORD", "")
+    if not password:
+        print("  ERROR: PLANTOS_CENTER_PASSWORD environment variable not set")
+        print("  Usage: PLANTOS_CENTER_PASSWORD=\"password\" python scripts/seed_edgev2_test.py")
+        sys.exit(1)
     base = api_url.rstrip("/")
     try:
         resp = httpx.post(
             f"{base}/api/v1/auth/login",
-            json={"username": "admin", "password": "PlantOS@2026"},
+            json={"username": username, "password": password},
             timeout=10,
         )
         if resp.status_code == 200:

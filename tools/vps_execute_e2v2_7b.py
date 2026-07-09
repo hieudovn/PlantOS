@@ -6,7 +6,8 @@ Runs side-by-side comparison, Center offline simulation,
 dry-run migration, rollback dry-run on VPS (103.97.132.249).
 
 Usage:
-    python tools/vps_execute_e2v2_7b.py [--ssh-pass PlantOS@2026!]
+    python tools/vps_execute_e2v2_7b.py
+    PLANTOS_CENTER_PASSWORD="$PASSWORD" python tools/vps_execute_e2v2_7b.py --skip-phases 1
 """
 
 import argparse
@@ -117,10 +118,16 @@ def phase2_side_by_side():
 # ============================================================================
 # Phase 3: Center Offline Simulation (Task 7.6)
 # ============================================================================
-def phase3_offline_simulation():
+def phase3_offline_simulation(i_know_production: bool = False):
     print("\n" + "="*60)
     print("PHASE 3: CENTER OFFLINE SIMULATION")
     print("="*60)
+
+    if not i_know_production and os.environ.get("PLANTOS_ENV", "") != "dev":
+        print("⚠  DESTRUCTIVE OPERATION: This will stop the Center backend.")
+        print("   To proceed, set PLANTOS_ENV=dev or pass --i-know-this-is-production")
+        print("   Skipping Phase 3.")
+        return
 
     # Record baseline
     status_before = ssh("curl -s http://localhost:8011/api/status")
@@ -318,9 +325,11 @@ def main():
         results["phase2"] = "PASS"
         phase2_side_by_side()
 
+    i_know = "--i-know-this-is-production" in sys.argv or os.environ.get("PLANTOS_ENV", "") == "dev"
+
     if single == 3 or (single == 0 and 3 not in skip):
         results["phase3"] = "PASS"
-        phase3_offline_simulation()
+        phase3_offline_simulation(i_know_production=i_know)
 
     if single == 4 or (single == 0 and 4 not in skip):
         results["phase4"] = "PASS"

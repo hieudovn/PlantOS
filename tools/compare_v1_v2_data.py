@@ -16,6 +16,7 @@ SA Constraint: Mirror-first. This does NOT modify any data.
 
 import argparse
 import csv
+import os
 import statistics
 import sys
 from datetime import datetime, timezone, timedelta
@@ -28,12 +29,16 @@ except ImportError:
 
 
 def _get_token_cached(api_url: str) -> str:
-    """Get auth token (cached in module)."""
+    """Get auth token (cached in module). Uses env vars for credentials."""
     if not hasattr(_get_token_cached, "_token"):
         _get_token_cached._token = ""
+        username = os.environ.get("PLANTOS_CENTER_USERNAME", "admin")
+        password = os.environ.get("PLANTOS_CENTER_PASSWORD", "")
+        if not password:
+            print("  ⚠ PLANTOS_CENTER_PASSWORD not set — comparison may fail")
         try:
             resp = httpx.post(f"{api_url}/api/v1/auth/login",
-                             json={"username": "admin", "password": "PlantOS@2026!"},
+                             json={"username": username, "password": password},
                              timeout=10)
             if resp.status_code == 200:
                 _get_token_cached._token = resp.json().get("access_token", "")
@@ -169,7 +174,16 @@ def get_signal_ids_for_plant(api_url: str, plant_id: str) -> list[str]:
     return []
 
 
+def _check_env_password():
+    """Check that PLANTOS_CENTER_PASSWORD is set before running."""
+    if not os.environ.get("PLANTOS_CENTER_PASSWORD"):
+        print("ERROR: PLANTOS_CENTER_PASSWORD environment variable is required.")
+        print("Usage: PLANTOS_CENTER_PASSWORD=\"password\" python tools/compare_v1_v2_data.py")
+        sys.exit(1)
+
+
 def main():
+    _check_env_password()
     parser = argparse.ArgumentParser(description="Compare v1 vs v2 measurement data")
     parser.add_argument("--center-url", default="http://localhost:8000",
                         help="Center API URL")
@@ -177,8 +191,8 @@ def main():
                         help="v1 workspace/plant_id")
     parser.add_argument("--v2-workspace", default="EDGEV2-DEMO",
                         help="v2 workspace/plant_id")
-    parser.add_argument("--hours", type=int, default=1,
-                        help="Hours of data to compare")
+    parser.add_argument("--hours", type=float, default=1.0,
+                        help="Hours of data to compare (supports decimals, e.g., 0.5)")
     parser.add_argument("--output", default=None,
                         help="CSV output path (default: print to console)")
     parser.add_argument("--signal-ids", nargs="*", default=[],

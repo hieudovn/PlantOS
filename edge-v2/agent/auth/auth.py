@@ -145,7 +145,19 @@ class LocalAuthManager:
         # Fail fast if production crypto libs are missing
         _check_crypto()
         self.config = config
-        self._serializer = _make_serializer(config.get("session_secret", "plantos-edge-default-secret"))
+
+        # Refuse default session_secret in production
+        secret = os.environ.get("EDGE_SESSION_SECRET") or config.get("session_secret", "")
+        if not secret or secret == "plantos-edge-default-secret" or secret == "CHANGE_ME_TO_A_RANDOM_SECRET" or secret.startswith("CHANGE_ME"):
+            dev_mode = os.environ.get("EDGE_DEV_INSECURE_AUTH", "").lower() in ("true", "1", "yes")
+            if not dev_mode:
+                raise RuntimeError(
+                    "Default session_secret refused. "
+                    "Set EDGE_SESSION_SECRET env var or change config.session_secret."
+                )
+            logger.warning("Using INSECURE default session_secret (EDGE_DEV_INSECURE_AUTH mode)")
+
+        self._serializer = _make_serializer(secret)
         # In-memory session store for CSRF token lookup (cookie carries the rest)
         self._sessions: dict[str, Session] = {}
 

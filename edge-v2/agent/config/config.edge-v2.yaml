@@ -6,7 +6,7 @@ edge_node_id: EDGEV2-PC-01
 plant_id: EDGEV2-DEMO
 center_url: http://localhost:8000
 api_key: plantos-edge-key-2026
-session_secret: plantos-edge-default-secret
+session_secret: CHANGE_ME_TO_A_RANDOM_SECRET  # WARNING: agent refuses to start with default
 
 auth: {}
 
