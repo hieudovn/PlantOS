@@ -1,0 +1,7 @@
+# Edge v2 Data Directory
+#
+# This directory stores runtime data:
+#   - edge_data.duckdb  — DuckDB time-series buffer
+#   - comparison_*.csv  — Side-by-side comparison reports (E2V2-9)
+#
+# The .gitkeep file ensures the directory is tracked by git.

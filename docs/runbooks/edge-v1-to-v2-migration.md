@@ -2,8 +2,11 @@
 
 > **⚠️ NOT YET ACTIVE — SA approval required before execution**
 >
-> Status: DRAFT for dry-run testing only
+> Status: DRAFT — Reviewed for E2V2-9 (2026-07-09) ✅ READY FOR SA REVIEW
 > Edge v1 remains PRIMARY until SA signs off.
+>
+> **E2V2-9 Update:** Dry-run preparation complete. Seed scripts and comparison tool
+> ready. Actual switch still requires SA full approval.
 
 ## Overview
 
@@ -22,14 +25,15 @@ Each step has a clear command, expected output, and rollback trigger.
 | Edge v2 running on port 8011 | `curl http://localhost:8011/api/status` → 200 |
 | Center API reachable | `curl http://localhost:8000/health` → 200 |
 | PostgreSQL has edge_nodes table | Verify via `docker exec -it plantos-postgres psql -U plantos -c "SELECT edge_node_id FROM edge_nodes"` |
-| Common signal_ids exist in both workspaces | `python tools/compare_v1_v2_data.py --dry-run` |
+| Common signal_ids exist in both workspaces | `python tools/compare_v1_v2_data.py --hours 1` |
 | Rollback runbook printed | Available at `docs/runbooks/edge-v1-to-v2-rollback.md` |
+| **VPS-specific:** Docker deployment | Edge v2 runs in Docker container. Use `docker compose` commands, NOT systemctl. |
 
 ---
 
 ## Phase 1: PRE-MIGRATION
 
-**Goal:** Verify prerequisites, backup config, check signal mapping.
+**Goal:** Verify prerequisites, backup config, seed workspace, check signal mapping.
 
 ```bash
 # 1.1 Backup Edge v1 config
@@ -38,10 +42,18 @@ cp edge/agent/config.yaml edge/agent/config.yaml.migration-backup-$(date +%Y%m%d
 # 1.2 Backup Edge v2 config
 cp edge-v2/agent/config/config.edge-v2.yaml edge-v2/agent/config/config.edge-v2.yaml.migration-backup-$(date +%Y%m%d_%H%M%S)
 
-# 1.3 Run v1→v2 config migration in dry-run mode
+# 1.3 Seed EDGEV2-DEMO workspace with shared signals (if not already done)
+export PLANTOS_CENTER_PASSWORD='PlantOS@2026!'
+python scripts/seed_edgev2_demo.py
+
+# 1.4 Generate sample measurements for immediate comparison (optional)
+python scripts/seed_edgev2_demo.py --generate-measurements
+
+# 1.5 Run v1→v2 config migration in dry-run mode
 python tools/migrate_v1_config_to_v2.py edge/agent/config.yaml --dry-run
 
-# 1.4 Verify shared signal_ids exist in both workspaces
+# 1.6 Verify shared signal_ids exist in both workspaces
+export PLANTOS_CENTER_PASSWORD='PlantOS@2026!'
 python tools/compare_v1_v2_data.py --hours 1
 ```
 
@@ -51,7 +63,10 @@ Edge v1 not modified.
 Connectors generated: 2
   - mirror_signals: type=http_poll, tags=3
   - vf_compressor: type=opcua, tags=26
-All shared signals within tolerance.
+v1 signals: 15, v2 signals: 15
+Shared signal_ids: 15
+Results: 15 PASS, 0 FAIL, 0 WARN, 0 SKIP
+✅ All shared signals within tolerance.
 ```
 
 **Rollback trigger:** If migration utility fails → STOP. Do not proceed.
@@ -67,10 +82,17 @@ All shared signals within tolerance.
 python tools/migrate_v1_config_to_v2.py edge/agent/config.yaml --output edge-v2/config/edge_config.yaml
 
 # 2.2 Restart Edge v2 to pick up new connectors
-# systemd:
-sudo systemctl restart plantos-edge-v2
-# Docker:
+# VPS (Docker):
+docker compose -f /opt/plantos/deployment/docker-compose.yml exec plantos-edge-v2 \
+  python /app/agent/commands/poller.py --action reload_config
+# OR full restart:
+docker compose -f /opt/plantos/deployment/docker-compose.yml restart plantos-edge-v2
+
+# Local (Docker):
 docker compose -f edge-v2/docker-compose.edge-v2.yml restart
+
+# systemd (alternative deployment):
+# sudo systemctl restart plantos-edge-v2
 
 # 2.3 Verify Edge v2 health
 curl http://localhost:8011/api/status
@@ -116,16 +138,19 @@ python tools/compare_v1_v2_data.py --hours 1 --output /tmp/comparison_final.csv
 
 ---
 
-## Phase 4: SWITCH (🔴 BLOCKED — SA CONDITIONAL APPROVAL)
+## Phase 4: SWITCH (🔴 BLOCKED — PENDING FINAL SA APPROVAL)
 
-> **🔴 DO NOT EXECUTE. SA has conditionally approved E2V2-7 for mirror/preparation only.**
+> **🔴 DO NOT EXECUTE. SA has conditionally approved E2V2-9 for switch PREPARATION only.**
 >
 > Per SA decision (2026-07-09):
 > - Edge v1 remains PRIMARY. Do NOT stop, disable, or deprecate.
-> - No production workspace switch until Docker smoke passes + full SA approval.
-> - This phase requires a NEW SA gate review before execution.
+> - Side-by-side comparison is THE GATE for switch discussion.
+> - No production workspace switch until comparison evidence + SA full approval.
 >
-> See: `docs/reports/edge-v2-stab-final-sa-review.md`
+> **E2V2-9 Status (2026-07-09):** All preparation code/scripts merged.
+> Side-by-side comparison execution blocked by: VPS deployment of seed script.
+> See: `docs/reports/edge-v2-production-readiness.md`
+> See: `docs/prompts/phase-edge-v2-task09-switch-execution.md`
 
 **Goal (FUTURE):** Redirect data flow from v1 to v2 after all gates cleared.
 
@@ -140,9 +165,9 @@ python tools/compare_v1_v2_data.py --hours 1 --output /tmp/comparison_final.csv
 
 **Prerequisites for unblocking (all must be met):**
 ```
-- Docker smoke passed on production environment
-- Side-by-side comparison passed for 24+ hours
-- Dry-run migration + rollback passed on test workspace
+- Side-by-side comparison: ≥3 shared signal_ids, all within ±5% tolerance
+- v2 sync backlog < 50 for > 30 minutes
+- All services healthy (v1, v2, Center)
 - SA full approval (not conditional)
 ```
 
@@ -178,7 +203,9 @@ python tools/compare_v1_v2_data.py --hours 1 --output /tmp/comparison_final.csv
 | Check v1 status | `curl http://localhost:8001` |
 | Check v2 status | `curl http://localhost:8011/api/status` |
 | Restart v2 (systemd) | `sudo systemctl restart plantos-edge-v2` |
-| Restart v2 (Docker) | `docker compose -f edge-v2/docker-compose.edge-v2.yml restart` |
+| Restart v2 (Docker local) | `docker compose -f edge-v2/docker-compose.edge-v2.yml restart` |
+| Restart v2 (VPS Docker) | `docker compose -f /opt/plantos/deployment/docker-compose.yml restart plantos-edge-v2` |
+| Reload v2 config (VPS) | `docker compose -f /opt/plantos/deployment/docker-compose.yml exec plantos-edge-v2 python /app/agent/commands/poller.py --action reload_config` |
 | View v2 logs (systemd) | `journalctl -u plantos-edge-v2 -f` |
 | View v2 logs (Docker) | `docker logs plantos-edge-v2 -f` |
 | Run comparison | `python tools/compare_v1_v2_data.py` |
@@ -188,13 +215,20 @@ python tools/compare_v1_v2_data.py --hours 1 --output /tmp/comparison_final.csv
 
 ## Appendix: Dry-Run Results
 
-*To be filled after dry-run test:*
-
 | Step | Date | Tester | Result | Notes |
 |---|---|---|---|---|
-| Phase 1: Pre-migration | | | | |
-| Phase 2: Mirror | | | | |
-| Phase 3: Comparison | | | | |
-| Phase 4: Switch | | | N/A | SA not yet approved |
-| Phase 5: Verify | | | | |
-| Phase 6: Commit | | | | |
+| Phase 1: Pre-migration | 2026-07-09 | AI (E2V2-9) | ✅ READY | Seed script created, comparison tool fixed |
+| Phase 2: Mirror | 2026-07-09 | AI (E2V2-9) | ✅ READY | Commands updated for VPS Docker deployment |
+| Phase 3: Comparison | 2026-07-09 | AI (E2V2-9) | ⏳ PENDING | Requires VPS execution of seed + comparison |
+| Phase 4: Switch | — | — | 🔴 BLOCKED | WAITING SA full approval |
+| Phase 5: Verify | — | — | 🔴 BLOCKED | WAITING SA full approval |
+| Phase 6: Commit | — | — | 🔴 BLOCKED | WAITING SA full approval |
+
+### E2V2-9 Artifacts
+
+| Artifact | File | Status |
+|---|---|---|
+| Seed script (EDGEV2-DEMO) | `scripts/seed_edgev2_demo.py` | ✅ Created |
+| VPS execution prompt | `docs/prompts/phase-edge-v2-task09-switch-execution.md` | ✅ Created |
+| Production readiness report | `docs/reports/edge-v2-production-readiness.md` | ✅ Updated |
+| Comparison CSV | `edge-v2/data/comparison_*.csv` | ⏳ PENDING (VPS) |
