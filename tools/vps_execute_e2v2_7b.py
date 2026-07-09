@@ -282,7 +282,7 @@ def phase6_update_report(results: dict):
         f"**Status:** Execution Complete — {now}"
     )
     
-    with open(report_path, "w") as f:
+    with open(report_path, "w", encoding='utf-8') as f:
         f.write(content)
     
     print("  Report updated with execution results")
