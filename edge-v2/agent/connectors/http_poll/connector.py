@@ -144,7 +144,14 @@ class HttpPollConnector(BaseConnector):
         return readings
 
     def _extract_value(self, data: Any, json_path: str) -> Any | None:
-        """Extract value from JSON using dot-separated path."""
+        """Extract value from JSON using dot-separated path.
+        Tries top-level key first (handles keys containing dots like 'PUMP-101.flow_rate'),
+        then falls back to dot-path navigation.
+        """
+        # Try as flat key first (handles signal_ids with dots)
+        if isinstance(data, dict) and json_path in data:
+            return data[json_path]
+        # Fall back to dot-path navigation
         parts = json_path.strip("$.").split(".")
         current = data
         for part in parts:

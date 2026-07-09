@@ -162,7 +162,7 @@ class EdgeAgentV2:
                         if status.status != "running":
                             continue
                         # Read latest tag values from connector
-                        tag_configs = self.config.get(f"connectors.{conn_id}.tags", [])
+                        tag_configs = connector.tags
                         if not tag_configs:
                             continue
                         readings = await connector.read_tags(tag_configs)
