@@ -1,12 +1,13 @@
 # Migration Runbook: Edge v1 → Edge v2
 
-> **⚠️ NOT YET ACTIVE — SA approval required before execution**
+> **⚠️ NOT YET ACTIVE — SA approval required before production execution**
 >
-> Status: DRAFT — Reviewed for E2V2-9 (2026-07-09) ✅ READY FOR SA REVIEW
-> Edge v1 remains PRIMARY until SA signs off.
+> Status: DRY-RUN APPROVED — E2V2-10 Limited Controlled Switch Dry-Run (2026-07-09)
+> Edge v1 remains PRIMARY. Production switch NOT approved.
 >
-> **E2V2-9 Update:** Dry-run preparation complete. Seed scripts and comparison tool
-> ready. Actual switch still requires SA full approval.
+> **E2V2-10:** SA approved limited controlled switch dry-run. Phase 4-6 below have
+> dry-run commands annotated with 🟡 DRY-RUN. These may be executed for testing.
+> See: `docs/prompts/phase-edge-v2-task10-dry-run-execution.md`
 
 ## Overview
 
@@ -138,61 +139,139 @@ python tools/compare_v1_v2_data.py --hours 1 --output /tmp/comparison_final.csv
 
 ---
 
-## Phase 4: SWITCH (🔴 BLOCKED — PENDING FINAL SA APPROVAL)
+## Phase 4: SWITCH
 
-> **🔴 DO NOT EXECUTE. SA has conditionally approved E2V2-9 for switch PREPARATION only.**
+> **🟡 DRY-RUN ONLY — SA approved limited controlled switch dry-run (E2V2-10)**
 >
-> Per SA decision (2026-07-09):
-> - Edge v1 remains PRIMARY. Do NOT stop, disable, or deprecate.
-> - Side-by-side comparison is THE GATE for switch discussion.
-> - No production workspace switch until comparison evidence + SA full approval.
->
-> **E2V2-9 Status (2026-07-09):** All preparation code/scripts merged.
-> Side-by-side comparison execution blocked by: VPS deployment of seed script.
-> See: `docs/reports/edge-v2-production-readiness.md`
-> See: `docs/prompts/phase-edge-v2-task09-switch-execution.md`
+> SA decision (2026-07-09):
+> - ✅ Dry-run APPROVED for testing switch procedure.
+> - 🔴 Edge v1 remains PRIMARY. Do NOT stop v1.
+> - 🔴 Production switch NOT approved — requires separate SA review.
+> - This phase verified in dry-run only. Rollback must follow (see Phase 6).
 
-**Goal (FUTURE):** Redirect data flow from v1 to v2 after all gates cleared.
+**Goal (DRY-RUN):** Shadow-switch — v2 acts as primary while v1 still runs.
 
 ```bash
-# 🔴 DO NOT RUN — BLOCKED
-# When unblocked by SA:
-# 1. Edge v1 stays running as fallback (do NOT stop)
-# 2. Update Center workspace config to read from EDGEV2-DEMO
-# 3. Verify both v1 and v2 data reach Center (dual-write for 24h)
-# 4. After 24h stable dual-write, SA may approve v1 decommission
+# 🟡 DRY-RUN — SA APPROVED
+# 4.1 Verify v2 is ingesting and healthy
+curl http://localhost:8011/api/status
+
+# 4.2 Verify v2 heartbeat reaches Center
+curl -s http://localhost:8000/api/v1/edge-nodes | python3 -c "
+import sys,json
+d=json.load(sys.stdin)
+for n in d if isinstance(d,list) else []:
+    print(f\"  {n['edge_node_id']}: {n.get('status','?')}\")
+"
+
+# 4.3 Verify both v1 and v2 data reaching Center (dual-write)
+curl -s "http://localhost:8000/api/v1/measurements/history?plant_id=DEMO-PLANT&limit=1" | python3 -c "import sys,json;d=json.load(sys.stdin);print(f'v1 DEMO-PLANT: {len(d)} points')"
+curl -s "http://localhost:8000/api/v1/measurements/history?plant_id=EDGEV2-DEMO&limit=1" | python3 -c "import sys,json;d=json.load(sys.stdin);print(f'v2 EDGEV2-DEMO: {len(d)} points')"
+
+# 4.4 Run comparison during shadow mode
+export PLANTOS_CENTER_PASSWORD='PlantOS@2026!'
+python3 /opt/plantos/tools/compare_v1_v2_data.py --hours 0.5 \
+  --signal-ids PUMP-101.flow_rate PUMP-101.discharge_pressure MOTOR-101.motor_current
 ```
 
-**Prerequisites for unblocking (all must be met):**
+**Expected output:**
 ```
-- Side-by-side comparison: ≥3 shared signal_ids, all within ±5% tolerance
-- v2 sync backlog < 50 for > 30 minutes
-- All services healthy (v1, v2, Center)
-- SA full approval (not conditional)
+v1 DEMO-PLANT: > 0 points
+v2 EDGEV2-DEMO: > 0 points
+Results: 3 PASS, 0 FAIL, 0 WARN, 0 SKIP
+✅ All shared signals within tolerance.
+```
+
+**Rollback trigger:** Any signal exceeds ±5% tolerance → STOP → run Phase 6 rollback.
+
+---
+
+## Phase 5: VERIFY
+
+> **🟡 DRY-RUN ONLY — Run after Phase 4 dry-run comparison passes.**
+
+**Goal (DRY-RUN):** Confirm no data loss during shadow mode — both workspaces healthy.
+
+```bash
+# 🟡 DRY-RUN
+# 5.1 Verify v1 unchanged
+echo "v1: $(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001)"
+
+# 5.2 Verify v2 unchanged
+echo "v2: $(curl -s http://localhost:8011/api/status | python3 -c 'import sys,json;print(json.load(sys.stdin).get(\"status\",\"?\"))')"
+
+# 5.3 Verify Center still healthy
+echo "Center: $(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health)"
+
+# 5.4 Record final state
+echo "=== VERIFY $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+curl -s http://localhost:8000/api/v1/edge-nodes | python3 -c "
+import sys,json
+d=json.load(sys.stdin)
+for n in d if isinstance(d,list) else []:
+    print(f\"  {n['edge_node_id']}: {n.get('status','?')}\")
+"
+```
+
+**Expected:**
+```
+v1: 200
+v2: running
+Center: 200
+edge-agent-01: online
+EDGEV2-PC-01: online
 ```
 
 ---
 
-## Phase 5: VERIFY (🔴 BLOCKED — see Phase 4)
+## Phase 6: ROLLBACK & RESTORE (Dry-Run Cleanup)
 
-> **🔴 DO NOT EXECUTE.** Requires Phase 4 unblock first.
+> **🟡 DRY-RUN ONLY — Restore mirror mode after dry-run completes.**
 
-**Goal (FUTURE):** Confirm v2 is operating correctly with Center reading from EDGEV2-DEMO.
-
----
-
-## Phase 6: COMMIT (🔴 BLOCKED — see Phase 4)
-
-> **🔴 DO NOT EXECUTE.** Requires Phase 4-5 completion + SA sign-off.
-
-**Goal (FUTURE):** Finalize migration. Edge v1 config preserved for rollback, NOT archived/deleted.
+**Goal:** Stop shadow mode, restore v2 to mirror mode, verify v1 unaffected.
 
 ```bash
-# When unblocked:
-# 1. Keep v1 config as edge/agent/config.yaml.rollback (do NOT delete)
-# 2. Tag migration in git
-# 3. Document in runbook appendix
+# 🟡 DRY-RUN — Rollback shadow switch
+# 6.1 Stop Edge v2 (shadow)
+docker compose -f /opt/plantos/deployment/docker-compose.yml stop plantos-edge-v2
+
+# 6.2 Verify Edge v1 never stopped
+echo "v1: $(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001)"
+
+# 6.3 Verify v1 heartbeat reaches Center
+sleep 5
+curl -s http://localhost:8000/api/v1/edge-nodes | python3 -c "
+import sys,json
+d=json.load(sys.stdin)
+for n in d if isinstance(d,list) else []:
+    print(f\"  {n['edge_node_id']}: {n.get('status','?')}\")
+"
+
+# 6.4 Restart Edge v2 (back to mirror mode)
+docker compose -f /opt/plantos/deployment/docker-compose.yml start plantos-edge-v2
+sleep 10
+
+# 6.5 Final verification
+echo "=== FINAL STATE $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+echo "v1: $(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001)"
+echo "v2: $(curl -s http://localhost:8011/api/status | python3 -c 'import sys,json;print(json.load(sys.stdin).get(\"status\",\"?\"))')"
+echo "Center: $(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health)"
+
+# 6.6 Record recovery time
+echo "Recovered to mirror mode."
 ```
+
+**Expected:**
+```
+v1: 200 (never stopped)
+edge-agent-01: online
+EDGEV2-PC-01: offline → online (after restart)
+v2: running
+Center: 200
+Recovery time: < 60 seconds
+```
+
+**Rollback trigger (red):** If v1 goes to anything other than 200 at any point → CRITICAL FAILURE. Notify SA immediately.
 
 ---
 
@@ -217,18 +296,29 @@ python tools/compare_v1_v2_data.py --hours 1 --output /tmp/comparison_final.csv
 
 | Step | Date | Tester | Result | Notes |
 |---|---|---|---|---|
-| Phase 1: Pre-migration | 2026-07-09 | AI (E2V2-9) | ✅ READY | Seed script created, comparison tool fixed |
-| Phase 2: Mirror | 2026-07-09 | AI (E2V2-9) | ✅ READY | Commands updated for VPS Docker deployment |
-| Phase 3: Comparison | 2026-07-09 | AI (E2V2-9) | ⏳ PENDING | Requires VPS execution of seed + comparison |
-| Phase 4: Switch | — | — | 🔴 BLOCKED | WAITING SA full approval |
-| Phase 5: Verify | — | — | 🔴 BLOCKED | WAITING SA full approval |
-| Phase 6: Commit | — | — | 🔴 BLOCKED | WAITING SA full approval |
+| Phase 1: Pre-migration | 2026-07-09 | E2V2-9 | ✅ DONE | Seed script created, comparison tool fixed |
+| Phase 2: Mirror | 2026-07-09 | E2V2-9 | ✅ DONE | Commands updated for VPS Docker |
+| Phase 3: Comparison | 2026-07-09 | E2V2-9 | ✅ PASS | 3/3 signals, 357pts each, 0.0% diff |
+| Phase 4: Switch (dry-run) | ⏳ | — | ⏳ PENDING | VPS execution (see E2V2-10 prompt) |
+| Phase 5: Verify (dry-run) | ⏳ | — | ⏳ PENDING | VPS execution |
+| Phase 6: Rollback (dry-run) | ⏳ | — | ⏳ PENDING | VPS execution |
+
+### E2V2-10 Evidence (to be filled after VPS execution)
+
+```
+Pre-switch:   v1=200, v2=running, Center=200, backlog=<50
+Switch:       v2 heartbeat=200, v2 sync=200, v1 unchanged
+Comparison:   3/3 PASS within ±5%
+Rollback:     recovery_time=<60s, data_gap=0s (v1 never stopped)
+Post-restore: v1=200, v2=running, Center=200
+```
 
 ### E2V2-9 Artifacts
 
 | Artifact | File | Status |
 |---|---|---|
 | Seed script (EDGEV2-DEMO) | `scripts/seed_edgev2_demo.py` | ✅ Created |
-| VPS execution prompt | `docs/prompts/phase-edge-v2-task09-switch-execution.md` | ✅ Created |
+| VPS execution prompt (E2V2-9) | `docs/prompts/phase-edge-v2-task09-switch-execution.md` | ✅ Created |
+| VPS execution prompt (E2V2-10) | `docs/prompts/phase-edge-v2-task10-dry-run-execution.md` | ✅ Created |
 | Production readiness report | `docs/reports/edge-v2-production-readiness.md` | ✅ Updated |
 | Comparison CSV | `edge-v2/data/comparison_*.csv` | ⏳ PENDING (VPS) |

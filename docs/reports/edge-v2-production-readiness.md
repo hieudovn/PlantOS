@@ -158,6 +158,36 @@ User:       plantos (non-root)
 Connector:  mirror_wtp_signals running, connected=true
 ```
 
+### E2V2-10 — Limited Controlled Switch Dry-Run
+
+**Status:** ✅ SA APPROVED — Ready for VPS execution.
+
+**What changed:**
+- `docs/prompts/phase-edge-v2-task10-dry-run-execution.md` — Created with 4-task execution procedure
+- `docs/runbooks/edge-v1-to-v2-migration.md` — Phase 4-6 unblocked for dry-run with 🟡 markers
+- This report — E2V2-10 status added
+
+**Procedure:**
+```
+Task 1: Pre-check (v1, v2, Center, backlog)
+Task 2: Shadow switch — verify v2 heartbeat + sync, v1 unchanged
+Task 3: Comparison — 3 shared signals within ±5%
+Task 4: Rollback — stop v2, verify v1, restore v2 to mirror
+```
+
+**Expected outcome:**
+```
+v1: 200 throughout (never stopped)
+Comparison: 3/3 PASS within ±5%
+Recovery time: < 60 seconds
+Data gap: 0 (v1 never stopped)
+```
+
+**SA constraints:**
+- Edge v1 remains PRIMARY. Do NOT stop v1.
+- Production switch NOT approved.
+- Rollback must be verified before any switch discussion.
+
 ### Rollback Readiness
 
 **Code:** PASS — rollback runbook reviewed.  
@@ -239,6 +269,7 @@ E2V2-7b    ✅ DONE     (Phase 5 rollback verified)
 E2V2-7c    ✅ DONE     (3 bugs fixed: tag_configs, extract_value, pytz)
 E2V2-8     ✅ DONE     (5/5 SA runtime checks, 0 P0/P1)
 E2V2-9     ✅ DONE     (Comparison 3/3 PASS, 0.0% diff)
+E2V2-10    ✅ APPROVED (Dry-run execution prompt created, Phase 4-6 unblocked)
 ```
 
 ### B. Key Commits
@@ -248,6 +279,7 @@ E2V2-9     ✅ DONE     (Comparison 3/3 PASS, 0.0% diff)
 24d8ce9  feat: E2V2-8 hardening (P0 fixes, Docker, tests, session_secret)
 c9b85f0  fix: comparison tool (from/to timestamps, password file fallback)
 6f70285  docs: resolve SA contradiction (full evidence, rollback confirmed)
+(see HEAD)  feat: E2V2-10 dry-run execution prompt + Phase 4-6 unblocked for dry-run
 ```
 
 ### C. Changed Files (Cumulative — E2V2-7 through E2V2-9)
