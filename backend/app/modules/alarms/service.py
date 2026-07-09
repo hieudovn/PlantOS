@@ -93,8 +93,6 @@ class AlarmEvaluator:
 
     async def evaluate(self, measurements: list[dict]):
         """Evaluate batch of measurements against active rules."""
-        from app.core.events import dispatch
-
         rules = self._load_active_rules()
         if not rules:
             return
@@ -116,6 +114,7 @@ class AlarmEvaluator:
                     active_alarms = event_repo.get_active_by_signal(signal_id)
 
                     if triggered:
+                        # Check if already has active alarm from this rule
                         existing = [a for a in active_alarms if a.rule_id_fk == rule.id]
                         if not existing:
                             alarm_id = str(uuid.uuid4())[:8]
@@ -131,39 +130,8 @@ class AlarmEvaluator:
                                 trigger_value=value,
                             )
                             event_repo.create(event)
-
-                            # Compute correlation_id from the created alarm's timestamp
-                            # This ensures AlarmRaised and AlarmCleared share the same ID
-                            alarm_code = getattr(rule, "alarm_code", rule.name)
-                            correlation_id = (
-                                f"alarm-{rule.asset_id}-{alarm_code}-"
-                                f"{event.started_at.strftime('%Y%m%dT%H%M%SZ')}"
-                            )
-
-                            # Dispatch AlarmRaised event
-                            rule_data = {
-                                "name": rule.name,
-                                "alarm_code": alarm_code,
-                                "severity": rule.severity,
-                                "threshold": rule.threshold,
-                                "condition": rule.condition,
-                            }
-                            alarm_data = {
-                                "alarm_id": alarm_id,
-                                "asset_id": rule.asset_id,
-                                "signal_id": signal_id,
-                                "severity": rule.severity,
-                                "state": "active",
-                                "message": message,
-                                "trigger_value": value,
-                            }
-                            await dispatch("alarm.raised", {
-                                "alarm": alarm_data,
-                                "rule": rule_data,
-                                "correlation_id": correlation_id,
-                            })
-
                     elif rule.auto_clear and rule.clear_threshold is not None:
+                        # Check if value below clear threshold
                         if (rule.condition in (">", ">=") and value <= rule.clear_threshold) or \
                            (rule.condition in ("<", "<=") and value >= rule.clear_threshold):
                             for a in active_alarms:
@@ -171,31 +139,6 @@ class AlarmEvaluator:
                                     event_repo.update(a, {
                                         "state": "cleared",
                                         "cleared_at": datetime.now(timezone.utc),
-                                    })
-
-                                    # Dispatch AlarmCleared event
-                                    # Use started_at for consistency with AlarmRaised correlation_id
-                                    alarm_code = getattr(rule, "alarm_code", rule.name)
-                                    correlation_id = (
-                                        f"alarm-{rule.asset_id}-{alarm_code}-"
-                                        f"{a.started_at.strftime('%Y%m%dT%H%M%SZ')}"
-                                    )
-                                    rule_data = {
-                                        "name": rule.name,
-                                        "alarm_code": alarm_code,
-                                        "severity": rule.severity,
-                                    }
-                                    alarm_data = {
-                                        "alarm_id": a.alarm_id,
-                                        "asset_id": rule.asset_id,
-                                        "signal_id": signal_id,
-                                        "severity": rule.severity,
-                                        "state": "cleared",
-                                    }
-                                    await dispatch("alarm.cleared", {
-                                        "alarm": alarm_data,
-                                        "rule": rule_data,
-                                        "correlation_id": correlation_id,
                                     })
 
     def _check_condition(self, value: float, condition: str, threshold: float) -> bool:

@@ -114,4 +114,4 @@ tail -f /tmp/edge.log | grep heartbeat
 
 - File `health.py` có thể dùng `requests` (sync) hoặc `httpx` (async) — cần đọc code thực tế để adapt
 - Nếu `health.py` dùng sync HTTP, cần đảm bảo chạy trong thread pool để không block event loop
-- API key đã có trong `config.yaml`: `api_key: {EDGE_API_KEY}`
+- API key đã có trong `config.yaml`: `api_key: plantos-edge-key-2026`

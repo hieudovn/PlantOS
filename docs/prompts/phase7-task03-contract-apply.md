@@ -475,7 +475,7 @@ cd deployment && docker compose build backend
 # Test creating a unique plant
 curl -s -X POST http://localhost:8000/api/v1/contracts/apply \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: {EDGE_API_KEY}" \
+  -H "X-API-Key: plantos-edge-key-2026" \
   -d '{
     "contract": {...valid contract...},
     "import_policy": {"mode":"apply","on_conflict":"fail","allow_update_existing":false,"allow_delete_missing":false,"orphaned_action":"report"}

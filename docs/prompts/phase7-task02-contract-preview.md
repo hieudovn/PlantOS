@@ -339,7 +339,7 @@ cd deployment && docker compose build backend
 # Test via API
 curl -s -X POST http://localhost:8000/api/v1/contracts/preview \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: {EDGE_API_KEY}" \
+  -H "X-API-Key: plantos-edge-key-2026" \
   -d @/tmp/test_contract_valid.json
 ```
 

@@ -5,9 +5,7 @@ import argparse
 import asyncio
 import logging
 import math
-import os
 import random
-import re
 import yaml
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,31 +19,6 @@ from web import setup as web_setup, run_server, set_modbus_collector, set_opcua_
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
 logger = logging.getLogger("edge-agent")
-
-
-def _resolve_env(config: dict) -> dict:
-    """Replace ${VAR} placeholders with environment variable values.
-    
-    Missing env vars resolve to empty string (no crash) so local dev works
-    without a .env file. The agent logs a warning for missing vars.
-    """
-    resolved = {}
-    for key, value in config.items():
-        if isinstance(value, dict):
-            resolved[key] = _resolve_env(value)
-        elif isinstance(value, list):
-            resolved[key] = [_resolve_env(item) if isinstance(item, dict) else item for item in value]
-        elif isinstance(value, str):
-            def _replace_env(match):
-                var = match.group(1)
-                val = os.environ.get(var, "")
-                if not val:
-                    logger.warning(f"Environment variable {var} not set — using empty string")
-                return val
-            resolved[key] = re.sub(r'\$\{(\w+)\}', _replace_env, value)
-        else:
-            resolved[key] = value
-    return resolved
 
 
 class SignalGenerator:
@@ -76,8 +49,7 @@ class SignalGenerator:
 class EdgeAgent:
     def __init__(self, config_path: str):
         with open(config_path) as f:
-            raw_cfg = yaml.safe_load(f)
-        self.cfg = _resolve_env(raw_cfg)
+            self.cfg = yaml.safe_load(f)
 
         self.node_id = self.cfg["edge_node_id"]
         self.interval = self.cfg["publish"]["interval_seconds"]
@@ -89,16 +61,9 @@ class EdgeAgent:
             retention_days=self.cfg["buffer"]["retention_days"],
         )
 
-        # MQTT publisher (with optional auth from env)
+        # MQTT publisher
         mqtt_cfg = self.cfg["mqtt"]
-        self.mqtt = MQTTPublisher(
-            host=mqtt_cfg["host"],
-            port=mqtt_cfg["port"],
-            topic_prefix=mqtt_cfg["topic_prefix"],
-            edge_node_id=self.node_id,
-            username=mqtt_cfg.get("username", ""),
-            password=mqtt_cfg.get("password", ""),
-        )
+        self.mqtt = MQTTPublisher(mqtt_cfg["host"], mqtt_cfg["port"], mqtt_cfg["topic_prefix"], self.node_id)
 
         # Store-and-forward
         self.sync = StoreAndForward(
@@ -112,21 +77,15 @@ class EdgeAgent:
             api_key=self.cfg.get("api_key", ""),
         )
 
-        # Signal generators (optional — disabled when OPC UA provides data)
-        self.generators = [SignalGenerator(s) for s in self.cfg.get("signals", [])]
+        # Signal generators
+        self.generators = [SignalGenerator(s) for s in self.cfg["signals"]]
 
         # Setup web server
         web_setup(self.buffer, self.mqtt, self.sync, self.cfg)
 
-        # Metadata sync (with auth from config)
-        self.metadata = MetadataManager(
-            self.cfg.get("center_url", "http://localhost:8000"),
-            api_key=self.cfg.get("api_key", ""),
-        )
+        # Metadata sync
+        self.metadata = MetadataManager(self.cfg.get("center_url", "http://localhost:8000"))
         set_metadata(self.metadata)
-
-        if not self.cfg.get("api_key"):
-            logger.warning("EDGE_API_KEY not set — API calls will fail unless Center auth is disabled")
 
         # Modbus collector
         from collectors.modbus.collector import ModbusCollector
@@ -134,31 +93,11 @@ class EdgeAgent:
         self.modbus = ModbusCollector(modbus_cfg, self.buffer)
         set_modbus_collector(self.modbus)
 
-        # OPC UA collector (for Virtual Factory + WTP integration)
+        # OPC UA collector (for Virtual Factory integration)
         from collectors.opcua import OpcUaCollector
-        from collectors.opcua.collector import MultiOpcUaCollector
-        from collectors.opcua.bindings import generate_bindings_from_contract
-
-        # Build multi-endpoint OPC UA collector
-        self.opcua_multi = MultiOpcUaCollector()
-
-        # VF Compressor (existing endpoint port 4840)
-        vf_config = self.cfg.get("opcua", {})
-        if vf_config.get("enabled", False):
-            self.opcua_multi.add_collector(vf_config, self.buffer)
-
-        # WTP (new endpoint port 4841, auto-bind from contract)
-        wtp_config = self.cfg.get("opcua_wtp", {})
-        if wtp_config.get("enabled", False):
-            auto_bind = wtp_config.get("auto_bind", {})
-            if auto_bind.get("enabled") and auto_bind.get("contract_path"):
-                wtp_config["tags"] = generate_bindings_from_contract(
-                    auto_bind["contract_path"],
-                    auto_bind.get("node_id_template", "ns=2;s={signal_id}"),
-                )
-            self.opcua_multi.add_collector(wtp_config, self.buffer)
-
-        set_opcua_collector(self.opcua_multi)
+        opcua_cfg = self.cfg.get("opcua", {})
+        self.opcua_collector = OpcUaCollector(opcua_cfg, self.buffer)
+        set_opcua_collector(self.opcua_collector)
 
         logger.info(f"Agent {self.node_id} started with {len(self.generators)} signals")
 
@@ -175,7 +114,7 @@ class EdgeAgent:
         asyncio.create_task(self.health.run(lambda: self.sync.get_backlog()))
         asyncio.create_task(self._periodic_metadata_sync())
         asyncio.create_task(self.modbus.start())
-        asyncio.create_task(self.opcua_multi.start_all())
+        asyncio.create_task(self.opcua_collector.start())
 
         while True:
             # Generate measurements
@@ -214,13 +153,13 @@ class EdgeAgent:
 
 
     def get_opcua_status(self) -> dict:
-        if not hasattr(self, 'opcua_multi'):
+        if not hasattr(self, 'opcua_collector'):
             return {"enabled": False}
         return {
-            "enabled": self.opcua_multi.total_signals > 0,
-            "total_signals": self.opcua_multi.total_signals,
-            "any_connected": self.opcua_multi.any_connected,
-            "endpoints": self.opcua_multi.status_list,
+            "enabled": self.opcua_collector._enabled,
+            "connected": self.opcua_collector.connected,
+            "endpoint": self.opcua_collector.config.get("endpoint", ""),
+            "signal_count": len(self.opcua_collector.mapper.node_ids),
         }
 
 

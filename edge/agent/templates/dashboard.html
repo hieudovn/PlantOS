@@ -138,8 +138,8 @@ async function loadDashboard() {
       <div class="card"><div class="label">DB Rows</div><div class="value">${(s.duckdb.total_rows||0).toLocaleString()}</div></div>
       <div class="card"><div class="label">Unsynced</div><div class="value ${(s.duckdb.unsynced||0)>0?'yellow':'green'}">${s.duckdb.unsynced||0}</div></div>
       <div class="card"><div class="label">MQTT</div><div class="value ${s.mqtt.connected?'green':'red'}">${s.mqtt.connected?'ON':'OFF'}</div></div>
-      <div class="card"><div class="label">OPC UA</div><div class="value ${s.opcua?.any_connected?'green':'red'}">${s.opcua?.any_connected?'ON':'OFF'}</div></div>
-      <div class="card"><div class="label">Signals</div><div class="value">${(s.opcua?.total_signals||0)+(s.modbus?.tags||0)+(s.signals||0)}</div></div>
+      <div class="card"><div class="label">OPC UA</div><div class="value ${s.opcua?.connected?'green':'red'}">${s.opcua?.connected?'ON':'OFF'}</div></div>
+      <div class="card"><div class="label">Signals</div><div class="value">${(s.opcua?.signal_count||0)+(s.modbus?.tags||0)+(s.signals||0)}</div></div>
       <div class="card"><div class="label">DB Size</div><div class="value">${(s.duckdb.db_size_mb||0).toFixed(2)} MB</div></div>`;
     document.getElementById('footer-info').textContent = 'Agent: '+(s.node_id||'unknown')+' | Synced: '+(s.duckdb.total_rows||0)+' rows';
     const l = await fetch('/api/measurements/latest').then(r=>r.json());
@@ -232,11 +232,7 @@ async function loadConnections() {
     document.getElementById('conn-mqtt').innerHTML = '<div class="label">MQTT</div>'+
       '<div class="value" style="font-size:14px"><span class="status-dot '+(s.mqtt.connected?'on':'off')+'"></span>'+(s.mqtt.connected?'Connected':'Disconnected')+'</div>';
     document.getElementById('conn-opcua').innerHTML = '<div class="label">OPC UA</div>'+
-      '<div class="value" style="font-size:14px">'+(s.opcua?.enabled?'<span class="status-dot '+(s.opcua?.any_connected?'on':'off')+'"></span>'+
-      (s.opcua?.any_connected?'Connected ('+s.opcua.total_signals+' signals)':'Disconnected')+
-      (s.opcua?.endpoints||[]).map(e=>'<div style="font-size:10px;color:var(--text-dim);margin-top:2px">'+
-        (e.connected?'🟢':'🔴')+' '+e.endpoint+' ('+e.signal_count+' sig)</div>').join('')+
-      '</div>':'<span class="status-dot off"></span>Disabled')+'</div>';
+      '<div class="value" style="font-size:14px">'+(s.opcua?.enabled?'<span class="status-dot '+(s.opcua?.connected?'on':'off')+'"></span>'+(s.opcua?.connected?'Connected ('+s.opcua.signal_count+' signals)':'Disconnected')+'<div style="font-size:10px;color:var(--text-dim);margin-top:2px">'+(s.opcua?.endpoint||'')+'</div>':'<span class="status-dot off"></span>Disabled')+'</div>';
     document.getElementById('conn-modbus').innerHTML = '<div class="label">Modbus</div>'+
       '<div class="value" style="font-size:14px">'+(s.modbus?.enabled?'<span class="status-dot '+(s.modbus.connected?'on':'off')+'"></span>'+(s.modbus.connected?'Connected':'Disconnected')+' ('+(s.modbus.host||'')+':'+s.modbus.tags+' tags)':'<span class="status-dot off"></span>Disabled')+'</div>';
     document.getElementById('conn-sync').innerHTML = '<div class="label">Sync Backlog</div>'+

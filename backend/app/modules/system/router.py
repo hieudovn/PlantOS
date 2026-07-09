@@ -42,45 +42,31 @@ def _pg_stats() -> dict:
 
 
 def _tdengine_stats() -> dict:
-    """TDengine measurement count + database size via native connector."""
+    """TDengine measurement count — best-effort via taos CLI on host."""
     count = 0
-    size_bytes = 0
-    size_mb = 0.0
-
+    # Try host-level taos command (only works if taos is installed on host)
     try:
-        from app.db.tdengine import create_tdengine_connection
-
-        conn, cursor = create_tdengine_connection()
-        try:
-            # 1) Row count
-            cursor.execute("SELECT COUNT(*) FROM plantos_ts.measurements")
-            row = cursor.fetchone()
-            if row:
-                count = int(row[0]) if row[0] is not None else 0
-
-            # 2) Database size via filesystem (TDengine 3.x doesn't expose disk size via SQL)
-            import subprocess
-            try:
-                result = subprocess.run(
-                    ["du", "-sb", "/tdengine-data"],
-                    capture_output=True, text=True, timeout=10,
-                )
-                if result.returncode == 0 and result.stdout:
-                    parts = result.stdout.split()
-                    if parts:
-                        size_bytes = int(parts[0])
-                        size_mb = round(size_bytes / (1024 * 1024), 2)
-            except Exception:
-                pass  # du not available or volume not mounted
-        finally:
-            conn.close()
+        import subprocess
+        result = subprocess.run(
+            ["taos", "-s", "SELECT COUNT(*) FROM plantos_ts.measurements;"],
+            capture_output=True, text=True, timeout=10
+        )
+        for line in result.stdout.split("\n"):
+            parts = line.strip().split("|")
+            if len(parts) >= 2:
+                val = parts[0].strip()
+                if val.isdigit():
+                    count = int(val)
+                    break
+    except FileNotFoundError:
+        logger.debug("taos CLI not available on host")
     except Exception as e:
-        logger.warning(f"TDengine stats failed: {e}")
+        logger.warning(f"TDengine count failed: {e}")
 
     return {
         "measurement_count": count,
-        "size_bytes": size_bytes,
-        "size_mb": round(size_mb, 2),
+        "size_bytes": 0,
+        "size_mb": 0,
     }
 
 

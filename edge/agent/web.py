@@ -63,11 +63,11 @@ async def handle_status(request):
             "tags": len(_modbus_collector.mapper.tags) if _modbus_collector else 0,
         } if _modbus_collector else {"enabled": False},
         "opcua": {
-            "enabled": _opcua_collector.total_signals > 0 if _opcua_collector else False,
-            "any_connected": _opcua_collector.any_connected if _opcua_collector else False,
-            "total_signals": _opcua_collector.total_signals if _opcua_collector else 0,
-            "endpoints": _opcua_collector.status_list if _opcua_collector else [],
-        } if _opcua_collector else {"enabled": False, "endpoints": []},
+            "enabled": _opcua_collector._enabled if _opcua_collector else False,
+            "connected": _opcua_collector.connected if _opcua_collector else False,
+            "endpoint": _opcua_collector.config.get("endpoint", "") if _opcua_collector else None,
+            "signal_count": len(_opcua_collector.mapper.node_ids) if _opcua_collector else 0,
+        } if _opcua_collector else {"enabled": False},
         "sync": {"backlog": unsynced},
         "signals": len(_config.get("signals", [])),
         "version": "0.2.0",
@@ -150,11 +150,11 @@ async def handle_protocol_status(request):
             "tags": len(_modbus_collector.mapper.tags) if _modbus_collector else 0,
         },
         "opcua": {
-            "enabled": _opcua_collector.total_signals > 0 if _opcua_collector else False,
-            "any_connected": _opcua_collector.any_connected if _opcua_collector else False,
-            "total_signals": _opcua_collector.total_signals if _opcua_collector else 0,
-            "endpoints": _opcua_collector.status_list if _opcua_collector else [],
-        } if _opcua_collector else {"enabled": False, "endpoints": []},
+            "enabled": _opcua_collector._enabled if _opcua_collector else False,
+            "connected": _opcua_collector.connected if _opcua_collector else False,
+            "endpoint": _opcua_collector.config.get("endpoint", "") if _opcua_collector else None,
+            "signal_count": len(_opcua_collector.mapper.node_ids) if _opcua_collector else 0,
+        } if _opcua_collector else {"enabled": False},
     })
 
 

@@ -251,7 +251,7 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
 #### `edge/agent/config.yaml` (MODIFY)
 
 ```yaml
-api_key: {EDGE_API_KEY}
+api_key: plantos-edge-key-2026
 ```
 
 #### `edge/agent/sync.py` (MODIFY)
@@ -268,7 +268,7 @@ resp = await client.post(self.ingest_url, json={
 #### `backend/.env` or docker-compose environment:
 
 ```yaml
-API_KEYS: {EDGE_API_KEY}
+API_KEYS: plantos-edge-key-2026
 ```
 
 ---
@@ -288,7 +288,7 @@ curl http://103.97.132.249/api/v1/plants
 # → 401 Unauthorized
 
 # 2. Test API key auth (Edge Agent)
-curl -H "X-API-Key: {EDGE_API_KEY}" http://103.97.132.249/api/v1/plants
+curl -H "X-API-Key: plantos-edge-key-2026" http://103.97.132.249/api/v1/plants
 # → 200 OK
 
 # 3. Login UI

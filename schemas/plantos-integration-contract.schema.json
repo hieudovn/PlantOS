@@ -105,11 +105,6 @@
           "asset_code": { "type": "string", "minLength": 1 },
           "name": { "type": "string", "minLength": 1 },
           "asset_type": { "type": "string", "minLength": 1 },
-          "asset_role": {
-            "type": "string",
-            "enum": ["equipment", "functional_location", "subsystem", "component", "logical_group"],
-            "default": "equipment"
-          },
           "parent_asset_id": {
             "type": ["string", "null"],
             "default": null
@@ -151,16 +146,6 @@
             "type": "string",
             "enum": ["measurement", "status", "setpoint", "command"],
             "default": "measurement"
-          },
-          "signal_category": {
-            "type": "string",
-            "enum": ["measurement", "alarm", "calculation", "diagnostic", "setpoint", "command"],
-            "default": "measurement"
-          },
-          "external_refs": {
-            "type": "object",
-            "additionalProperties": { "type": "string" },
-            "default": {}
           },
           "data_type": {
             "type": "string",
