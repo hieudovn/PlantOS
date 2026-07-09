@@ -197,12 +197,58 @@ SA accepted WAIVER for >=15 signal gate. Switch scope:
   - Monitor 60-120 minutes minimum post-switch
   - Rollback immediately if any threshold breached
 
-Next: E2V2-12 Limited Production Switch Execution
+---
+
+## 11. E2V2-12 — Limited Production Switch Execution
+
+**Status:** 🔄 IN PROGRESS — Switch executed 2026-07-09 10:13:11Z, monitoring active.
+
+### Phase 2: Switch Execution
+
+```
+Switch timestamp: 2026-07-09T10:13:11Z
+Scope: 3 signals (PUMP-101.flow_rate, PUMP-101.discharge_pressure, MOTOR-101.motor_current)
+Workspace: EDGEV2-DEMO
+Edge v1: REMAINS PRIMARY (200, never stopped)
+
+Pre-switch state:
+  v1: 200  |  v2: running  |  Center: 200  |  backlog: 3  |  buffer: 8308 rows
+  Heartbeat: POST /heartbeat "HTTP/1.1 200 OK" (every 10s)
+  Ingest: POST /ingest "HTTP/1.1 200 OK" — Flushed 3/3
+  Connector: mirror_wtp_signals=running, mirror_vf_compressor=stopped
+
+Post-switch state:
+  v1: 200 (unchanged)  |  v2: running  |  backlog: 3  |  buffer: 8311 rows
+  CPU: 0.32%  |  Memory: 66MB
+```
+
+### Phase 3: Post-Switch Monitoring
+
+**Started:** 2026-07-09 10:13:11Z
+**Duration:** 120 minutes (8 iterations × 15 min)
+**PID:** 1892563
+**Output:** `/opt/plantos/edge-v2/data/switch_20260709_171311.csv`
+
+| Iter | Time | v1 | v2 | bl | buf | HB | IG | CPU | Mem |
+|---|---|---|---|---|---|---|---|---|---|
+| 1/8 | 10:13 | 200 | running | 3 | 8311 | ✅ | ✅ | 0.32% | 66MB |
+| 2/8 | 10:28 | — | — | — | — | — | — | — | — |
+| ... | ... | — | — | — | — | — | — | — | — |
+| 8/8 | 12:13 | — | — | — | — | — | — | — | — |
+
+*Table will be filled after monitoring completes (~12:13 UTC).*
+
+### Rollback Readiness
+
+```bash
+# Rollback path available at all times:
+docker stop plantos-edge-v2     # < 5s
+curl http://localhost:8001      # → 200 (v1 never stopped)
 ```
 
 ---
 
-## 11. Appendix: Evidence Files
+## 12. Appendix: Evidence Files
 
 | File | Description |
 |---|---|
@@ -213,6 +259,8 @@ Next: E2V2-12 Limited Production Switch Execution
 | `docs/runbooks/edge-v2-production-switch-checklist.md` | Switch checklist |
 | `docs/runbooks/edge-v1-to-v2-migration.md` | Migration runbook |
 | `docs/runbooks/edge-v1-to-v2-rollback.md` | Rollback runbook |
+| `edge-v2/data/switch_20260709_171311.csv` | E2V2-12 switch monitoring data |
+| `edge-v2/data/switch_comparison_*.csv` | E2V2-12 post-switch comparison (pending) |
 
 ### Historical Status Chain
 
@@ -222,6 +270,7 @@ E2V2-7     ✅ DONE     (Phase 5 rollback verified)
 E2V2-8     ✅ DONE     (P0/P1 resolved, Docker hardened)
 E2V2-9     ✅ DONE     (Comparison 3/3 PASS)
 E2V2-10    ✅ DONE     (Dry-run 4/4 PASS)
-E2V2-11    ✅ COMPLETE (5/5 sub-phases, pending SA review)
-→ Production Switch: NOT APPROVED
+E2V2-11    ✅ COMPLETE (5/5 sub-phases, SA approved)
+E2V2-12    🔄 IN PROGRESS (Switch executed 10:13Z, monitoring until 12:13Z)
+→ Production Switch: LIMITED (3 signals, waiver)
 ```
