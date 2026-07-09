@@ -27,6 +27,21 @@ except ImportError:
     HAS_HTTPX = False
 
 
+def _get_token_cached(api_url: str) -> str:
+    """Get auth token (cached in module)."""
+    if not hasattr(_get_token_cached, "_token"):
+        _get_token_cached._token = ""
+        try:
+            resp = httpx.post(f"{api_url}/api/v1/auth/login",
+                             json={"username": "admin", "password": "PlantOS@2026!"},
+                             timeout=10)
+            if resp.status_code == 200:
+                _get_token_cached._token = resp.json().get("access_token", "")
+        except Exception:
+            pass
+    return _get_token_cached._token
+
+
 def fetch_measurements(api_url: str, plant_id: str, signal_ids: list[str],
                        hours: int = 1) -> dict[str, list[float]]:
     """Fetch measurements for given signal_ids from Center API.
@@ -36,12 +51,14 @@ def fetch_measurements(api_url: str, plant_id: str, signal_ids: list[str],
     from collections import defaultdict
     results = defaultdict(list)
     cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+    token = _get_token_cached(api_url)
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
 
     for sig_id in signal_ids:
         try:
             params = f"plant_id={plant_id}&signal_id={sig_id}"
             resp = httpx.get(f"{api_url}/api/v1/measurements/history?{params}",
-                            timeout=10)
+                            headers=headers, timeout=10)
             if resp.status_code != 200:
                 print(f"  ⚠ Skipping {sig_id}: HTTP {resp.status_code}")
                 continue
@@ -139,8 +156,11 @@ def compare_signal(signal_id: str, v1_values: list[float],
 
 def get_signal_ids_for_plant(api_url: str, plant_id: str) -> list[str]:
     """Get all signal_ids for a plant."""
+    token = _get_token_cached(api_url)
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
     try:
-        resp = httpx.get(f"{api_url}/api/v1/signals?plant_id={plant_id}", timeout=10)
+        resp = httpx.get(f"{api_url}/api/v1/signals?plant_id={plant_id}",
+                        headers=headers, timeout=10)
         if resp.status_code == 200:
             signals = resp.json()
             return [s["signal_id"] for s in signals if "signal_id" in s]

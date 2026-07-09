@@ -257,7 +257,7 @@ def phase6_update_report(results: dict):
     report_path = "docs/reports/edge-v2-migration-prep.md"
     if not os.path.exists(report_path):
         report_path = "../docs/reports/edge-v2-migration-prep.md"
-    with open(report_path) as f:
+    with open(report_path, encoding='utf-8') as f:
         content = f.read()
 
     # Update the dry-run results table

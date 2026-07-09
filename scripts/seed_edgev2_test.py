@@ -15,10 +15,32 @@ import sys
 import httpx
 
 API = "http://localhost:8000/api/v1"
+TOKEN = None
+HEADERS = {}
+
+
+def login(api_url: str):
+    """Authenticate and get JWT token."""
+    global TOKEN, HEADERS
+    base = api_url.rstrip("/")
+    try:
+        resp = httpx.post(
+            f"{base}/api/v1/auth/login",
+            json={"username": "admin", "password": "PlantOS@2026"},
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            TOKEN = resp.json().get("access_token", "")
+            HEADERS = {"Authorization": f"Bearer {TOKEN}"}
+            print("  Auth: logged in")
+        else:
+            print(f"  Auth: login failed {resp.status_code} — trying without auth")
+    except Exception as e:
+        print(f"  Auth: login error {e} — trying without auth")
 
 
 def post(path, data):
-    resp = httpx.post(f"{API}{path}", json=data)
+    resp = httpx.post(f"{API}{path}", json=data, headers=HEADERS)
     if resp.status_code not in (200, 201):
         print(f"  FAIL {path}: {resp.status_code} {resp.text}")
         sys.exit(1)
@@ -28,6 +50,9 @@ def post(path, data):
 def seed(api_url):
     global API
     API = api_url.rstrip("/") + "/api/v1"
+
+    # Auth first
+    login(api_url)
 
     print("Seeding EDGEV2-TEST workspace for dry-run migration test...")
 
