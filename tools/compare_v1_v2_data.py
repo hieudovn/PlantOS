@@ -32,19 +32,34 @@ def _get_token_cached(api_url: str) -> str:
     """Get auth token (cached in module). Uses env vars for credentials."""
     if not hasattr(_get_token_cached, "_token"):
         _get_token_cached._token = ""
-        username = os.environ.get("PLANTOS_CENTER_USERNAME", "admin")
-        password = os.environ.get("PLANTOS_CENTER_PASSWORD", "")
-        if not password:
-            print("  ⚠ PLANTOS_CENTER_PASSWORD not set — comparison may fail")
+    if _get_token_cached._token:
+        return _get_token_cached._token
+    
+    username = os.environ.get("PLANTOS_CENTER_USERNAME", "admin")
+    password = os.environ.get("PLANTOS_CENTER_PASSWORD", "")
+    if not password:
+        # Fallback: read from file (avoids shell escaping issues with special chars)
+        pw_file = os.environ.get("PLANTOS_CENTER_PASSWORD_FILE", "/tmp/plantos_center_pw.txt")
         try:
-            resp = httpx.post(f"{api_url}/api/v1/auth/login",
-                             json={"username": username, "password": password},
-                             timeout=10)
-            if resp.status_code == 200:
-                _get_token_cached._token = resp.json().get("access_token", "")
-        except Exception:
+            with open(pw_file) as f:
+                password = f.read().strip()
+        except FileNotFoundError:
             pass
-    return _get_token_cached._token
+    if not password:
+        print("  ⚠ PLANTOS_CENTER_PASSWORD not set — auth will fail")
+        return ""
+    try:
+        resp = httpx.post(f"{api_url}/api/v1/auth/login",
+                         json={"username": username, "password": password},
+                         timeout=10)
+        if resp.status_code == 200:
+            _get_token_cached._token = resp.json().get("access_token", "")
+            if _get_token_cached._token:
+                return _get_token_cached._token
+        print(f"  ⚠ Login failed: HTTP {resp.status_code}")
+    except Exception as e:
+        print(f"  ⚠ Login error: {e}")
+    return ""
 
 
 def fetch_measurements(api_url: str, plant_id: str, signal_ids: list[str],
@@ -61,7 +76,9 @@ def fetch_measurements(api_url: str, plant_id: str, signal_ids: list[str],
 
     for sig_id in signal_ids:
         try:
-            params = f"plant_id={plant_id}&signal_id={sig_id}"
+            to_ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+            from_ts = cutoff.strftime("%Y-%m-%dT%H:%M:%S")
+            params = f"signal_id={sig_id}&from={from_ts}&to={to_ts}"
             resp = httpx.get(f"{api_url}/api/v1/measurements/history?{params}",
                             headers=headers, timeout=10)
             if resp.status_code != 200:
@@ -69,7 +86,7 @@ def fetch_measurements(api_url: str, plant_id: str, signal_ids: list[str],
                 continue
 
             data = resp.json()
-            points = data if isinstance(data, list) else data.get("measurements", [])
+            points = data if isinstance(data, list) else data.get("data", data.get("measurements", []))
 
             for pt in points:
                 ts_str = pt.get("timestamp", pt.get("ts", ""))
@@ -175,10 +192,19 @@ def get_signal_ids_for_plant(api_url: str, plant_id: str) -> list[str]:
 
 
 def _check_env_password():
-    """Check that PLANTOS_CENTER_PASSWORD is set before running."""
-    if not os.environ.get("PLANTOS_CENTER_PASSWORD"):
-        print("ERROR: PLANTOS_CENTER_PASSWORD environment variable is required.")
+    """Check that PLANTOS_CENTER_PASSWORD is available (env var or file)."""
+    pw = os.environ.get("PLANTOS_CENTER_PASSWORD", "")
+    if not pw:
+        pw_file = os.environ.get("PLANTOS_CENTER_PASSWORD_FILE", "/tmp/plantos_center_pw.txt")
+        try:
+            with open(pw_file) as f:
+                pw = f.read().strip()
+        except FileNotFoundError:
+            pass
+    if not pw:
+        print("ERROR: PLANTOS_CENTER_PASSWORD env var or /tmp/plantos_center_pw.txt required.")
         print("Usage: PLANTOS_CENTER_PASSWORD=\"password\" python tools/compare_v1_v2_data.py")
+        print("   or: printf '%s' 'password' > /tmp/plantos_center_pw.txt")
         sys.exit(1)
 
 
