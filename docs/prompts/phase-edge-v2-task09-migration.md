@@ -1,8 +1,13 @@
 # E2V2-7: Controlled Migration Preparation (SA Conditionally Approved)
 
+> **⚠️ This prompt is PARTIALLY COMPLETE (7/12 tasks done).**
+> **For remaining 5 VPS execution tasks, use:** `docs/prompts/phase-edge-v2-task09b-execution.md`
+>
 > **SA Gate:** ✅ CONDITIONALLY APPROVED 2026-07-09
-> **Constraint:** Do NOT disable Edge v1. Mirror-first. Docker smoke pending.
+> **EV2-STAB:** ✅ CLOSED — 3/3 gates passed
+> **Constraint:** Do NOT disable Edge v1. Mirror-first.
 > **See:** `docs/reports/edge-v2-stab-final-sa-review.md`
+> **Handoff:** `docs/reports/edge-v2-migration-prep.md`
 
 ## Context
 
