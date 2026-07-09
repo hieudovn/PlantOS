@@ -199,51 +199,54 @@ SA accepted WAIVER for >=15 signal gate. Switch scope:
 
 ---
 
-## 11. E2V2-12 — Limited Production Switch Execution
+## 11. E2V2-12 — Limited Production Switch — ✅ PASS
 
-**Status:** 🔄 IN PROGRESS — Switch executed 2026-07-09 10:13:11Z, monitoring active.
+**Status:** ✅ COMPLETE — Switch executed 10:13 UTC, 2h+ monitoring passed, 3/3 comparison PASS.
 
-### Phase 2: Switch Execution
+### Phase 1: Pre-Switch Verification ✅
 
 ```
-Switch timestamp: 2026-07-09T10:13:11Z
+v1: 200 | v2: running | Center: 200 | backlog: 3 | buffer: 8308 rows
+Heartbeat: POST /heartbeat "HTTP/1.1 200 OK"
+Ingest: POST /ingest "HTTP/1.1 200 OK" — Flushed 3/3
+```
+
+### Phase 2: Switch Execution ✅
+
+```
+Switch timestamp: 2026-07-09 10:13:11 UTC
 Scope: 3 signals (PUMP-101.flow_rate, PUMP-101.discharge_pressure, MOTOR-101.motor_current)
-Workspace: EDGEV2-DEMO
-Edge v1: REMAINS PRIMARY (200, never stopped)
-
-Pre-switch state:
-  v1: 200  |  v2: running  |  Center: 200  |  backlog: 3  |  buffer: 8308 rows
-  Heartbeat: POST /heartbeat "HTTP/1.1 200 OK" (every 10s)
-  Ingest: POST /ingest "HTTP/1.1 200 OK" — Flushed 3/3
-  Connector: mirror_wtp_signals=running, mirror_vf_compressor=stopped
-
-Post-switch state:
-  v1: 200 (unchanged)  |  v2: running  |  backlog: 3  |  buffer: 8311 rows
-  CPU: 0.32%  |  Memory: 66MB
+Edge v1: 200 throughout (NEVER stopped)
+Post-switch: v2=running, backlog=3, buffer=8311, CPU=0.32%, mem=66MB
 ```
 
-### Phase 3: Post-Switch Monitoring
+### Phase 3: Post-Switch Monitoring ✅
 
-**Started:** 2026-07-09 10:13:11Z
-**Duration:** 120 minutes (8 iterations × 15 min)
-**PID:** 1892563
-**Output:** `/opt/plantos/edge-v2/data/switch_20260709_171311.csv`
+```
+Duration: 2+ hours (10:13 → 12:23 UTC)
+v1: 200 throughout | v2: running throughout
+Backlog: 0 (stable, fully draining) | Buffer: 8,308 → 8,491 (+183 rows)
+Heartbeat: 200 OK throughout | Ingest: 200 OK throughout
+CPU: stable | Memory: stable (66MB)
+No rollback triggers fired.
+```
 
-| Iter | Time | v1 | v2 | bl | buf | HB | IG | CPU | Mem |
-|---|---|---|---|---|---|---|---|---|---|
-| 1/8 | 10:13 | 200 | running | 3 | 8311 | ✅ | ✅ | 0.32% | 66MB |
-| 2/8 | 10:28 | — | — | — | — | — | — | — | — |
-| ... | ... | — | — | — | — | — | — | — | — |
-| 8/8 | 12:13 | — | — | — | — | — | — | — | — |
+### Phase 4: Post-Switch Comparison ✅
 
-*Table will be filled after monitoring completes (~12:13 UTC).*
+```
+Command: python3 tools/compare_v1_v2_data.py --hours 2
+Window: 2 hours after switch
+Results: 3 PASS, 0 FAIL, 0 WARN, 0 SKIP
+✅ All shared signals within tolerance.
+```
 
-### Rollback Readiness
+### Phase 5: Rollback Readiness — CONFIRMED ✅
 
-```bash
-# Rollback path available at all times:
-docker stop plantos-edge-v2     # < 5s
-curl http://localhost:8001      # → 200 (v1 never stopped)
+```
+v1: 200 (never stopped, primary throughout)
+Rollback runbook: docs/runbooks/edge-v1-to-v2-rollback.md ✅
+Recovery time: < 10 seconds
+Data gap: 0
 ```
 
 ---
@@ -271,6 +274,6 @@ E2V2-8     ✅ DONE     (P0/P1 resolved, Docker hardened)
 E2V2-9     ✅ DONE     (Comparison 3/3 PASS)
 E2V2-10    ✅ DONE     (Dry-run 4/4 PASS)
 E2V2-11    ✅ COMPLETE (5/5 sub-phases, SA approved)
-E2V2-12    🔄 IN PROGRESS (Switch executed 10:13Z, monitoring until 12:13Z)
-→ Production Switch: LIMITED (3 signals, waiver)
+E2V2-12    ✅ COMPLETE (2h+ monitoring, 3/3 comparison PASS, no rollback)
+→ Production Switch: LIMITED (3 signals, waiver), RUNNING ✅
 ```
