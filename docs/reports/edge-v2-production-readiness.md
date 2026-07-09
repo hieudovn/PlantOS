@@ -2,8 +2,8 @@
 
 > **Date:** 2026-07-09
 > **Author:** PM-Designer (DeepSeek V4 Pro)
-> **Status:** COMPLETE_PENDING_SA_REVIEW
-> **Constraint:** Edge v1 PRIMARY. Production switch NOT APPROVED.
+> **Status:** SA CONDITIONALLY APPROVED — GO FOR LIMITED PRODUCTION SWITCH (3 signals, waiver accepted)
+> **Constraint:** Edge v1 PRIMARY. 3-signal switch only. No broad rollout.
 
 ---
 
@@ -188,26 +188,16 @@ Date: 2026-07-09 05:30 UTC
 ## 10. PM Recommendation
 
 ```text
-RECOMMENDATION: GO FOR LIMITED PRODUCTION SWITCH — with WAIVER for signal count.
+✅ SA CONDITIONALLY APPROVED — GO FOR LIMITED PRODUCTION SWITCH (3 signals).
 
-Evidence:
-  RUNTIME_PASS: 15/22 gates (including all critical safety, sync, rollback gates)
-  WAIVER_REQUIRED: 1/22 (>=15 signals compared — 3 compared, 0.00% diff, 4 hours)
+SA accepted WAIVER for >=15 signal gate. Switch scope:
+  - 3 signals only: PUMP-101.flow_rate, PUMP-101.discharge_pressure, MOTOR-101.motor_current
+  - Edge v1 remains running as PRIMARY/fallback
+  - No broad rollout, no 15-signal claim, no disabling v1
+  - Monitor 60-120 minutes minimum post-switch
+  - Rollback immediately if any threshold breached
 
-Edge v2 has demonstrated:
-  - Stable runtime for 4+ hours (no crash, no leak, no uncontrolled backlog)
-  - Identical data quality to Edge v1 (0.00% diff across 8 comparison iterations)
-  - Successful dry-run switch + rollback (v1 unaffected)
-  - All P0/P1 resolved, all credentials secured, Docker non-root
-  - TDengine historian operational (6.47M rows, 790MB)
-
-Production switch scope (if SA approves):
-  - Signals: PUMP-101.flow_rate, PUMP-101.discharge_pressure, MOTOR-101.motor_current
-  - Workspace: EDGEV2-DEMO (v1 continues on DEMO-PLANT)
-  - Rollback: < 60 seconds, documented runbook
-  - Edge v1 remains running as fallback
-
-Edge v1 remains PRIMARY. Production switch NOT APPROVED until SA decision.
+Next: E2V2-12 Limited Production Switch Execution
 ```
 
 ---
