@@ -1,10 +1,10 @@
 # Edge v2 Production Readiness Report
 
 > **Date:** 2026-07-09
-> **Status:** VPS Evidence Updated — 5/5 SA checks PASS (JWT fix applied)
-> **SA Decision:** ✅ CONDITIONALLY ACCEPTED code — All VPS evidence below
-> **Open P0:** 0 | **Open P1:** 0 (Heartbeat 401 resolved)
-> **Constraint:** Edge v1 remains PRIMARY. No production switch until SA full approval.
+> **Status:** E2V2-8 Complete — SA approves E2V2-9 Controlled Switch preparation
+> **SA Decision:** ✅ CONDITIONALLY APPROVED — Proceed to E2V2-9
+> **Open P0:** 0 | **Open P1:** 0
+> **Gate:** Actual switch NOT approved until side-by-side comparison evidence
 
 ---
 
