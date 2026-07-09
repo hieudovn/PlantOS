@@ -1,0 +1,4 @@
+signal_id,result,v1_count,v2_count,v1_min,v2_min,v1_max,v2_max,v1_avg,v2_avg,v1_stddev,v2_stddev,notes
+PUMP-101.flow_rate,PASS,178,178,79.22,79.22,120.79,120.79,99.8093,99.8093,14.1649,14.1649,Avg diff: 0.00% (within tolerance)
+PUMP-101.discharge_pressure,PASS,178,178,4.82,4.82,9.13,9.13,7.012,7.012,1.4339,1.4339,Avg diff: 0.00% (within tolerance)
+MOTOR-101.motor_current,PASS,178,178,39.55,39.55,60.32,60.32,50.0507,50.0507,7.1083,7.1083,Avg diff: 0.00% (within tolerance)

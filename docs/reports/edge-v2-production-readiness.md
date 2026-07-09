@@ -2,7 +2,8 @@
 
 > **Date:** 2026-07-09
 > **Author:** PM-Designer (DeepSeek V4 Pro)
-> **SA Decision:** ✅ APPROVED — Proceed to E2V2-10 Limited Controlled Switch Dry-Run
+> **SA Decision:** ✅ APPROVED — E2V2-10 Dry-Run EXECUTED
+> **E2V2-10 Status:** ✅ ALL 4 TASKS PASSED
 > **Constraint:** Edge v1 PRIMARY. Production switch NOT approved.
 
 ---
@@ -28,7 +29,7 @@ I reviewed this report for internal contradictions:
 | Docker smoke | PASS | Container healthy, `/api/status` 200, non-root | §4 Gate 5 |
 | Side-by-side comparison | PASS | 3/3 signals, 357pts each, 0.0% diff (03:29 UTC) | §4 Gate 3 |
 | Rollback dry-run | PASS | v1 unchanged after v2 stop/restart | §4 Rollback |
-| Migration runbook Phase 4-6 | READY | Reviewed, VPS commands updated, awaiting SA approval | §6 |
+| Migration runbook Phase 4-6 | PASS | Dry-run executed, rollback verified, v1 unchanged | §4 E2V2-10 |
 | Open P0 | 0 | All P0 resolved (E2V2-8) | §5 |
 | Open P1 | 0 | Heartbeat 401 resolved (JWT fix) | §5 |
 | Open P2 | 0 | Comparison executed | §5 |
@@ -41,11 +42,12 @@ I reviewed this report for internal contradictions:
 Edge v2 Productization Track: all 6 SA gates have code and runtime evidence.
 
 - **5/5 SA runtime checks PASS** on VPS (103.97.132.249): secret scan, heartbeat, sync, Docker, comparison.
-- **Comparison**: 3 shared signals, 357 points each, 0.0% diff within ±5% tolerance.
-- **Rollback**: verified — v1 unchanged by v2 stop/restart.
+- **E2V2-10 Dry-Run**: ✅ ALL 4 TASKS PASSED (pre-check, shadow switch, comparison, rollback).
+- **Comparison**: 3 shared signals, 178 points each, 0.0% diff within ±5% tolerance.
+- **Rollback**: verified — v1 unchanged (200 throughout), recovery < 60s, data gap 0.
 - **Open P0**: 0. **Open P1**: 0. **Open P2**: 0.
 
-Edge v1 remains PRIMARY. Production switch is NOT approved. E2V2-10 dry-run is SA approved — execution pending.
+Edge v1 remains PRIMARY. Production switch is NOT approved. E2V2-10 dry-run evidence ready for SA review.
 
 ---
 
@@ -160,33 +162,61 @@ Connector:  mirror_wtp_signals running, connected=true
 
 ### E2V2-10 — Limited Controlled Switch Dry-Run
 
-**Status:** ✅ SA APPROVED — Ready for VPS execution.
+**Status:** ✅ ALL 4 TASKS PASSED — Executed 2026-07-09T04:34-04:37 UTC.
 
-**What changed:**
-- `docs/prompts/phase-edge-v2-task10-dry-run-execution.md` — Created with 4-task execution procedure
-- `docs/runbooks/edge-v1-to-v2-migration.md` — Phase 4-6 unblocked for dry-run with 🟡 markers
-- This report — E2V2-10 status added
+#### VPS Execution Evidence
 
-**Procedure:**
+**Task 1 — Pre-Switch Verification:**
 ```
-Task 1: Pre-check (v1, v2, Center, backlog)
-Task 2: Shadow switch — verify v2 heartbeat + sync, v1 unchanged
-Task 3: Comparison — 3 shared signals within ±5%
-Task 4: Rollback — stop v2, verify v1, restore v2 to mirror
+v1: 200
+v2: running
+Center: 200
+v2 backlog: 3
 ```
 
-**Expected outcome:**
+**Task 2 — Shadow Switch:**
 ```
-v1: 200 throughout (never stopped)
-Comparison: 3/3 PASS within ±5%
+v2 status: running (container healthy)
+v1 measurements: DEMO-PLANT — data flowing
+v2 measurements: EDGEV2-DEMO — data flowing
+```
+
+**Task 3 — Comparison (SA Gate):**
+
+| Signal | Result | v1 Points | v2 Points | v1 Avg | v2 Avg | Diff |
+|---|---|---|---|---|---|---|
+| PUMP-101.flow_rate | ✅ PASS | 178 | 178 | 99.81 | 99.81 | 0.00% |
+| PUMP-101.discharge_pressure | ✅ PASS | 178 | 178 | 7.01 | 7.01 | 0.00% |
+| MOTOR-101.motor_current | ✅ PASS | 178 | 178 | 50.05 | 50.05 | 0.00% |
+
+```
+Results: 3 PASS, 0 FAIL, 0 WARN, 0 SKIP
+✅ All shared signals within tolerance.
+```
+
+**Task 4 — Rollback:**
+```
+v2 stopped: plantos-edge-v2
+v1 after v2 stop: 200 (UNCHANGED — never stopped)
+v2 restarted: Up 39 seconds (healthy)
+Final state:
+  v1: 200
+  v2: running
+  Center: 200
 Recovery time: < 60 seconds
 Data gap: 0 (v1 never stopped)
 ```
 
-**SA constraints:**
-- Edge v1 remains PRIMARY. Do NOT stop v1.
-- Production switch NOT approved.
-- Rollback must be verified before any switch discussion.
+**Files:**
+- Comparison CSV: `edge-v2/data/dry_run_comparison_20260709_113528.csv`
+- Rollback script: `edge-v2/scripts/e2v2-10-rollback.sh`
+- Execution prompt: `docs/prompts/phase-edge-v2-task10-dry-run-execution.md`
+
+**SA constraints verified:**
+- ✅ Edge v1 remained PRIMARY throughout (never stopped, always 200)
+- ✅ Comparison: 3/3 PASS within ±5% (0.00% diff)
+- ✅ Rollback: recovery < 60 seconds, data gap 0
+- ✅ Production switch NOT executed
 
 ### Rollback Readiness
 
@@ -269,7 +299,7 @@ E2V2-7b    ✅ DONE     (Phase 5 rollback verified)
 E2V2-7c    ✅ DONE     (3 bugs fixed: tag_configs, extract_value, pytz)
 E2V2-8     ✅ DONE     (5/5 SA runtime checks, 0 P0/P1)
 E2V2-9     ✅ DONE     (Comparison 3/3 PASS, 0.0% diff)
-E2V2-10    ✅ APPROVED (Dry-run execution prompt created, Phase 4-6 unblocked)
+E2V2-10    ✅ EXECUTED (4/4 tasks PASS, 3/3 comparison PASS, rollback verified)
 ```
 
 ### B. Key Commits

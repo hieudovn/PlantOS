@@ -49,7 +49,7 @@ def _get_token_cached(api_url: str) -> str:
         print("  ⚠ PLANTOS_CENTER_PASSWORD not set — auth will fail")
         return ""
     try:
-        resp = httpx.post(f"{api_url}/api/v1/auth/login",
+        resp = httpx.post(f"{api_url}/auth/login",
                          json={"username": username, "password": password},
                          timeout=10)
         if resp.status_code == 200:
@@ -79,7 +79,7 @@ def fetch_measurements(api_url: str, plant_id: str, signal_ids: list[str],
             to_ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
             from_ts = cutoff.strftime("%Y-%m-%dT%H:%M:%S")
             params = f"signal_id={sig_id}&from={from_ts}&to={to_ts}"
-            resp = httpx.get(f"{api_url}/api/v1/measurements/history?{params}",
+            resp = httpx.get(f"{api_url}/measurements/history?{params}",
                             headers=headers, timeout=10)
             if resp.status_code != 200:
                 print(f"  ⚠ Skipping {sig_id}: HTTP {resp.status_code}")
@@ -181,7 +181,7 @@ def get_signal_ids_for_plant(api_url: str, plant_id: str) -> list[str]:
     token = _get_token_cached(api_url)
     headers = {"Authorization": f"Bearer {token}"} if token else {}
     try:
-        resp = httpx.get(f"{api_url}/api/v1/signals?plant_id={plant_id}",
+        resp = httpx.get(f"{api_url}/signals?plant_id={plant_id}",
                         headers=headers, timeout=10)
         if resp.status_code == 200:
             signals = resp.json()

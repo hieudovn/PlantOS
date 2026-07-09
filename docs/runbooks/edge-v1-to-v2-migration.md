@@ -299,19 +299,21 @@ Recovery time: < 60 seconds
 | Phase 1: Pre-migration | 2026-07-09 | E2V2-9 | ✅ DONE | Seed script created, comparison tool fixed |
 | Phase 2: Mirror | 2026-07-09 | E2V2-9 | ✅ DONE | Commands updated for VPS Docker |
 | Phase 3: Comparison | 2026-07-09 | E2V2-9 | ✅ PASS | 3/3 signals, 357pts each, 0.0% diff |
-| Phase 4: Switch (dry-run) | ⏳ | — | ⏳ PENDING | VPS execution (see E2V2-10 prompt) |
-| Phase 5: Verify (dry-run) | ⏳ | — | ⏳ PENDING | VPS execution |
-| Phase 6: Rollback (dry-run) | ⏳ | — | ⏳ PENDING | VPS execution |
+| Phase 4: Switch (dry-run) | 2026-07-09 | E2V2-10 | ✅ PASS | Shadow switch — v1=200, v2=running, both data flowing |
+| Phase 5: Verify (dry-run) | 2026-07-09 | E2V2-10 | ✅ PASS | 3/3 comparison PASS, 0.0% diff, 178pts each |
+| Phase 6: Rollback (dry-run) | 2026-07-09 | E2V2-10 | ✅ PASS | v2 stop→v1=200 unchanged→v2 restart→healthy |
 
-### E2V2-10 Evidence (to be filled after VPS execution)
+### E2V2-10 Evidence (VPS 2026-07-09 04:34-04:37 UTC)
 
 ```
-Pre-switch:   v1=200, v2=running, Center=200, backlog=<50
-Switch:       v2 heartbeat=200, v2 sync=200, v1 unchanged
-Comparison:   3/3 PASS within ±5%
+Pre-switch:   v1=200, v2=running, Center=200, backlog=3
+Switch:       v2 heartbeat=200, v2 sync=200, v1 unchanged (200)
+Comparison:   3/3 PASS within ±5% (178pts each, 0.00% diff)
 Rollback:     recovery_time=<60s, data_gap=0s (v1 never stopped)
-Post-restore: v1=200, v2=running, Center=200
+Post-restore: v1=200, v2=running (healthy), Center=200
 ```
+
+Comparison CSV: `edge-v2/data/dry_run_comparison_20260709_113528.csv`
 
 ### E2V2-9 Artifacts
 

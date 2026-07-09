@@ -1,0 +1,4 @@
+signal_id,result,v1_count,v2_count,v1_min,v2_min,v1_max,v2_max,v1_avg,v2_avg,v1_stddev,v2_stddev,notes
+PUMP-101.flow_rate,SKIP,0,0,,,,,,,,,No data for either workspace
+PUMP-101.discharge_pressure,SKIP,0,0,,,,,,,,,No data for either workspace
+MOTOR-101.motor_current,SKIP,0,0,,,,,,,,,No data for either workspace
