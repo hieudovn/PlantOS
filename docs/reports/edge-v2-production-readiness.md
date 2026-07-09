@@ -45,7 +45,7 @@ Edge v2 Productization Track: all 6 SA gates have code and runtime evidence.
 - **Rollback**: verified — v1 unchanged by v2 stop/restart.
 - **Open P0**: 0. **Open P1**: 0. **Open P2**: 0.
 
-Edge v1 remains PRIMARY. Production switch is NOT approved. SA review is required before any limited controlled switch dry-run.
+Edge v1 remains PRIMARY. Production switch is NOT approved. E2V2-10 dry-run is SA approved — execution pending.
 
 ---
 
