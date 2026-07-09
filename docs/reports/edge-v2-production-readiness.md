@@ -33,7 +33,8 @@ I reviewed this report for internal contradictions:
 | Open P0 | 0 | All P0 resolved (E2V2-8) | §5 |
 | Open P1 | 0 | Heartbeat 401 resolved (JWT fix) | §5 |
 | Open P2 | 0 | Comparison executed | §5 |
-| Production switch | NOT APPROVED | Awaiting SA dry-run review | §7 |
+| Production switch | NOT APPROVED | Awaiting SA review of E2V2-10 dry-run evidence | §7 |
+| E2V2-10 dry-run | PASS | 4/4 tasks, comparison 3/3 PASS, 0.0% diff (04:34 UTC) | §4 E2V2-10 |
 
 ---
 
@@ -160,9 +161,9 @@ User:       plantos (non-root)
 Connector:  mirror_wtp_signals running, connected=true
 ```
 
-### E2V2-10 — Limited Controlled Switch Dry-Run
+### E2V2-10 — Limited Controlled Switch Dry-Run — ✅ PASS (2026-07-09 04:34 UTC)
 
-**Status:** ✅ ALL 4 TASKS PASSED — Executed 2026-07-09T04:34-04:37 UTC.
+**PM Verified:** ✅ Data confirmed via CSV `edge-v2/data/dry_run_comparison_20260709_113528.csv`. All 4 tasks executed correctly, v1 never affected.
 
 #### VPS Execution Evidence
 
@@ -262,12 +263,16 @@ No new risks identified.
 ## 7. Recommendation
 
 ```text
-✅ SA APPROVED — Proceed to E2V2-10 Limited Controlled Switch Dry-Run.
+✅ E2V2-10 DRY-RUN COMPLETE — Ready for SA production switch review.
 
-SA reviewed the PM self-verified report and approved dry-run.
-This is limited to controlled dry-run only.
-Edge v1 remains PRIMARY.
-Production switch is NOT approved until E2V2-10 dry-run evidence submitted.
+PM verified: All 4 tasks executed, CSV evidence confirmed.
+  Task 1: Pre-check      ✅ v1=200, v2=running, Center=200, backlog=3
+  Task 2: Shadow switch  ✅ both workspaces flowing, v1 unchanged
+  Task 3: Comparison     ✅ 3/3 PASS, 178pts, 0.00% diff (CSV verified)
+  Task 4: Rollback       ✅ v1 unchanged, recovery <60s, data gap 0
+
+Edge v1 remains PRIMARY. Production switch NOT approved.
+SA review of E2V2-10 evidence required before switch decision.
 ```
 
 ---
