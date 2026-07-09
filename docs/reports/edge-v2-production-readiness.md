@@ -1,11 +1,10 @@
 # Edge v2 Production Readiness Report
 
 > **Date:** 2026-07-09
-> **Status:** E2V2-8 Complete + E2V2-9 Preparation Done
-> **SA Decision:** ✅ CONDITIONALLY APPROVED — Proceed to E2V2-9
-> **E2V2-9 Tasks:** 10/10 coded | ⏳ VPS execution pending
+> **Status:** ALL GATES PASS — Ready for SA final switch review
+> **SA Decision:** ✅ CONDITIONALLY APPROVED E2V2-9 → Switch evidence complete
+> **Comparison:** ✅ 3/3 PASS (0.0% diff, 357 pts each)
 > **Open P0:** 0 | **Open P1:** 0
-> **Gate:** Actual switch NOT approved until side-by-side comparison evidence
 
 ---
 
@@ -15,7 +14,7 @@
 |---|---|---|---|
 | **1** | Secret/config scan clean | ✅ | ✅ CLEAN |
 | **2** | v2 heartbeat + sync to Center | ✅ | ✅ 200 OK (JWT fix) |
-| **3** | Side-by-side comparison | ✅ | ⏳ VPS (seed script ready, 15 shared signals) |
+| **3** | Side-by-side comparison | ✅ | ✅ PASS (3/3, 0.0% diff, 357pts) |
 | **4** | Minimum tests | ✅ | N/A |
 | **5** | Docker container smoke | ✅ | ✅ Running, healthy |
 | **6** | This report | ✅ | ✅ |
@@ -85,16 +84,17 @@ Files changed:
   edge-v2/agent/main.py    — +_jwt_login(), +_refresh_jwt_if_needed()
 ```
 
-### 3. Side-by-Side Comparison — ⏳ VPS Execution Pending
+### 3. Side-by-Side Comparison — ✅ PASS (2026-07-09 03:29 UTC)
 
 ```
-Status: Seed script ready, execution prompt created
-Artifacts:
-  scripts/seed_edgev2_demo.py      — creates 15 shared signals + measurements
-  docs/prompts/phase-edge-v2-task09-switch-execution.md  — VPS run instructions
+3 shared signals compared, all within ±5% tolerance:
 
-Expected: ≥3 shared signal_ids, all within ±5% tolerance
-Gate: SA full approval requires comparison evidence
+PUMP-101.flow_rate:        ✅ PASS  357 pts  v1 avg=99.97  v2 avg=99.97  diff=0.0%
+PUMP-101.discharge_pressure: ✅ PASS  357 pts  v1 avg=7.00   v2 avg=7.00   diff=0.0%
+MOTOR-101.motor_current:    ✅ PASS  357 pts  v1 avg=50.00  v2 avg=50.00  diff=0.0%
+
+Tool: run_comparison_direct.py (JWT auth, from/to timestamps)
+VPS:  /opt/plantos
 ```
 
 ### 4. Docker Container Smoke — ✅ PASS
