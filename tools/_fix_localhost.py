@@ -1,0 +1,5 @@
+c = open('/home/plantos/edge-v2/agent/config/config.edge-v2.yaml').read()
+c = c.replace('http://172.17.0.1:9998/', 'http://localhost:9998/')
+c = c.replace('http://172.17.0.1:8000', 'http://localhost:8000')
+open('/home/plantos/edge-v2/agent/config/config.edge-v2.yaml', 'w').write(c)
+print('FIXED')

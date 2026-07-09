@@ -1,4 +1,4 @@
-# PlantOS Edge v2 — Configuration
+# PlantOS Edge v2 — Configuration (Docker)
 # Port MUST be 8011 to avoid conflict with Edge v1 on port 8001.
 # node_id MUST be EDGEV2-PC-01 for workspace isolation.
 
@@ -8,12 +8,10 @@ center_url: http://localhost:8000
 api_key: plantos-edge-key-2026
 session_secret: plantos-edge-default-secret
 
-auth:
-  # admin_hash is auto-populated on first-run setup
-  # Do NOT set this manually — use POST /api/auth/setup
+auth: {}
 
 buffer:
-  path: edge-v2/data/edge_data.duckdb
+  path: /app/data/edge_data.duckdb
   retention_days: 7
 
 mqtt:
@@ -42,7 +40,7 @@ connectors:
     type: http_poll
     enabled: true
     connection:
-      url: http://localhost:8000/api/v1/measurements/ingest
+      url: http://localhost:9998/
     poll_interval_ms: 10000
     tags:
       - tag_id: PUMP-101_discharge_pressure
