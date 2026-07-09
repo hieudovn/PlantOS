@@ -1,7 +1,7 @@
 # Edge v2 EV2-STAB — Final Verification Report for SA Review
 
 > **Date:** 2026-07-09
-> **Status:** ✅ COMPLETE — 2/3 SA gates cleared
+> **Status:** ✅ COMPLETE — 3/3 SA gates cleared
 > **Author:** PM-Designer (DeepSeek V4 Pro)
 
 ---
@@ -12,7 +12,7 @@
 STAB tasks:  13/13 ✅
 Data E2E:    ✅ PASS
 Command E2E: ✅ PASS
-Docker smoke:⚠️ PENDING (infrastructure, code ready)
+Docker smoke:✅ PASS (2026-07-09, via docker save/load + SCP, VPS provider blocks Docker Hub)
 Open P0/P1:  0
 ```
 
@@ -41,20 +41,28 @@ Evidence (VPS, 2026-07-09 ~01:00 UTC):
     sync_now: success
 ```
 
-## 3. Gate 3: Docker Smoke — ⚠️ PENDING
+## 3. Gate 3: Docker Smoke — ✅ PASS
 
 ```
-Dockerfile:      ✅ includes edge/agent/* v1 libs
-docker-compose:  ✅ port 8011, volumes, healthcheck
-Blocked by:      Docker Hub TLS timeout (VPS infra)
-Fix:             docker compose up -d --build (when infra restored)
+Workaround:   docker save → SCP → docker load (Docker Hub blocked by VPS provider)
+Method:       Built on Windows Docker Desktop, transferred .tar (82.7MB) via SCP
+Image:        plantos-edge-v2:latest (351MB)
+Container:    Running, port 8011, health OK
+DuckDB:       /app/data/edge_data.duckdb (12KB) ✅
+Connectors:   2 loaded (mirror_wtp_signals running, mirror_vf_compressor stopped)
+Fix needed:   Dockerfile path fixes applied (edge-v2/ prefix + removed __init__.py refs)
+              config.edge-v2.yaml buffer path → /app/data/ (Docker volume)
+              config.edge-v2.yaml auth section → {} (YAML None fix)
+
+Evidence (VPS, 2026-07-09 07:42 UTC):
+  GET /api/status → 200 {"status":"running","edge_node_id":"EDGEV2-PC-01",...}
 ```
 
 ## 4. PM Recommendation
 
 ```text
-🟢 APPROVE Edge v2 for E2V2-7 Controlled Migration
-   (Docker smoke to be verified at first opportunity)
+🟢 APPROVE Edge v2 for E2V2-7 Controlled Migration — ALL 3 gates passed.
+   Docker smoke resolved via save/load workaround.
 ```
 
 ## 5. SA Decision
