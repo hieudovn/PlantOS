@@ -2,9 +2,9 @@
 
 > **Date:** 2026-07-09
 > **Author:** PM-Designer (DeepSeek V4 Pro)
-> **Current Status:** EXTENDED PILOT PREPARED — NOT PRODUCTION SWITCH READY
+> **Current Status:** EXTENDED PILOT IN PROGRESS — NOT PRODUCTION SWITCH READY
 > **E2V2-10:** ✅ 4/4 tasks PASSED (PM verified, CSV confirmed)
-> **E2V2-11:** � IN PROGRESS — 11C PASS, 11A+11B running on VPS, 11D+11E DONE
+> **E2V2-11:** 🔄 IN PROGRESS — 11C PASS (6/6), 11A+11B running on VPS, 11D+11E DONE
 > **Constraint:** Edge v1 PRIMARY. No production cutover allowed.
 
 ---
@@ -230,7 +230,7 @@ Data gap: 0 (v1 never stopped)
 
 ### E2V2-11 — Extended Pilot & Production Switch Preparation
 
-**Status:** � IN PROGRESS — 11C PASS, 11A+11B running on VPS, 11D+11E DONE.
+**Status:** 🔄 IN PROGRESS — 11C PASS (6/6), 11A+11B running on VPS, 11D+11E DONE.
 
 #### Sub-Phase Status
 
