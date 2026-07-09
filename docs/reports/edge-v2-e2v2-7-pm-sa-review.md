@@ -4,7 +4,7 @@
 > **Author:** PM-Designer (DeepSeek V4 Pro)
 > **Review Scope:** EV2-STAB + E2V2-7 (a/b/c) full codebase audit
 > **Status:** 7/12 execution tasks complete, 3 bugs found & fixed, 56 issues identified
-> **SA Decision Needed:** Approve production-readiness gate plan
+> **SA Decision:** ✅ CONDITIONALLY APPROVED — Proceed to E2V2-8 (not production switch)
 
 ---
 
@@ -214,10 +214,29 @@ Recommendation: E2V2-8 (Production Readiness Hardening) before any switch decisi
 
 ## 9. SA Decision
 
-```
-[ ] APPROVED — Edge v2 ready for production switch
-[ ] CONDITIONALLY APPROVED — Proceed to E2V2-8 hardening, resolve P0 before switch
-[ ] NOT APPROVED — Issues to fix first
+```text
+[x] CONDITIONALLY APPROVED — Proceed to E2V2-8 Production Readiness Hardening.
+
+Edge v2 is NOT approved for production switch.
+
+Rationale:
+EV2-STAB gates are passed and Edge v2 has demonstrated core runtime progress.
+However, the PM audit identified 56 issues including 5 P0 and 15 P1.
+The most serious blockers are hardcoded credentials, destructive operations
+without safety gates, Center auth/sync issues, zero tests for migration
+tooling, and container hardening gaps.
+
+Required before production switch:
+1. Resolve all P0 issues.
+2. Resolve Center auth and prove v2 data reaches Center.
+3. Run meaningful side-by-side comparison with shared signals.
+4. Add minimum smoke/unit tests for migration tools.
+5. Harden Docker container at least to non-root + .dockerignore.
+6. Produce final production switch readiness report.
 
 SA Notes:
+- Approved to start E2V2-8 planning and hardening.
+- Do not claim production readiness until all 6 requirements are met.
+- Edge v1 remains PRIMARY throughout.
+- Production switch requires separate SA gate review.
 ```
