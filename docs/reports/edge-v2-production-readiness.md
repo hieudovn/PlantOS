@@ -85,13 +85,16 @@ Files changed:
   edge-v2/agent/main.py    — +_jwt_login(), +_refresh_jwt_if_needed()
 ```
 
-### 3. Side-by-Side Comparison — ⚠️ No Shared Signals
+### 3. Side-by-Side Comparison — ⏳ VPS Execution Pending
 
 ```
-v1 signals: 0 (Center measurements API returns empty)
-v2 signals: 0
-Shared: 0
-Root cause: Requires Gate 2 (Center sync) for data to exist in Center
+Status: Seed script ready, execution prompt created
+Artifacts:
+  scripts/seed_edgev2_demo.py      — creates 15 shared signals + measurements
+  docs/prompts/phase-edge-v2-task09-switch-execution.md  — VPS run instructions
+
+Expected: ≥3 shared signal_ids, all within ±5% tolerance
+Gate: SA full approval requires comparison evidence
 ```
 
 ### 4. Docker Container Smoke — ✅ PASS
