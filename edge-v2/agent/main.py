@@ -86,12 +86,17 @@ class EdgeAgentV2:
             edge_node_id=self.config.edge_node_id,
         )
 
+        # JWT auth — login to Center, refresh periodically
+        self._jwt_token = ""
+        self._jwt_refresh_at = 0.0
+
         # Store-and-forward sync — reused from edge.agent.sync
         self.sync = StoreAndForward(
             buffer=self.buffer,
             ingest_url=self.config.center_ingest_url,
             edge_node_id=self.config.edge_node_id,
             api_key=self.config.api_key,
+            bearer_token=self._jwt_token,
         )
 
         # Health reporter — reused from edge.agent.health
@@ -100,6 +105,7 @@ class EdgeAgentV2:
             edge_node_id=self.config.edge_node_id,
             interval=self.config.heartbeat_interval,
             api_key=self.config.api_key,
+            bearer_token=self._jwt_token,
         )
 
         # Connectors — OPC UA, Modbus TCP, MQTT Subscribe via safe apply
@@ -124,6 +130,33 @@ class EdgeAgentV2:
 
         self._running = False
 
+    async def _jwt_login(self) -> bool:
+        """Login to Center and obtain JWT token. Returns True on success."""
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.post(
+                    f"{self.config.center_url}/api/v1/auth/login",
+                    json={"username": "admin", "password": "PlantOS@2026!"},
+                )
+                if resp.status_code == 200:
+                    self._jwt_token = resp.json().get("access_token", "")
+                    if self._jwt_token:
+                        self._jwt_refresh_at = asyncio.get_event_loop().time() + 1800  # 30min
+                        self.sync.bearer_token = self._jwt_token
+                        self.health.bearer_token = self._jwt_token
+                        logger.info("JWT login successful")
+                        return True
+        except Exception as e:
+            logger.warning("JWT login failed: %s", e)
+        return False
+
+    async def _refresh_jwt_if_needed(self):
+        """Refresh JWT token if expiring soon."""
+        now = asyncio.get_event_loop().time()
+        if not self._jwt_token or now > self._jwt_refresh_at - 300:  # 5min before expiry
+            await self._jwt_login()
+
     async def run(self):
         """Start the Edge v2 agent main loop."""
         logger.info("EdgeAgentV2 starting — node=%s plant=%s",
@@ -139,6 +172,7 @@ class EdgeAgentV2:
         # Periodic tasks: heartbeat, sync, command poll
         async def heartbeat_loop():
             while self._running:
+                await self._refresh_jwt_if_needed()
                 backlog = self.sync.get_backlog()
                 await self.health.send_heartbeat("online", backlog)
                 await asyncio.sleep(self.config.heartbeat_interval)

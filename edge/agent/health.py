@@ -12,11 +12,12 @@ EDGE_VERSION = "0.1.0"
 
 class HealthReporter:
     def __init__(self, heartbeat_url: str, edge_node_id: str, interval: int = 10,
-                 api_key: str = "", get_signal_count_fn=None):
+                 api_key: str = "", bearer_token: str = "", get_signal_count_fn=None):
         self.url = heartbeat_url
         self.node_id = edge_node_id
         self.interval = interval
         self.api_key = api_key
+        self.bearer_token = bearer_token
         self.hostname = socket.gethostname()
         self.ip_address = self._get_ip()
         self.get_signal_count_fn = get_signal_count_fn or (lambda: 0)
@@ -36,7 +37,9 @@ class HealthReporter:
             signal_count = self.get_signal_count_fn()
             async with httpx.AsyncClient(timeout=5) as client:
                 headers = {}
-                if self.api_key:
+                if self.bearer_token:
+                    headers["Authorization"] = f"Bearer {self.bearer_token}"
+                elif self.api_key:
                     headers["X-API-Key"] = self.api_key
                 await client.post(self.url, json={
                     "edge_node_id": self.node_id,

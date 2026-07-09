@@ -9,11 +9,12 @@ MAX_RETRIES = 3
 
 
 class StoreAndForward:
-    def __init__(self, buffer, ingest_url: str, edge_node_id: str, api_key: str = ""):
+    def __init__(self, buffer, ingest_url: str, edge_node_id: str, api_key: str = "", bearer_token: str = ""):
         self.buffer = buffer
         self.ingest_url = ingest_url
         self.edge_node_id = edge_node_id
         self.api_key = api_key
+        self.bearer_token = bearer_token
 
     async def flush(self, batch_size: int = 100) -> int:
         """Flush unsynced data to Center. Returns number of synced points.
@@ -33,7 +34,12 @@ class StoreAndForward:
 
         try:
             async with httpx.AsyncClient(timeout=10) as client:
-                headers = {"X-API-Key": self.api_key} if self.api_key else {}
+                if self.bearer_token:
+                    headers = {"Authorization": f"Bearer {self.bearer_token}"}
+                elif self.api_key:
+                    headers = {"X-API-Key": self.api_key}
+                else:
+                    headers = {}
                 resp = await client.post(self.ingest_url, json={
                     "source": self.edge_node_id,
                     "measurements": unsynced,
