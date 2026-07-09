@@ -1,0 +1,112 @@
+connectors:
+  # WTP-DEMO-01 mirror: v1 simulator signals via HTTP Poll (19 signals)
+  mirror_wtp_signals:
+    type: http_poll
+    enabled: true
+    connection:
+      url: http://localhost:9998/
+    poll_interval_ms: 10000
+    tags:
+      - tag_id: PUMP-101_flow_rate
+        source_ref: PUMP-101.flow_rate
+        signal_id: PUMP-101.flow_rate
+        data_type: float
+        enabled: true
+      - tag_id: PUMP-101_discharge_pressure
+        source_ref: PUMP-101.discharge_pressure
+        signal_id: PUMP-101.discharge_pressure
+        data_type: float
+        enabled: true
+      - tag_id: PUMP-101_running_status
+        source_ref: PUMP-101.running_status
+        signal_id: PUMP-101.running_status
+        data_type: float
+        enabled: true
+      - tag_id: PUMP-101_vibration_rms
+        source_ref: PUMP-101.vibration_rms
+        signal_id: PUMP-101.vibration_rms
+        data_type: float
+        enabled: true
+      - tag_id: MOTOR-101_motor_current
+        source_ref: MOTOR-101.motor_current
+        signal_id: MOTOR-101.motor_current
+        data_type: float
+        enabled: true
+      - tag_id: MOTOR-101_motor_temperature
+        source_ref: MOTOR-101.motor_temperature
+        signal_id: MOTOR-101.motor_temperature
+        data_type: float
+        enabled: true
+      - tag_id: MOTOR-101_running_status
+        source_ref: MOTOR-101.running_status
+        signal_id: MOTOR-101.running_status
+        data_type: float
+        enabled: true
+      - tag_id: TANK-101_tank_level
+        source_ref: TANK-101.tank_level
+        signal_id: TANK-101.tank_level
+        data_type: float
+        enabled: true
+      - tag_id: TANK-101_temperature
+        source_ref: TANK-101.temperature
+        signal_id: TANK-101.temperature
+        data_type: float
+        enabled: true
+      - tag_id: RAW-WATER-QUALITY-STATION-101_raw_turbidity
+        source_ref: RAW-WATER-QUALITY-STATION-101.raw_turbidity
+        signal_id: RAW-WATER-QUALITY-STATION-101.raw_turbidity
+        data_type: float
+        enabled: true
+      - tag_id: RAW-WATER-QUALITY-STATION-101_raw_ph
+        source_ref: RAW-WATER-QUALITY-STATION-101.raw_ph
+        signal_id: RAW-WATER-QUALITY-STATION-101.raw_ph
+        data_type: float
+        enabled: true
+      - tag_id: RAW-WATER-QUALITY-STATION-101_raw_temperature
+        source_ref: RAW-WATER-QUALITY-STATION-101.raw_temperature
+        signal_id: RAW-WATER-QUALITY-STATION-101.raw_temperature
+        data_type: float
+        enabled: true
+      - tag_id: FILTER-101_filter_dp
+        source_ref: FILTER-101.filter_dp
+        signal_id: FILTER-101.filter_dp
+        data_type: float
+        enabled: true
+      - tag_id: FILTER-101_effluent_flow
+        source_ref: FILTER-101.effluent_flow
+        signal_id: FILTER-101.effluent_flow
+        data_type: float
+        enabled: true
+      - tag_id: CLEAR-WATER-TANK-101_level
+        source_ref: CLEAR-WATER-TANK-101.level
+        signal_id: CLEAR-WATER-TANK-101.level
+        data_type: float
+        enabled: true
+      - tag_id: HSP-101_flow_rate
+        source_ref: HSP-101.flow_rate
+        signal_id: HSP-101.flow_rate
+        data_type: float
+        enabled: true
+      - tag_id: HSP-101-MOTOR_motor_current
+        source_ref: HSP-101-MOTOR.motor_current
+        signal_id: HSP-101-MOTOR.motor_current
+        data_type: float
+        enabled: true
+      - tag_id: COAG-PUMP-101_flow_rate
+        source_ref: COAG-PUMP-101.flow_rate
+        signal_id: COAG-PUMP-101.flow_rate
+        data_type: float
+        enabled: true
+      - tag_id: CHLORINE-PUMP-101_flow_rate
+        source_ref: CHLORINE-PUMP-101.flow_rate
+        signal_id: CHLORINE-PUMP-101.flow_rate
+        data_type: float
+        enabled: true
+
+  # VF-DEMO mirror: v1 OPC UA compressor signals (disabled — no OPC UA server)
+  mirror_vf_compressor:
+    type: opcua
+    enabled: false
+    connection:
+      endpoint: opc.tcp://localhost:4840
+    tags: []
