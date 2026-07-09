@@ -2,12 +2,13 @@
 
 > **⚠️ NOT YET ACTIVE — SA approval required before production execution**
 >
-> Status: DRY-RUN APPROVED — E2V2-10 Limited Controlled Switch Dry-Run (2026-07-09)
+> Status: EXTENDED PILOT — E2V2-11 (2026-07-09)
 > Edge v1 remains PRIMARY. Production switch NOT approved.
 >
-> **E2V2-10:** SA approved limited controlled switch dry-run. Phase 4-6 below have
-> dry-run commands annotated with 🟡 DRY-RUN. These may be executed for testing.
-> See: `docs/prompts/phase-edge-v2-task10-dry-run-execution.md`
+> **E2V2-10:** Dry-run PASSED (4/4 tasks, 3/3 comparison, 0.0% diff).
+> **E2V2-11:** Extended pilot preparation complete. Phase 4-6 commands verified in dry-run.
+> All dry-run evidence available in `docs/reports/edge-v2-production-readiness.md`.
+> Production switch requires SA approval of complete approval matrix.
 
 ## Overview
 
