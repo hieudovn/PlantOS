@@ -2,7 +2,8 @@
 
 > **Date:** 2026-07-09
 > **Author:** PM-Designer (DeepSeek V4 Pro)
-> **SA Decision:** CONDITIONALLY APPROVED E2V2-9 (evidence provided, awaiting switch review)
+> **SA Decision:** ✅ APPROVED — Proceed to E2V2-10 Limited Controlled Switch Dry-Run
+> **Constraint:** Edge v1 PRIMARY. Production switch NOT approved.
 
 ---
 
@@ -201,22 +202,12 @@ No new risks identified.
 ## 7. Recommendation
 
 ```text
-🟢 GO FOR LIMITED CONTROLLED SWITCH DRY-RUN
+✅ SA APPROVED — Proceed to E2V2-10 Limited Controlled Switch Dry-Run.
 
-All 6 SA gates have code and runtime evidence:
-✅ Secret scan clean
-✅ Heartbeat + sync working (JWT, 200 OK)
-✅ Side-by-side comparison PASS (3/3, 0.0% diff)
-✅ Docker smoke healthy (non-root)
-✅ Rollback dry-run verified (v1 unchanged)
-✅ Tests + report complete
-
-Edge v1 remains PRIMARY. Production switch is NOT approved.
-
-Migration runbook Phase 4-6 is READY (reviewed, VPS commands verified)
-but requires separate SA approval before execution.
-
-Next step: SA review → limited controlled switch dry-run (if approved).
+SA reviewed the PM self-verified report and approved dry-run.
+This is limited to controlled dry-run only.
+Edge v1 remains PRIMARY.
+Production switch is NOT approved until E2V2-10 dry-run evidence submitted.
 ```
 
 ---
