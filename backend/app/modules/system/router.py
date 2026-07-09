@@ -42,31 +42,30 @@ def _pg_stats() -> dict:
 
 
 def _tdengine_stats() -> dict:
-    """TDengine measurement count — best-effort via taos CLI on host."""
+    """TDengine measurement count — via taosws adapter."""
     count = 0
-    # Try host-level taos command (only works if taos is installed on host)
+    size_bytes = 0
     try:
-        import subprocess
-        result = subprocess.run(
-            ["taos", "-s", "SELECT COUNT(*) FROM plantos_ts.measurements;"],
-            capture_output=True, text=True, timeout=10
-        )
-        for line in result.stdout.split("\n"):
-            parts = line.strip().split("|")
-            if len(parts) >= 2:
-                val = parts[0].strip()
-                if val.isdigit():
-                    count = int(val)
-                    break
-    except FileNotFoundError:
-        logger.debug("taos CLI not available on host")
+        from taosws import connect
+        from app.db.tdengine import build_tdengine_dsn
+
+        dsn = build_tdengine_dsn()
+        conn = connect(dsn)
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM plantos_ts.measurements")
+        rows = cursor.fetchall()
+        if rows and rows[0]:
+            count = int(rows[0][0]) if rows[0][0] else 0
+        size_bytes = count * 128  # rough estimate: ~128 bytes per row
+        cursor.close()
+        conn.close()
     except Exception as e:
-        logger.warning(f"TDengine count failed: {e}")
+        logger.warning(f"TDengine stats via taosws failed: {e}")
 
     return {
         "measurement_count": count,
-        "size_bytes": 0,
-        "size_mb": 0,
+        "size_bytes": size_bytes,
+        "size_mb": round(size_bytes / (1024 * 1024), 2),
     }
 
 
