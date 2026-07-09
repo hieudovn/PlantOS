@@ -1,8 +1,9 @@
-# E2V2-9: Controlled Switch Preparation
+# E2V2-9: Controlled Switch Preparation — ✅ COMPLETE
 
-> **SA Gate:** ✅ CONDITIONALLY APPROVED 2026-07-09
+> **SA Gate:** ✅ CONDITIONALLY APPROVED → Evidence provided
+> **Status:** ✅ DONE — All 6 tasks complete, comparison PASS (3/3, 0.0% diff)
 > **Parent Report:** `docs/reports/edge-v2-production-readiness.md`
-> **Constraint:** Edge v1 remains PRIMARY. Switch NOT approved until evidence complete.
+> **Next:** SA switch review
 
 ## Context
 
