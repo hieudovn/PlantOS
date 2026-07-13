@@ -4,6 +4,10 @@
 > **Reviewer:** PM-Designer (V4 Pro)
 > **Scope:** Fix Center Users page (P0) + Edge v2 multi-user with Center sync (P1)
 > **Constraint:** Do NOT modify docs/reports/runbooks. Do NOT break existing login.
+> **⚠️ IMPORTANT — Before coding, create these missing __init__.py files:**
+> - `backend/app/modules/users/__init__.py` (empty file — missing, Python package won't import without it)
+> - `backend/app/modules/edge_users/__init__.py` (empty file — new module)
+> - Dockerfile: `edge-v2/Dockerfile` uses `COPY edge-v2/agent/ ./agent/` — copies entire agent/ dir, so `local_user_store.py` placed in `agent/auth/` will be auto-included. No Dockerfile change needed.
 
 ---
 
@@ -92,6 +96,20 @@ curl -s http://localhost:8000/api/v1/users \
 ---
 
 ## Part B: Edge v2 Multi-User + Center Sync (P1)
+
+### B.0 File Checklist — CREATE these first
+
+| # | File | Action |
+|---|---|---|
+| 1 | `backend/app/modules/users/__init__.py` | ✨ CREATE (empty file) |
+| 2 | `backend/app/modules/edge_users/__init__.py` | ✨ CREATE (empty file) |
+| 3 | `edge-v2/agent/auth/local_user_store.py` | ✨ CREATE (full code below) |
+| 4 | `backend/app/modules/edge_users/router.py` | ✨ CREATE (full code below) |
+| 5 | `backend/migrations/versions/005_edge_user_assignments.py` | ✨ CREATE (full code below) |
+| 6 | `edge-v2/agent/auth/auth.py` | ✏️ MODIFY (multi-user support) |
+| 7 | `edge-v2/agent/web/routes/auth.py` | ✏️ MODIFY (new routes) |
+| 8 | `edge-v2/agent/main.py` | ✏️ MODIFY (sync on startup) |
+| 9 | `backend/app/api/v1.py` | ✏️ MODIFY (register both routers) |
 
 ### B.1 Current State
 
