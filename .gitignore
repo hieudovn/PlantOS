@@ -25,3 +25,6 @@ frontend/dist/
 # Environment
 .env
 *.log
+
+# Local dev reference (credentials, notes — NEVER commit)
+local/
