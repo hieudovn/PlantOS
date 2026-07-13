@@ -6,6 +6,8 @@ import type { AssetSignalConfig, ThresholdConfig } from "./types";
 const PLANT_CONFIGS: Record<string, PlantConfig> = {
   "WTP-DEMO-01": wtpDemo01Config,
   "VF-DEMO": vfDemoConfig,
+  "DEMO-PLANT": wtpDemo01Config,
+  "EDGEV2-DEMO": wtpDemo01Config,
 };
 
 export function getPlantConfig(plantId: string): PlantConfig | null {
