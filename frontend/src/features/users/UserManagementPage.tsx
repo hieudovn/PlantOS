@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchAPI } from "@/lib/api";
-import { Plus, Edit3, Lock, Trash2, X, Shield } from "lucide-react";
+import { Plus, Edit3, Lock, Trash2, X, Shield, Server } from "lucide-react";
 
 interface User {
   id: string;
@@ -18,6 +18,83 @@ const ROLE_BADGE: Record<string, { color: string; label: string }> = {
   engineer: { color: "var(--status-warning)", label: "Engineer" },
   operator: { color: "var(--status-normal)", label: "Operator" },
 };
+
+function EdgeAccessCell({ userId }: { userId: string }) {
+  const queryClient = useQueryClient();
+
+  const { data: edges = [] } = useQuery({
+    queryKey: ["edge-nodes"],
+    queryFn: () => fetchAPI<any[]>("/api/v1/edge-nodes"),
+    refetchInterval: 30000,
+  });
+
+  const { data: assignedEdges = [], isLoading } = useQuery({
+    queryKey: ["edge-users", userId],
+    queryFn: async () => {
+      const results = await Promise.all(
+        edges.map(async (edge: any) => {
+          try {
+            const users = await fetchAPI<any[]>(`/api/v1/edges/${edge.edge_node_id}/users`);
+            const assigned = users.some((u: any) => u.user_id === userId);
+            return { edgeId: edge.edge_node_id, assigned };
+          } catch {
+            return { edgeId: edge.edge_node_id, assigned: false };
+          }
+        }),
+      );
+      return results;
+    },
+    enabled: edges.length > 0,
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: async ({ edgeId, assign }: { edgeId: string; assign: boolean }) => {
+      if (assign) {
+        return fetchAPI(`/api/v1/edges/${edgeId}/users`, {
+          method: "POST",
+          body: JSON.stringify({ user_id: userId }),
+        });
+      } else {
+        return fetchAPI(`/api/v1/edges/${edgeId}/users/${userId}`, { method: "DELETE" });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["edge-users", userId] });
+    },
+  });
+
+  if (isLoading) return <span className="text-xs" style={{ color: 'var(--text-muted)' }}>...</span>;
+
+  const activeCount = assignedEdges.filter((e: any) => e.assigned).length;
+
+  return (
+    <div className="flex items-center gap-1 flex-wrap">
+      {assignedEdges.map(({ edgeId, assigned }: any) => (
+        <button
+          key={edgeId}
+          onClick={() => toggleMutation.mutate({ edgeId, assign: !assigned })}
+          className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium transition-colors ${
+            assigned
+              ? 'border border-green-500/30'
+              : 'border border-gray-500/20'
+          }`}
+          style={{
+            color: assigned ? 'var(--status-normal)' : 'var(--text-muted)',
+            backgroundColor: assigned ? 'var(--status-normal)15' : 'transparent',
+            borderColor: assigned ? 'var(--status-normal)40' : 'var(--border-subtle)',
+          }}
+          title={assigned ? `Click to remove from ${edgeId}` : `Click to assign to ${edgeId}`}
+        >
+          <Server className="w-3 h-3" />
+          {edgeId.replace('EDGEV2-', 'v2:').replace('edge-agent-', 'v1:')}
+        </button>
+      ))}
+      {activeCount === 0 && (
+        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>None</span>
+      )}
+    </div>
+  );
+}
 
 function UserModal({ user, onClose }: { user?: User | null; onClose: () => void }) {
   const queryClient = useQueryClient();
@@ -154,6 +231,7 @@ export function UserManagementPage() {
                 <th className="text-left px-4 py-3 font-medium">Display Name</th>
                 <th className="text-left px-4 py-3 font-medium">Role</th>
                 <th className="text-left px-4 py-3 font-medium">Status</th>
+                <th className="text-left px-4 py-3 font-medium">Edge Access</th>
                 <th className="text-right px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
@@ -172,6 +250,9 @@ export function UserManagementPage() {
                     <span className="text-xs" style={{ color: u.is_active ? 'var(--status-normal)' : 'var(--status-offline)' }}>
                       {u.is_active ? "Active" : "Inactive"}
                     </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <EdgeAccessCell userId={u.id} />
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
