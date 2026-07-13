@@ -357,8 +357,8 @@ E2V2-10    ✅ DONE     (Dry-run 4/4 PASS)
 E2V2-11    ✅ COMPLETE (5/5 sub-phases, SA approved)
 E2V2-12    ✅ COMPLETE (3/3 comparison PASS, 2h+ monitoring)
 E2V2-13    ✅ COMPLETE (102 PASS, 0 FAIL, WAIVER RESOLVED)
-UNI-USER   ✅ COMPLETE (Center Users page fixed, Edge v2 multi-user, Center↔Edge sync)
+UNI-USER   ✅ COMPLETE (Center Users page + Edge v2 multi-user + Edge Access column)
 → Production Switch: BROAD ROLLOUT (19 signals), RUNNING ✅
-→ Unified User Management: DEPLOYED ✅ (admin/engineer/operator, Center↔Edge sync)
+→ Unified User Management: DEPLOYED ✅ (admin/engineer/operator, Center↔Edge sync, Edge Access UI)
 → WAIVER for >=15 signals: RESOLVED — 19 signals RUNTIME_PASS
 ```
