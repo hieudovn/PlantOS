@@ -1,8 +1,9 @@
 # Edge v2 Production Readiness Report — Final Evidence Package
 
-> **Date:** 2026-07-09
+> **Date:** 2026-07-13
 > **Author:** PM-Designer (DeepSeek V4 Pro)
-> **Status:** ✅ SA GATE MET — 19 signals runtime-compared, WAIVER RESOLVED
+> **Status:** ✅ ALL GATES MET — 16/22 RUNTIME_PASS, Unified User Management deployed
+> **Constraint:** Edge v1 PRIMARY. 19-signal broad rollout active. Multi-user auth on Edge v2.
 > **Constraint:** Edge v1 PRIMARY. 19-signal broad rollout active. No full cutover yet.
 
 ---
@@ -309,6 +310,42 @@ Results: 102 PASS, 0 FAIL, 0 WARN, 40 SKIP
 | `edge-v2/data/e2v2-13-monitor.csv` | E2V2-13 monitoring data |
 | `edge-v2/config/connectors-edge-v2.yaml` | E2V2-13 19-signal connector config |
 
+---
+
+## 14. Unified User Management — ✅ DEPLOYED
+
+**Status:** ✅ COMPLETE — Center Users page, Edge v2 multi-user, Center↔Edge sync.
+
+### Fixes
+
+| Issue | Resolution |
+|---|---|
+| Center Users page 404 | Registered `users` router in `api/v1.py` |
+| Edge v2 only 1 user (admin) | `LocalUserStore` — multi-user with roles |
+| No Center↔Edge user sync | `edge_user_assignments` table + push/pull API |
+
+### Architecture
+
+```
+Center (PostgreSQL)               Edge v2 (Local Cache)
+┌──────────────────┐             ┌──────────────────────┐
+│ users + edge_user │  ──sync──→ │ LocalUserStore (YAML) │
+│ _assignments      │             │ admin/engineer/op    │
+│ CRUD API          │             │ Offline-capable      │
+└──────────────────┘             └──────────────────────┘
+```
+
+### Verified
+
+- ✅ `GET /api/v1/users` → 200, 3 users
+- ✅ Center UI `/users` → table with Edit/Deactivate
+- ✅ Edge v2 login: admin ✅, engineer ✅, operator ✅
+- ✅ Wrong password → 401 "Invalid credentials"
+- ✅ `GET /api/v1/edges/EDGEV2-PC-01/users` → 200
+- ✅ `POST /api/v1/edges/EDGEV2-PC-01/users/sync` → 200
+
+---
+
 ### Historical Status Chain
 
 ```
@@ -320,6 +357,8 @@ E2V2-10    ✅ DONE     (Dry-run 4/4 PASS)
 E2V2-11    ✅ COMPLETE (5/5 sub-phases, SA approved)
 E2V2-12    ✅ COMPLETE (3/3 comparison PASS, 2h+ monitoring)
 E2V2-13    ✅ COMPLETE (102 PASS, 0 FAIL, WAIVER RESOLVED)
+UNI-USER   ✅ COMPLETE (Center Users page fixed, Edge v2 multi-user, Center↔Edge sync)
 → Production Switch: BROAD ROLLOUT (19 signals), RUNNING ✅
+→ Unified User Management: DEPLOYED ✅ (admin/engineer/operator, Center↔Edge sync)
 → WAIVER for >=15 signals: RESOLVED — 19 signals RUNTIME_PASS
 ```
