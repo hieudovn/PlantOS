@@ -27,8 +27,8 @@ heartbeat:
   interval_seconds: 10
 
 publish:
-  interval_seconds: 10
-  batch_size: 10
+  interval_seconds: 5
+  batch_size: 500
 
 # 🔴 MIRROR MODE — Edge v1 remains PRIMARY.
 # Connectors mirror v1 signals to EDGEV2-DEMO workspace.
