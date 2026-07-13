@@ -12,6 +12,8 @@ Before planning or implementing any non-trivial change, read:
 - `docs/80-working-rules.md`
 - `docs/81-ai-workflow.md`
 
+When you need VPS access, SSH credentials, service URLs, or login info for any service (Center, Edge v1, Edge v2, Simulator, TDengine, Docker), read `local/dev-credentials.md` first.
+
 ## Core rules
 
 - Do not bypass UNS/CDM.
