@@ -25,6 +25,8 @@ try:
 except ImportError:
     HAS_ITSDAENGEROUS = False
 
+from agent.auth.local_user_store import LocalUserStore, UserInfo
+
 logger = logging.getLogger(__name__)
 
 SESSION_TTL = timedelta(hours=24)
@@ -161,46 +163,57 @@ class LocalAuthManager:
         # In-memory session store for CSRF token lookup (cookie carries the rest)
         self._sessions: dict[str, Session] = {}
 
+        # Multi-user support via local user store
+        self._user_store = LocalUserStore(config)
+        self._user_store.migrate_legacy_admin()
+
+    @property
+    def user_store(self) -> LocalUserStore:
+        return self._user_store
+
     # ---- Password management ------------------------------------------------
 
     def create_admin(self, password: str) -> bool:
         """Set the admin password (first-run). Returns False if already exists."""
-        existing = self.config.get("auth", {}).get("admin_hash")
-        if existing:
+        if self.has_admin():
             return False
-        hashed = _hash_password(password)
-        self.config._data.setdefault("auth", {})["admin_hash"] = hashed
-        self.config._save()
-        logger.info("Admin password created")
+        self._user_store.upsert_user(UserInfo(
+            username="admin",
+            password_hash=_hash_password(password),
+            display_name="Administrator",
+            role="admin",
+        ))
+        logger.info("Admin user created")
         return True
 
     def has_admin(self) -> bool:
-        """Check if admin password has been set."""
-        return bool(self.config.get("auth", {}).get("admin_hash"))
+        """Check if any admin user exists in local store."""
+        return any(u.role == "admin" for u in self._user_store.list_users())
 
     def verify_password(self, username: str, password: str) -> bool:
-        """Verify username/password. Only 'admin' user is supported."""
-        if username != "admin":
+        """Verify username/password against local user store."""
+        user = self._user_store.get_user(username)
+        if not user:
             return False
-        stored_hash = self.config.get("auth", {}).get("admin_hash")
-        if not stored_hash:
+        if not user.is_active:
             return False
-        return _check_password(password, stored_hash)
+        return _check_password(password, user.password_hash)
 
-    def change_password(self, old_password: str, new_password: str) -> bool:
-        """Change admin password. Returns False if old password is wrong."""
-        if not self.verify_password("admin", old_password):
+    def change_password(self, username: str, old_password: str, new_password: str) -> bool:
+        """Change password for any local user. Requires old password verification."""
+        if not self.verify_password(username, old_password):
             return False
-        hashed = _hash_password(new_password)
-        self.config._data.setdefault("auth", {})["admin_hash"] = hashed
-        self.config._save()
-        # Invalidate all existing sessions
+        user = self._user_store.get_user(username)
+        if not user:
+            return False
+        user.password_hash = _hash_password(new_password)
+        self._user_store.upsert_user(user)
         self._sessions.clear()
-        logger.info("Admin password changed — all sessions invalidated")
+        logger.info("Password changed for %s — all sessions invalidated", username)
         return True
 
     def is_first_run(self) -> bool:
-        """Detect if no admin password has been set."""
+        """Detect if no admin user has been created."""
         return not self.has_admin()
 
     # ---- Session management -------------------------------------------------

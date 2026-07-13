@@ -157,6 +157,31 @@ class EdgeAgentV2:
         if not self._jwt_token or now > self._jwt_refresh_at - 300:  # 5min before expiry
             await self._jwt_login()
 
+    async def _sync_users_from_center(self):
+        """Pull user list from Center on startup."""
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=10) as client:
+                headers = {}
+                if self._jwt_token:
+                    headers["Authorization"] = f"Bearer {self._jwt_token}"
+
+                edge_id = self.config.get("edge_node_id", "EDGEV2-PC-01")
+                resp = await client.get(
+                    f"{self.config.center_url}/api/v1/edges/{edge_id}/users/export",
+                    headers=headers,
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    users = data.get("users", [])
+                    if users:
+                        self.auth.user_store.sync_from_center(users)
+                        logger.info("Synced %d users from Center on startup", len(users))
+                else:
+                    logger.warning("Center user sync returned %d", resp.status_code)
+        except Exception as e:
+            logger.warning("Failed to sync users from Center: %s", e)
+
     async def run(self):
         """Start the Edge v2 agent main loop."""
         logger.info("EdgeAgentV2 starting — node=%s plant=%s",
@@ -165,6 +190,10 @@ class EdgeAgentV2:
 
         # Start web server
         await self.web.start()
+
+        # JWT login + sync users from Center on startup
+        await self._jwt_login()
+        await self._sync_users_from_center()
 
         # Start connectors
         await self.connectors.start_all()

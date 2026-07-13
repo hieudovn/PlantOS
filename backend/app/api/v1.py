@@ -13,6 +13,8 @@ from app.modules.contracts.router import router as contracts_router
 from app.modules.asset_templates.router import router as templates_router
 from app.modules.formulas.router import router as formulas_router
 from app.modules.process_view.router import router as process_view_router
+from app.modules.users.router import router as users_router
+from app.modules.edge_users.router import router as edge_users_router
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(assets_router, tags=["Assets"])
@@ -26,6 +28,8 @@ router.include_router(contracts_router, tags=["Contracts"])
 router.include_router(templates_router, tags=["Asset Templates"])
 router.include_router(formulas_router, tags=["Formulas"])
 router.include_router(process_view_router, tags=["Process View"])
+router.include_router(users_router, tags=["Users"])
+router.include_router(edge_users_router, tags=["Edge Users"])
 
 
 # ---- Seed endpoint (idempotent) ----
