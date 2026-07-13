@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchAPI } from "@/lib/api";
 import { useWorkspace } from "@/lib/WorkspaceContext";
-import { getAssetSignals } from "./config";
 import { useConditionConfig } from "./hooks/useProcessConfig";
+import { useAssetSignals } from "./hooks/useAssetSignals";
 import { ConditionScoreCard } from "./components/ConditionScoreCard";
 import { KeySignalsCard } from "./components/KeySignalsCard";
 import { AlarmTimeline } from "./components/AlarmTimeline";
@@ -19,11 +19,12 @@ export function AssetConditionView({ assetId }: { assetId: string }) {
   });
 
   const { data: condConfig } = useConditionConfig(assetId);
+  const { data: apiSignals = [] } = useAssetSignals(assetId);
 
-  // Use API config if available, else fallback to local config
-  const signalConfigs: { signalId: string; label: string; unit: string }[] = condConfig?.signals?.length
+  // Use API config if available, else fallback to asset signals from API
+  const signalConfigs = condConfig?.signals?.length
     ? condConfig.signals.map((s: any) => ({ signalId: s.signal_id, label: s.label, unit: s.unit }))
-    : getAssetSignals(plantId, assetId);
+    : apiSignals;
   const signalIds = signalConfigs.map((s) => s.signalId);
 
   const trendSignals = signalConfigs.map((s, i) => ({

@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchAPI } from "@/lib/api";
-import { getPlantConfig } from "../config";
 
 export function useProcessConfig(plantId: string) {
   return useQuery({
@@ -8,15 +7,9 @@ export function useProcessConfig(plantId: string) {
     queryFn: async () => {
       const res = await fetchAPI<any>(`/api/v1/plants/${plantId}/process-view`);
       if (res?.source === "backend") return res;
-      throw new Error("Backend returned fallback, using local config");
+      throw new Error("Backend returned fallback");
     },
     staleTime: 60000,
-    placeholderData: () => {
-      const local = getPlantConfig(plantId);
-      return local
-        ? { plant_id: plantId, workflow: local.workflow || [], thresholds: local.thresholds || {}, source: "fallback" as const }
-        : undefined;
-    },
     retry: 1,
   });
 }

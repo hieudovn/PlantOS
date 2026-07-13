@@ -1,9 +1,6 @@
 import { useQueries } from "@tanstack/react-query";
 import { Circle } from "lucide-react";
 import { getCurrentValues } from "@/lib/api";
-import { useWorkspace } from "@/lib/WorkspaceContext";
-import { getThreshold } from "../config";
-import type { AssetSignalConfig, ThresholdConfig } from "../config/types";
 
 interface Props {
   signalConfigs: AssetSignalConfig[];
@@ -36,7 +33,6 @@ function formatVal(value: number | null | undefined): string {
 }
 
 export function KeySignalsCard({ signalConfigs }: Props) {
-  const { plantId } = useWorkspace();
   const signalIds = signalConfigs.map((s) => s.signalId);
 
   const queries = useQueries({
@@ -73,8 +69,7 @@ export function KeySignalsCard({ signalConfigs }: Props) {
       <div className="space-y-2">
         {signalConfigs.map((sc, i) => {
           const value = queries[i]?.data?.value;
-          const threshold = getThreshold(plantId, sc.signalId);
-          const status = signalStatus(value, threshold);
+          const status = signalStatus(value, null);
           return (
             <div key={sc.signalId} className="flex items-center justify-between">
               <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{sc.label}</span>

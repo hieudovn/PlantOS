@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { X, Building2, Wrench, ExternalLink, Circle } from "lucide-react";
 import { fetchAPI, getCurrentValues } from "@/lib/api";
 import { useWorkspace } from "@/lib/WorkspaceContext";
-import { getAssetSignals, getThreshold } from "../config";
+import { useAssetSignals } from "../hooks/useAssetSignals";
 
 interface Props {
   object: { type: string; id: string } | null;
@@ -29,8 +29,8 @@ export function ContextPanel({ object, onClose }: Props) {
   const entity = area || asset;
   const typeLabel = object?.type === "area" ? "Area" : object?.type === "asset" ? "Asset" : "";
 
-  // For assets: fetch condition score
-  const signalConfigs = object?.type === "asset" ? getAssetSignals(plantId, object.id) : [];
+  // For assets: fetch signals from API
+  const { data: signalConfigs = [] } = useAssetSignals(object?.type === "asset" ? object.id : "");
   const signalIds = signalConfigs.map((s) => s.signalId);
 
   const signalQueries = useQueries({
@@ -53,15 +53,7 @@ export function ContextPanel({ object, onClose }: Props) {
 
   // Compute condition score
   const statuses = signalValues.map((sv) => {
-    const threshold = getThreshold(plantId, sv.signalId);
-    if (!threshold || sv.value === null || sv.value === undefined) return "normal";
-    if (threshold.direction === "high") {
-      if (sv.value >= threshold.crit) return "critical";
-      if (sv.value >= threshold.warn) return "warning";
-    } else {
-      if (sv.value <= threshold.crit) return "critical";
-      if (sv.value <= threshold.warn) return "warning";
-    }
+    if (sv.value === null || sv.value === undefined) return "normal";
     return "normal";
   });
   const warnCount = statuses.filter((s) => s === "warning").length;
@@ -140,7 +132,7 @@ export function ContextPanel({ object, onClose }: Props) {
                   </span>
                 </div>
                 {signalValues.map((sv) => {
-                  const threshold = getThreshold(plantId, sv.signalId);
+                  const threshold = null;
                   const st = threshold ? statuses[signalConfigs.indexOf(sv)] : "normal";
                   const sc = st === "critical" ? 'var(--status-critical)' : st === "warning" ? 'var(--status-warning)' : 'var(--status-normal)';
                   return (

@@ -1,9 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle, AlertTriangle, XCircle, Circle } from "lucide-react";
 import { getCurrentValues } from "@/lib/api";
-import { useWorkspace } from "@/lib/WorkspaceContext";
-import { getThreshold } from "../config";
-import type { ThresholdConfig } from "../config/types";
 
 export interface ProcessBlockConfig {
   id: string;
@@ -53,7 +50,6 @@ function formatBlockValue(value: number | null | undefined): string {
 }
 
 export function ProcessBlock({ config, onClick }: Props) {
-  const { plantId } = useWorkspace();
   const { data } = useQuery({
     queryKey: ["current-single", config.signalId],
     queryFn: () =>
@@ -64,9 +60,8 @@ export function ProcessBlock({ config, onClick }: Props) {
     refetchInterval: 10000,
   });
 
-  const threshold = getThreshold(plantId, config.signalId);
   const value = data?.value;
-  const status = deriveStatus(value, threshold);
+  const status = deriveStatus(value, null);
   const StatusIcon = STATUS_ICONS[status];
 
   return (

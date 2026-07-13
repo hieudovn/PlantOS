@@ -2,8 +2,7 @@ import { useQuery, useQueries } from "@tanstack/react-query";
 import { Circle, AlertTriangle } from "lucide-react";
 import { fetchAPI, getCurrentValues } from "@/lib/api";
 import { useWorkspace } from "@/lib/WorkspaceContext";
-import { getAssetSignals, getThreshold } from "../config";
-import type { ThresholdConfig } from "../config/types";
+import { useAssetSignals } from "../hooks/useAssetSignals";
 
 interface Props {
   asset: { asset_id: string; name: string; asset_type: string; asset_role: string };
@@ -38,7 +37,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function AssetCard({ asset, onClick }: Props) {
   const { plantId } = useWorkspace();
-  const signals = getAssetSignals(plantId, asset.asset_id);
+  const { data: signals = [] } = useAssetSignals(asset.asset_id);
 
   // useQueries follows React hooks rules (no hooks in loops)
   const signalQueries = useQueries({
@@ -69,7 +68,7 @@ export function AssetCard({ asset, onClick }: Props) {
   const activeAlarms = (alarms || []).length;
 
   // Derive worst status across all signals
-  const statuses = signalValues.map((sv) => deriveStatus(sv.value, getThreshold(plantId, sv.signalId)));
+  const statuses = signalValues.map((sv) => deriveStatus(sv.value, null));
   const worstStatus = statuses.includes("critical") ? "critical" : statuses.includes("warning") ? "warning" : "normal";
 
   // Check if any signal has data (for freshness)
@@ -116,7 +115,7 @@ export function AssetCard({ asset, onClick }: Props) {
           <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No signals configured</div>
         )}
         {signalValues.map((sv) => {
-          const st = deriveStatus(sv.value, getThreshold(plantId, sv.signalId));
+          const st = deriveStatus(sv.value, null);
           return (
             <div key={sv.signalId} className="flex items-center justify-between">
               <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{sv.label}</span>
