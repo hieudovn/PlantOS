@@ -45,11 +45,13 @@ jobs:
       - name: Run migrations
         env:
           POSTGRES_HOST: 127.0.0.1
+          PGHOST: 127.0.0.1
           POSTGRES_USER: plantos
           POSTGRES_PASSWORD: plantos_test
           POSTGRES_DB: plantos_test
         run: |
           cd backend
+          python -c "import os; print('DB_URL:', f'postgresql+psycopg2://{os.environ[\"POSTGRES_USER\"]}:{os.environ[\"POSTGRES_PASSWORD\"]}@{os.environ[\"POSTGRES_HOST\"]}:{os.environ.get(\"POSTGRES_PORT\",\"5432\")}/{os.environ[\"POSTGRES_DB\"]}')"
           alembic upgrade head
       - name: Run tests
         env:
@@ -88,6 +90,7 @@ jobs:
       - name: Run Edge tests
         env:
           PYTHONPATH: .
+          EDGE_DEV_INSECURE_AUTH: "true"
         run: |
           python -m pytest edge-v2/tests -q --timeout=30
 
@@ -96,12 +99,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build edge image
-        run: |
-          set -x
-          docker build \
-            -t plantos-edge-v2:ci \
-            -f edge-v2/Dockerfile .
-          docker images plantos-edge-v2:ci
+        run: docker build -t plantos-edge-v2:ci -f edge-v2/Dockerfile .
 
   compose-validation:
     runs-on: ubuntu-latest
