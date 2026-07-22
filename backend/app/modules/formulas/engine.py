@@ -93,13 +93,15 @@ class _ValidatorVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             if node.func.id not in self.allowed_funcs:
                 self.errors.append(f"Forbidden function: '{node.func.id}'")
+            # Reject keyword arguments
+            if node.keywords:
+                self.errors.append("Keyword arguments are not allowed in function calls")
         else:
             self.errors.append("Only simple function calls are allowed (e.g. clamp(A, 0, 100))")
         self.generic_visit(node)
 
     def visit_Attribute(self, node: ast.Attribute):
         self.errors.append(f"Forbidden: attribute access (e.g. {ast.unparse(node)})")
-        # Stop visiting children to avoid cascading errors
 
     def visit_Subscript(self, node: ast.Subscript):
         self.errors.append("Forbidden: subscript/slice access")
@@ -109,6 +111,54 @@ class _ValidatorVisitor(ast.NodeVisitor):
 
     def visit_ListComp(self, node: ast.ListComp):
         self.errors.append("Forbidden: list comprehensions")
+
+    def visit_DictComp(self, node: ast.DictComp):
+        self.errors.append("Forbidden: dict comprehensions")
+
+    def visit_SetComp(self, node: ast.SetComp):
+        self.errors.append("Forbidden: set comprehensions")
+
+    def visit_GeneratorExp(self, node: ast.GeneratorExp):
+        self.errors.append("Forbidden: generator expressions")
+
+    def visit_Dict(self, node: ast.Dict):
+        self.errors.append("Forbidden: dictionary literal")
+
+    def visit_List(self, node: ast.List):
+        self.errors.append("Forbidden: list literal")
+
+    def visit_Set(self, node: ast.Set):
+        self.errors.append("Forbidden: set literal")
+
+    def visit_Tuple(self, node: ast.Tuple):
+        self.errors.append("Forbidden: tuple literal")
+
+    def visit_JoinedStr(self, node: ast.JoinedStr):
+        self.errors.append("Forbidden: f-string")
+
+    def visit_FormattedValue(self, node: ast.FormattedValue):
+        self.errors.append("Forbidden: f-string expression")
+
+    # ── Generic catch-all: reject any AST node not explicitly allowed ──
+    # Allowed nodes are those that the evaluator handles:
+    #   Expression, Constant, Name, BinOp, UnaryOp, Compare, BoolOp,
+    #   IfExp, Call (whitelisted), Load, Store (context only)
+    # Everything else is rejected by the generic visitor.
+    def generic_visit(self, node):
+        # Whitelist of allowed node types (checked by name to avoid import issues)
+        allowed = {
+            "Expression", "Constant", "Name", "BinOp", "UnaryOp",
+            "Compare", "BoolOp", "IfExp", "Call",
+            "Load", "Store", "Del",
+            "Add", "Sub", "Mult", "Div", "Pow", "Mod",
+            "UAdd", "USub", "Eq", "NotEq", "Lt", "LtE", "Gt", "GtE",
+            "And", "Or", "Not", "Invert",
+            "keyword", "Starred",
+        }
+        node_name = type(node).__name__
+        if node_name not in allowed:
+            self.errors.append(f"Forbidden: {node_name} is not allowed in formulas")
+        super().generic_visit(node)
 
 
 class _EvaluatorVisitor(ast.NodeVisitor):

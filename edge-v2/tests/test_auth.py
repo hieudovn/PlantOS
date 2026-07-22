@@ -10,7 +10,14 @@ class TestPasswordHashing:
     @pytest.fixture
     def config(self):
         cfg = MagicMock()
-        cfg.get.return_value = None
+        # Return proper session_secret for production mode, empty dict for other keys
+        def _get(key, default=None):
+            if key == "session_secret":
+                return "test-password-hashing-secret-key"
+            if key == "auth":
+                return {}
+            return default
+        cfg.get.side_effect = _get
         cfg._data = {}
         cfg._save = MagicMock()
         return cfg
@@ -82,7 +89,13 @@ class TestSessionManagement:
     def auth(self):
         from agent.auth.auth import LocalAuthManager
         cfg = MagicMock()
-        cfg.get.return_value = "test-secret-key-for-sessions"
+        def _get(key, default=None):
+            if key == "session_secret":
+                return "test-session-management-secret"
+            if key == "auth":
+                return {}
+            return default
+        cfg.get.side_effect = _get
         cfg._data = {}
         cfg._save = MagicMock()
         mgr = LocalAuthManager(cfg)
@@ -151,7 +164,13 @@ class TestCSRFProtection:
     def auth(self):
         from agent.auth.auth import LocalAuthManager
         cfg = MagicMock()
-        cfg.get.return_value = "test-secret-key"
+        def _get(key, default=None):
+            if key == "session_secret":
+                return "test-csrf-secret-key"
+            if key == "auth":
+                return {}
+            return default
+        cfg.get.side_effect = _get
         cfg._data = {}
         cfg._save = MagicMock()
         mgr = LocalAuthManager(cfg)

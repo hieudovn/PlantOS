@@ -69,14 +69,12 @@ def test_wtp_realistic():
 
 # ---- SA-requested hardening tests (P2) ----
 
-@pytest.mark.xfail(reason="Python 3.11 AST changed — Dict node not caught by visitor")
 def test_reject_dict_literal():
     e = SafeFormulaEngine()
     errors = e.validate("{'a': 1}", [])
     assert len(errors) > 0
 
 
-@pytest.mark.xfail(reason="Python 3.11 AST changed — List node not caught by visitor")
 def test_reject_list_literal():
     e = SafeFormulaEngine()
     errors = e.validate("[1, 2, 3]", [])
@@ -101,7 +99,6 @@ def test_reject_open_call():
     assert len(errors) > 0
 
 
-@pytest.mark.xfail(reason="Python 3.11 AST changed — JoinedStr not caught by visitor")
 def test_reject_fstring():
     e = SafeFormulaEngine()
     errors = e.validate("f'{A}'", ["A"])
@@ -139,7 +136,6 @@ def test_unknown_function_rejected():
     assert len(errors) > 0
 
 
-@pytest.mark.xfail(reason="Python 3.11 AST — keyword args not caught by visitor")
 def test_keyword_arguments_rejected():
     e = SafeFormulaEngine()
     errors = e.validate("round(A, ndigits=2)", ["A"])

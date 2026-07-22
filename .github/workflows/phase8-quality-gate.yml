@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - stabilization/phase8
+      - phase8-closure
   pull_request:
     branches:
       - main
@@ -14,7 +14,27 @@ permissions:
   contents: read
 
 jobs:
-  backend-import-and-test:
+  backend-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install backend
+        run: |
+          cd backend
+          pip install -e ".[dev]"
+      - name: Verify import
+        run: |
+          cd backend
+          python -c "from app.main import app; print('IMPORT_OK')"
+      - name: Run unit tests
+        run: |
+          cd backend
+          python -m pytest tests/test_health.py tests/test_models.py tests/test_formula_engine.py tests/test_historian_interface.py -v --tb=short --timeout=30
+
+  backend-postgres-integration:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -39,10 +59,6 @@ jobs:
         run: |
           cd backend
           pip install -e ".[dev]"
-      - name: Verify import
-        run: |
-          cd backend
-          python -c "from app.main import app; print('IMPORT_OK')"
       - name: Run migrations
         env:
           POSTGRES_HOST: 127.0.0.1
@@ -52,20 +68,81 @@ jobs:
           POSTGRES_DB: plantos_test
         run: |
           cd backend
-          python -c "import os; print('DB_URL:', f'postgresql+psycopg2://{os.environ[\"POSTGRES_USER\"]}:{os.environ[\"POSTGRES_PASSWORD\"]}@{os.environ[\"POSTGRES_HOST\"]}:{os.environ.get(\"POSTGRES_PORT\",\"5432\")}/{os.environ[\"POSTGRES_DB\"]}')"
           alembic upgrade head
-      - name: Run tests
+      - name: Run PostgreSQL integration tests
         env:
           POSTGRES_HOST: 127.0.0.1
           PGHOST: 127.0.0.1
           POSTGRES_USER: plantos
           POSTGRES_PASSWORD: plantos_test
           POSTGRES_DB: plantos_test
-          DEBUG: "true"
         run: |
           cd backend
-          python -c "from sqlalchemy import create_engine, text; e=create_engine('postgresql+psycopg2://plantos:plantos_test@127.0.0.1:5432/plantos_test'); print('DB OK:', e.connect().execute(text('SELECT 1')).scalar())"
-          python -m pytest tests/ -v --tb=short --timeout=30 --ignore=tests/test_regression_am1.py --ignore=tests/test_tdengine_adapter.py --ignore=tests/test_contracts_apply.py --ignore=tests/test_contracts_preview.py --ignore=tests/test_contracts_validator.py --ignore=tests/test_measurement_api.py
+          python -m pytest tests/test_signal_api.py tests/test_asset_api.py tests/test_contracts_apply.py tests/test_contracts_preview.py tests/test_contracts_validator.py tests/test_measurement_api.py -v --tb=short --timeout=30
+
+  backend-auth-security:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: plantos
+          POSTGRES_PASSWORD: plantos_test
+          POSTGRES_DB: plantos_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install backend
+        run: |
+          cd backend
+          pip install -e ".[dev]"
+      - name: Run migrations
+        env:
+          POSTGRES_HOST: 127.0.0.1
+          PGHOST: 127.0.0.1
+          POSTGRES_USER: plantos
+          POSTGRES_PASSWORD: plantos_test
+          POSTGRES_DB: plantos_test
+        run: |
+          cd backend
+          alembic upgrade head
+      - name: Run auth security tests
+        env:
+          POSTGRES_HOST: 127.0.0.1
+          PGHOST: 127.0.0.1
+          POSTGRES_USER: plantos
+          POSTGRES_PASSWORD: plantos_test
+          POSTGRES_DB: plantos_test
+          DEBUG: "false"
+        run: |
+          cd backend
+          python -m pytest tests/test_auth_security.py -v --tb=short --timeout=30
+
+  backend-tdengine-integration:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install backend
+        run: |
+          cd backend
+          pip install -e ".[dev]"
+      - name: Run TDengine tests
+        run: |
+          cd backend
+          python -m pytest tests/test_tdengine_adapter.py tests/test_regression_am1.py -v --tb=short --timeout=30 || echo "TDENGINE_UNAVAILABLE"
 
   frontend-typecheck-and-build:
     runs-on: ubuntu-latest
@@ -94,12 +171,9 @@ jobs:
       - name: Run Edge tests
         env:
           PYTHONPATH: .
-          EDGE_DEV_INSECURE_AUTH: "true"
+          EDGE_SESSION_SECRET: "ci-test-session-secret-min-32-bytes!!"
         run: |
-          python -m pytest edge-v2/tests/ -v --tb=line --timeout=30 --ignore=edge-v2/tests/test_connectors.py -k "not TestSafeApply" || true
-          python -m pytest edge-v2/tests/test_connectors.py -v --tb=line --timeout=30 -k "not TestSafeApply" || true
-          python -m pytest edge-v2/tests/test_auth.py -v --tb=line --timeout=30 || true
-          echo "Edge tests done"
+          python -m pytest edge-v2/tests/ -v --tb=short --timeout=30
 
   edge-docker-build:
     runs-on: ubuntu-latest
@@ -113,11 +187,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate Compose config
-        run: |
-          docker compose -f deployment/docker-compose.yml config
+        run: docker compose -f deployment/docker-compose.yml config
       - name: Build Compose images
-        run: |
-          docker compose -f deployment/docker-compose.yml build
+        run: docker compose -f deployment/docker-compose.yml build
 
   secret-scan:
     runs-on: ubuntu-latest
@@ -135,5 +207,4 @@ jobs:
         with:
           python-version: "3.11"
       - name: Validate findings CSV
-        run: |
-          python tools/validate_findings_csv.py
+        run: python tools/validate_findings_csv.py
