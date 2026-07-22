@@ -165,8 +165,8 @@ class ProcessingEngine:
                 quality = "BAD"
                 warnings.append(f"Step '{step.type}' failed: {e}")
 
-        # Update history
-        self._history[signal_id].append(value)
+        # Update history with raw value (not processed) to avoid cascading smoothing
+        self._history[signal_id].append(raw_value)
         if len(self._history[signal_id]) > MAX_HISTORY:
             self._history[signal_id] = self._history[signal_id][-MAX_HISTORY:]
         self._last_timestamps[signal_id] = now

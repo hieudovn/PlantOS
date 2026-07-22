@@ -91,8 +91,8 @@ class TestMovingAverage:
     def test_with_history(self):
         from agent.processing.steps.moving_average import moving_average_step
         val, qual, _ = moving_average_step(15.0, "GOOD", {"window_size": 3}, [10.0, 12.0, 14.0])
-        assert val == 13.0  # (10+12+14+15)/4 = 12.75... wait (10+12+14+15)/4 = 12.75? No: (10+12+14+15)/4 = 12.75
-        # Actually: samples = [10, 12, 14, 15], window=3, so last 3 = [12, 14, 15], avg=13.67? No: (12+14+15)/3=13.67
+        # samples = (history + [value])[-window:] = (10,12,14,15)[-3:] = (12,14,15), avg=13.666667
+        assert round(val, 6) == 13.666667
 
     def test_exact_window(self):
         from agent.processing.steps.moving_average import moving_average_step

@@ -63,6 +63,7 @@ jobs:
           DEBUG: "true"
         run: |
           cd backend
+          python -c "from sqlalchemy import create_engine, text; e=create_engine('postgresql+psycopg2://plantos:plantos_test@127.0.0.1:5432/plantos_test'); print('DB OK:', e.connect().execute(text('SELECT 1')).scalar())"
           python -m pytest -v --tb=long --timeout=30
 
   frontend-typecheck-and-build:

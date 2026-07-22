@@ -215,8 +215,8 @@ class TestBaseConnector:
     @pytest.mark.asyncio
     async def test_mqtt_validate_config(self):
         from agent.connectors.mqtt.connector import MqttSubscribeConnector
-        c = MqttSubscribeConnector("test", {"connection": {"host": "localhost"}, "tags": [{"tag_id": "t1"}]})
-        errors = await c.validate_config({"connection": {"host": "localhost"}, "tags": [{"tag_id": "t1"}]})
+        c = MqttSubscribeConnector("test", {"connection": {"host": "localhost"}, "tags": [{"tag_id": "t1", "source_ref": "topic/test", "signal_id": "sig-1"}]})
+        errors = await c.validate_config({"connection": {"host": "localhost"}, "tags": [{"tag_id": "t1", "source_ref": "topic/test", "signal_id": "sig-1"}]})
         assert len(errors) == 0
 
     def test_opcua_connector_type(self):

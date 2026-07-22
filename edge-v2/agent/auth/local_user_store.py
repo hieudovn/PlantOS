@@ -70,7 +70,12 @@ class LocalUserStore:
 
     def _load(self):
         """Load users from config."""
-        users_dict = self.config.get("auth", {}).get("users", {})
+        auth_section = self.config.get("auth", {})
+        if not isinstance(auth_section, dict):
+            auth_section = {}
+        users_dict = auth_section.get("users", {})
+        if not isinstance(users_dict, dict):
+            users_dict = {}
         self._users = {}
         for username, data in users_dict.items():
             try:
