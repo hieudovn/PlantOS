@@ -3,6 +3,7 @@ name: Phase 8 Quality Gate
 on:
   push:
     branches:
+      - main
       - stabilization/phase8
   pull_request:
     branches:
