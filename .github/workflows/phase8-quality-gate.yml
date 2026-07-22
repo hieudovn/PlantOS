@@ -129,6 +129,9 @@ jobs:
 
   backend-tdengine-integration:
     runs-on: ubuntu-latest
+    # Advisory job — TDengine cannot run in GitHub Actions.
+    # This job is non-blocking: continue-on-error prevents it from
+    # failing the overall gate while still producing a visible signal.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -139,10 +142,10 @@ jobs:
         run: |
           cd backend
           pip install -e ".[dev]"
-      - name: Run TDengine tests
+      - name: Run TDengine tests (advisory — TDengine unavailable in CI)
         run: |
           cd backend
-          python -m pytest tests/test_tdengine_adapter.py tests/test_regression_am1.py -v --tb=short --timeout=30 || echo "TDENGINE_UNAVAILABLE"
+          python -m pytest tests/test_tdengine_adapter.py tests/test_regression_am1.py -v --tb=short --timeout=30 -p no:warnings
 
   frontend-typecheck-and-build:
     runs-on: ubuntu-latest
