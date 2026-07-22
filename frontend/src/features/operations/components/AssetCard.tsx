@@ -3,8 +3,7 @@ import { Circle, AlertTriangle } from "lucide-react";
 import { fetchAPI, getCurrentValues } from "@/lib/api";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { useAssetSignals } from "../hooks/useAssetSignals";
-
-type ThresholdConfig = { warn: number; crit: number; direction: "high" | "low" } | null;
+import type { ThresholdConfig } from "../types";
 
 interface Props {
   asset: { asset_id: string; name: string; asset_type: string; asset_role: string };

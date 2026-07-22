@@ -9,8 +9,6 @@ export async function fetchAPI<T>(path: string, options?: RequestInit): Promise<
   };
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
-  } else {
-    headers["X-API-Key"] = "plantos-edge-key-2026";
   }
 
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
@@ -96,7 +94,10 @@ export async function deleteBinding(id: string): Promise<void> { await fetchAPI(
 export async function validateBindings(data: any): Promise<any> { return fetchAPI("/api/v1/bindings/validate", { method: "POST", body: JSON.stringify(data) }); }
 export async function deleteAsset(id: string): Promise<void> { await fetchAPI(`/api/v1/assets/${id}`, { method: "DELETE" }); }
 export async function getVocabulary(): Promise<any> { return fetchAPI("/api/v1/vocabulary"); }
-export async function getAreas(): Promise<any[]> { return fetchAPI("/api/v1/areas"); }
+export async function getAreas(params?: Record<string, string>): Promise<any[]> {
+  const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+  return fetchAPI(`/api/v1/areas${qs}`);
+}
 export async function getTemplates(): Promise<any[]> { return fetchAPI("/api/v1/asset-templates"); }
 export async function createAsset(data: any): Promise<any> { return fetchAPI("/api/v1/assets", { method: "POST", body: JSON.stringify(data) }); }
 export async function updateAsset(id: string, data: any): Promise<any> { return fetchAPI(`/api/v1/assets/${id}`, { method: "PUT", body: JSON.stringify(data) }); }
@@ -108,7 +109,10 @@ export async function deleteCalcSignal(id: string): Promise<void> { await fetchA
 export async function testCalcSignal(data: any): Promise<any> { return fetchAPI("/api/v1/calculated-signals/test", { method: "POST", body: JSON.stringify(data) }); }
 export async function executeCalcSignal(id: string): Promise<any> { return fetchAPI(`/api/v1/calculated-signals/${id}/execute`, { method: "POST" }); }
 export async function validateFormula(data: any): Promise<any> { return fetchAPI("/api/v1/formulas/validate", { method: "POST", body: JSON.stringify(data) }); }
-export async function getKpis(): Promise<any[]> { return fetchAPI("/api/v1/kpis"); }
+export async function getKpis(params?: Record<string, string>): Promise<any[]> {
+  const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+  return fetchAPI(`/api/v1/kpis${qs}`);
+}
 export async function createKpi(data: any): Promise<any> { return fetchAPI("/api/v1/kpis", { method: "POST", body: JSON.stringify(data) }); }
 export async function updateKpi(id: string, data: any): Promise<any> { return fetchAPI(`/api/v1/kpis/${id}`, { method: "PUT", body: JSON.stringify(data) }); }
 export async function deleteKpi(id: string): Promise<void> { await fetchAPI(`/api/v1/kpis/${id}`, { method: "DELETE" }); }

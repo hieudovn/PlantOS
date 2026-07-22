@@ -16,7 +16,7 @@ export function AssetForm({ mode, asset, onClose, onSaved }: AssetFormProps) {
   const { plantId } = useWorkspace();
 
   const { data: vocab } = useQuery({ queryKey: ["vocabulary"], queryFn: getVocabulary });
-  const { data: areas } = useQuery({ queryKey: ["areas", plantId], queryFn: () => getAreas() });
+  const { data: areas } = useQuery({ queryKey: ["areas", plantId], queryFn: () => getAreas({ plant_id: plantId }) });
   const { data: allAssets } = useQuery({ queryKey: ["assets-all"], queryFn: () => getAssets() });
   const { data: templates } = useQuery({ queryKey: ["templates"], queryFn: getTemplates });
 

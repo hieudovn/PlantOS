@@ -39,7 +39,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 # Sliding expiration: issue new token if expiring soon
                 new_token = None
                 if should_refresh_token(payload):
-                    new_token = create_access_token(payload["sub"], payload["username"])
+                    new_token = create_access_token(payload["sub"], payload["username"], payload.get("role", "operator"))
 
                 response = await call_next(request)
                 if new_token:
@@ -50,3 +50,17 @@ class AuthMiddleware(BaseHTTPMiddleware):
             status_code=401,
             content={"detail": "Invalid or missing authentication"},
         )
+
+
+from fastapi import Depends, HTTPException, Request
+
+
+def require_admin(request: Request) -> bool:
+    """FastAPI dependency — require admin role. Raises 403 if not admin."""
+    user = getattr(request.state, "user", None)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    role = user.get("role", "")
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admin role required")
+    return True

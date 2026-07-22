@@ -16,7 +16,7 @@ export function KpiDefinitionsPage() {
 
   const { data: kpis, isLoading } = useQuery({
     queryKey: ["kpis", scopeFilter, plantId],
-    queryFn: () => getKpis(),
+    queryFn: () => getKpis({ scope_type: scopeFilter, scope_id: plantId }),
   });
 
   const deleteMutation = useMutation({

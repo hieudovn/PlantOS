@@ -1,7 +1,6 @@
 import { useQueries } from "@tanstack/react-query";
 import { getCurrentValues } from "@/lib/api";
-
-type ThresholdConfig = { warn: number; crit: number; direction: "high" | "low" } | null;
+import type { ThresholdConfig } from "../types";
 
 interface Props {
   assetId: string;
