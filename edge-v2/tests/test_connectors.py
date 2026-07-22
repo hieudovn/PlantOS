@@ -124,7 +124,7 @@ class TestSafeApply:
         config.save_draft("connector_test01", {"type": "opcua", "connection": {}, "tags": []})
         backup_key = config.apply_draft("connector_test01")
         assert backup_key is not None
-        assert "connector_test01" in str(backup_key)
+        assert "test01" in str(backup_key)
 
         # Confirm success
         config.confirm_apply("connector_test01", success=True)

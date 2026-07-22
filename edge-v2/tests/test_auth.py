@@ -70,7 +70,7 @@ class TestPasswordHashing:
     def test_change_password(self, auth):
         """Should change password and invalidate sessions."""
         auth.create_admin("old-password")
-        result = auth.change_password("old-password", "new-password")
+        result = auth.change_password("admin", "old-password", "new-password")
         assert result is True
         assert auth.verify_password("admin", "new-password") is True
         assert auth.verify_password("admin", "old-password") is False
@@ -78,7 +78,7 @@ class TestPasswordHashing:
     def test_change_password_wrong_old(self, auth):
         """Should return False if old password is wrong."""
         auth.create_admin("correct-password")
-        result = auth.change_password("wrong-password", "new-password")
+        result = auth.change_password("admin", "wrong-password", "new-password")
         assert result is False
 
 
@@ -146,7 +146,7 @@ class TestSessionManagement:
         """Password change should invalidate all sessions."""
         cookie1, _ = auth.create_session("admin", role="admin")
         cookie2, _ = auth.create_session("admin", role="admin")
-        auth.change_password("test-password", "new-password")
+        auth.change_password("admin", "test-password", "new-password")
         assert auth.validate_session(cookie1) is None
         assert auth.validate_session(cookie2) is None
 

@@ -89,6 +89,8 @@ def translate_mqtt(v1_cfg: dict) -> dict | None:
 
 def generate_v2_config(v1_cfg: dict) -> dict:
     """Generate v2 config sections from v1 config."""
+    if v1_cfg is None:
+        v1_cfg = {}
     v2_connectors = {}
 
     # Signals → HTTP Poll connector (mirror)
