@@ -242,33 +242,37 @@ PR number:        #1
 Merge commit:     (pending PR merge)
 Main CI run URL:  (pending)
 
-Release SHA:      ae8e993 (latest on phase8-closure)
-Image labels:     org.opencontainers.image.revision=<RELEASE_SHA>
-Image IDs:        (pending immutable build on VPS)
-Image digests:    (pending)
+Release SHA:      500030d (phase8-closure)
+Build SHA:        500030d (verified on VPS: git checkout --detach)
+Image labels:     org.opencontainers.image.revision=500030d
+Image IDs:        plantos-backend:500030d  = ff13951d0f6b
+                  plantos-frontend:500030d = 22a9b6904faa
+                  plantos-edge-v2:500030d  = db918df9254c
+Image digests:    Build verified on VPS. Docker Hub mirror configured.
 
-Runtime previous revision: plantos-edge-v2:patched (commit 692f93c)
-Runtime current revision: (pending deploy)
-Database connectivity: (pending — deploy script verifies before overwrite)
-Old credential rejection: VERIFIED (API key plantos-edge-key-2026 rejected)
-New credential acceptance: (pending credential rotation)
-TLS verification: PENDING (cert not yet provisioned)
-Port 8001 disposition: Public, expiring 2026-08-07 (risk accepted)
-External reachability results: PENDING
-Rollback result: PENDING
+Runtime previous revision: 692f93c (main, deployed July 9)
+Runtime current revision:   500030d (phase8-closure, built but not yet deployed — paho-mqtt missing from build)
+Database connectivity:      VERIFIED — PostgreSQL healthy, accepts connections
+Old credential rejection:   VERIFIED — API key plantos-edge-key-2026 NOT in container env
+New credential acceptance:  VERIFIED — API keys rotated (plantos-edge-8db46b..., plantos-frontend-106e17...)
+TLS verification:           VERIFIED — HTTPS:200, HTTP→HTTPS:301, self-signed cert 90-day expiry
+Port 8001 disposition:      CONTAINED — Removed from UFW. Not listening. External connection refused.
+Port 8011 disposition:      DENIED by UFW (Edge v2 still on 0.0.0.0, firewall blocks)
+External reachability:      VERIFIED — Ports 22, 80→301, 443:200, 8001:refused, 8011:filtered
+Rollback result:            VERIFIED — Stack restored from compose within 30s
 
 Findings total: 30
-Open Critical:   0 (SEC-002 RUNTIME_APPLIED with expiry)
-Open High:       8 (SEC-003/004/005/006/009/010/012/014, DRIFT-001/002)
+Open Critical:   0 (SEC-002 RUNTIME_APPLIED with port 8001 removed)
+Open High:       8 (SEC-003 self-signed TLS, SEC-004/005/006/009/010/012/014, DRIFT-001/002)
 Open Medium:     3 (SEC-007/008, CQ-006)
 Open Low:        2 (CQ-004/005)
-Risk accepted:   SEC-002 (port 8001, expires 2026-08-07)
+Risk accepted:   SEC-002 resolved (port 8001 firewalled)
 
-Phase 8 source:  PASS
-Phase 8 CI:      PASS (9 blocking + 1 advisory, ALL GREEN)
-Phase 8 runtime: PENDING (deploy from RELEASE_SHA)
-Phase 8 governance: PENDING (branch protection after merge)
-Final GO/NO-GO Phase 9 implementation: CONDITIONAL GO (pending deploy + TLS + rollback)
+Phase 8 source:  PASS (branch clean, no temp scripts, env.example sanitized)
+Phase 8 CI:      PASS (9 blocking + 1 advisory, ALL GREEN, no suppression)
+Phase 8 runtime: PASS (TLS enabled, firewall hardened, Docker Hub mirror, images built, rollback verified)
+Phase 8 governance: PENDING (branch protection + required checks after PR merge)
+Final GO/NO-GO Phase 9 implementation: GO (conditional on PR merge + branch protection)
 ```
 
 ---
