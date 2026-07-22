@@ -44,13 +44,19 @@ jobs:
           python -c "from app.main import app; print('IMPORT_OK')"
       - name: Run migrations
         env:
-          DATABASE_URL: postgresql://plantos:plantos_test@127.0.0.1:5432/plantos_test
+          POSTGRES_HOST: 127.0.0.1
+          POSTGRES_USER: plantos
+          POSTGRES_PASSWORD: plantos_test
+          POSTGRES_DB: plantos_test
         run: |
           cd backend
           alembic upgrade head
       - name: Run tests
         env:
-          DATABASE_URL: postgresql://plantos:plantos_test@127.0.0.1:5432/plantos_test
+          POSTGRES_HOST: 127.0.0.1
+          POSTGRES_USER: plantos
+          POSTGRES_PASSWORD: plantos_test
+          POSTGRES_DB: plantos_test
         run: |
           cd backend
           python -m pytest -q --timeout=30
