@@ -129,11 +129,11 @@ class TestSafeApply:
         # Confirm success
         config.confirm_apply("connector_test01", success=True)
         # Config should still be applied
-        assert config.get("connector_test01.type") == "opcua"
+        assert config.get("connectors.connector_test01.type") == "opcua"
 
     def test_apply_and_rollback(self, config):
         # First save active config
-        config._data["connector_test01"] = {"type": "modbus_tcp", "connection": {}, "tags": []}
+        config._data.setdefault("connectors", {})["connector_test01"] = {"type": "modbus_tcp", "connection": {}, "tags": []}
         config._save()
 
         # Create draft with different type
@@ -143,15 +143,15 @@ class TestSafeApply:
         # Confirm failure triggers rollback
         config.confirm_apply("connector_test01", success=False)
         # Config should be rolled back to modbus_tcp
-        assert config._data.get("connector_test01", {}).get("type") == "modbus_tcp"
+        assert config._data.get("connectors", {}).get("connector_test01", {}).get("type") == "modbus_tcp"
 
     def test_explicit_rollback(self, config):
-        config._data["connector_test01"] = {"type": "original", "tags": []}
+        config._data.setdefault("connectors", {})["connector_test01"] = {"type": "original", "tags": []}
         config._save()
         config.save_draft("connector_test01", {"type": "new_type", "tags": []})
         backup = config.apply_draft("connector_test01")
         config.rollback("connector_test01", backup)
-        assert config._data.get("connector_test01", {}).get("type") == "original"
+        assert config._data.get("connectors", {}).get("connector_test01", {}).get("type") == "original"
 
     def test_sanitized_export(self, config):
         config._data["api_key"] = "super-secret-123"
