@@ -132,12 +132,16 @@ class EdgeAgentV2:
 
     async def _jwt_login(self) -> bool:
         """Login to Center and obtain JWT token. Returns True on success."""
+        center_pw = os.environ.get("EDGE_CENTER_PASSWORD", "")
+        if not center_pw:
+            logger.critical("EDGE_CENTER_PASSWORD env var not set — cannot authenticate with Center")
+            return False
         try:
             import httpx
             async with httpx.AsyncClient(timeout=10) as client:
                 resp = await client.post(
                     f"{self.config.center_url}/api/v1/auth/login",
-                    json={"username": "admin", "password": "PlantOS@2026!"},
+                    json={"username": "admin", "password": center_pw},
                 )
                 if resp.status_code == 200:
                     self._jwt_token = resp.json().get("access_token", "")

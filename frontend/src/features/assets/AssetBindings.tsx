@@ -29,7 +29,7 @@ export function AssetBindings({ assetId }: AssetBindingsProps) {
 
   const bindMutation = useMutation({
     mutationFn: ({ attr, signalId }: { attr: string; signalId: string }) =>
-      createBinding(assetId, { attribute_name: attr, signal_id: signalId, binding_type: "direct" }),
+      createBinding({ asset_id: assetId, attribute_name: attr, signal_id: signalId, binding_type: "direct" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bindings", assetId] });
       setBindingSignal(null);
@@ -37,7 +37,7 @@ export function AssetBindings({ assetId }: AssetBindingsProps) {
   });
 
   const unbindMutation = useMutation({
-    mutationFn: (bindingId: string) => deleteBinding(assetId, bindingId),
+    mutationFn: (bindingId: string) => deleteBinding(bindingId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["bindings", assetId] }),
   });
 

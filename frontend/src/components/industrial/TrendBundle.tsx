@@ -85,7 +85,7 @@ export function TrendBundle({
 
       {signalIds.length > 0 ? (
         <div style={{ height, overflow: "hidden" }}>
-          <TrendChart signalIds={signalIds} from={from} to={to} showLegend={false} showToolbox={false} refetchInterval={refetchInterval} height={height} compact />
+          <TrendChart signalIds={signalIds} from={from} to={to} refetchInterval={refetchInterval} height={height} compact />
         </div>
       ) : (
         <div className="flex items-center justify-center" style={{ height, color: 'var(--text-muted)' }}>

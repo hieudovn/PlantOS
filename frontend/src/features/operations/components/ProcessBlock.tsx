@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { CheckCircle, AlertTriangle, XCircle, Circle } from "lucide-react";
 import { getCurrentValues } from "@/lib/api";
 
+type ThresholdConfig = { warn: number; crit: number; direction: "high" | "low" } | null;
+
 export interface ProcessBlockConfig {
   id: string;
   label: string;

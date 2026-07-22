@@ -25,9 +25,9 @@ export function AssetConditionView({ assetId }: { assetId: string }) {
   const signalConfigs = condConfig?.signals?.length
     ? condConfig.signals.map((s: any) => ({ signalId: s.signal_id, label: s.label, unit: s.unit }))
     : apiSignals;
-  const signalIds = signalConfigs.map((s) => s.signalId);
+  const signalIds = signalConfigs.map((s: { signalId: string }) => s.signalId);
 
-  const trendSignals = signalConfigs.map((s, i) => ({
+  const trendSignals = signalConfigs.map((s: { signalId: string; label: string; unit: string }, i: number) => ({
     signalId: s.signalId,
     label: s.label,
     color: TREND_COLORS[i % TREND_COLORS.length],

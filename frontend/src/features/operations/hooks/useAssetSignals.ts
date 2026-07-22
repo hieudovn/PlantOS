@@ -12,8 +12,8 @@ export function useAssetSignals(assetId: string) {
   return useQuery({
     queryKey: ["asset-signals", assetId],
     queryFn: async (): Promise<AssetSignalConfig[]> => {
-      const data = await fetchAPI<any[]>(`/api/v1/signals?asset_id=${assetId}`);
-      const list = Array.isArray(data) ? data : data?.data || [];
+      const data: any = await fetchAPI<any[]>(`/api/v1/signals?asset_id=${assetId}`);
+      const list = Array.isArray(data) ? data : (data as any)?.data || [];
       return list.map((s: any) => ({
         signalId: s.signal_id,
         label: s.display_name || s.signal_name || s.signal_id?.split(".").pop() || s.signal_id,
