@@ -87,22 +87,22 @@ class TestSafeApply:
 
     def test_save_and_get_draft(self, config):
         draft = {"type": "opcua", "connection": {"endpoint": "opc.tcp://test:4840"}, "tags": []}
-        version = config.save_draft("connector_test01", draft)
+        version = config.save_draft("test01", draft)
         assert version == 1
-        retrieved = config.get_draft("connector_test01")
+        retrieved = config.get_draft("test01")
         assert retrieved["type"] == "opcua"
         assert retrieved["connection"]["endpoint"] == "opc.tcp://test:4840"
 
     def test_draft_version_increments(self, config):
-        config.save_draft("connector_test01", {"type": "opcua"})
-        config.save_draft("connector_test01", {"type": "modbus_tcp"})
-        retrieved = config.get_draft("connector_test01")
+        config.save_draft("test01", {"type": "opcua"})
+        config.save_draft("test01", {"type": "modbus_tcp"})
+        retrieved = config.get_draft("test01")
         assert retrieved["type"] == "modbus_tcp"
 
     def test_list_drafts(self, config):
-        config.save_draft("connector_test01", {"type": "opcua", "v": 1})
-        config.save_draft("connector_test01", {"type": "modbus_tcp", "v": 2})
-        drafts = config.list_drafts("connector_test01")
+        config.save_draft("test01", {"type": "opcua", "v": 1})
+        config.save_draft("test01", {"type": "modbus_tcp", "v": 2})
+        drafts = config.list_drafts("test01")
         assert len(drafts) == 2
         assert drafts[0]["v"] == 1
         assert drafts[1]["v"] == 2
@@ -111,8 +111,8 @@ class TestSafeApply:
         assert config.get_draft("nonexistent") is None
 
     def test_validate_draft_missing_fields(self, config):
-        config.save_draft("connector_test01", {"name": "test"})
-        errors = config.validate_draft("connector_test01")
+        config.save_draft("test01", {"name": "test"})
+        errors = config.validate_draft("test01")
         assert "Missing 'type' field" in errors
         assert "Missing 'connection' section" in errors
 
@@ -121,37 +121,37 @@ class TestSafeApply:
         assert "No draft found" in errors
 
     def test_apply_and_confirm(self, config):
-        config.save_draft("connector_test01", {"type": "opcua", "connection": {}, "tags": []})
-        backup_key = config.apply_draft("connector_test01")
+        config.save_draft("test01", {"type": "opcua", "connection": {}, "tags": []})
+        backup_key = config.apply_draft("test01")
         assert backup_key is not None
         assert "test01" in str(backup_key)
 
         # Confirm success
-        config.confirm_apply("connector_test01", success=True)
+        config.confirm_apply("test01", success=True)
         # Config should still be applied
-        assert config.get("connectors.connector_test01.type") == "opcua"
+        assert config.get("connectors.test01.type") == "opcua"
 
     def test_apply_and_rollback(self, config):
         # First save active config
-        config._data.setdefault("connectors", {})["connector_test01"] = {"type": "modbus_tcp", "connection": {}, "tags": []}
+        config._data.setdefault("connectors", {})["test01"] = {"type": "modbus_tcp", "connection": {}, "tags": []}
         config._save()
 
         # Create draft with different type
-        config.save_draft("connector_test01", {"type": "opcua", "connection": {}, "tags": []})
-        config.apply_draft("connector_test01")
+        config.save_draft("test01", {"type": "opcua", "connection": {}, "tags": []})
+        config.apply_draft("test01")
 
         # Confirm failure triggers rollback
-        config.confirm_apply("connector_test01", success=False)
+        config.confirm_apply("test01", success=False)
         # Config should be rolled back to modbus_tcp
-        assert config._data.get("connectors", {}).get("connector_test01", {}).get("type") == "modbus_tcp"
+        assert config._data.get("connectors", {}).get("test01", {}).get("type") == "modbus_tcp"
 
     def test_explicit_rollback(self, config):
-        config._data.setdefault("connectors", {})["connector_test01"] = {"type": "original", "tags": []}
+        config._data.setdefault("connectors", {})["test01"] = {"type": "original", "tags": []}
         config._save()
-        config.save_draft("connector_test01", {"type": "new_type", "tags": []})
-        backup = config.apply_draft("connector_test01")
-        config.rollback("connector_test01", backup)
-        assert config._data.get("connectors", {}).get("connector_test01", {}).get("type") == "original"
+        config.save_draft("test01", {"type": "new_type", "tags": []})
+        backup = config.apply_draft("test01")
+        config.rollback("test01", backup)
+        assert config._data.get("connectors", {}).get("test01", {}).get("type") == "original"
 
     def test_sanitized_export(self, config):
         config._data["api_key"] = "super-secret-123"
