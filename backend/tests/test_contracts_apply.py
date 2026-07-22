@@ -120,6 +120,16 @@ class TestApplyConflictSkip:
 class TestApplyExisting:
     """Apply against an existing plant (VF-DEMO)."""
 
+    @pytest.fixture(autouse=True)
+    def _ensure_vfdemo_exists(self):
+        """Create VF-DEMO plant once before all tests in this class."""
+        contract = deepcopy(VALID_CONTRACT)
+        contract["plant"]["plant_id"] = "VF-DEMO"
+        contract["areas"][0]["plant_id"] = "VF-DEMO"
+        # Apply once with skip to create the plant (idempotent)
+        result = apply_contract(contract, {**SAFE_POLICY, "on_conflict": "skip"})
+        assert result.success is True
+
     def test_apply_vfdemo_with_fail_rejected(self):
         """VF-DEMO exists → on_conflict=fail should reject."""
         contract = deepcopy(VALID_CONTRACT)
