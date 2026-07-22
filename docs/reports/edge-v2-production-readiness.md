@@ -1,10 +1,9 @@
 # Edge v2 Production Readiness Report — Final Evidence Package
 
-> **Date:** 2026-07-13
+> **Date:** 2026-07-22
 > **Author:** PM-Designer (DeepSeek V4 Pro)
-> **Status:** ✅ ALL GATES MET — 16/22 RUNTIME_PASS, Unified User Management deployed
-> **Constraint:** Edge v1 PRIMARY. 19-signal broad rollout active. Multi-user auth on Edge v2.
-> **Constraint:** Edge v1 PRIMARY. 19-signal broad rollout active. No full cutover yet.
+> **Status:** ✅ E2V2-14 COMPLETE — v2 is PRIMARY, v1 cold standby
+> **Constraint:** Edge v2 PRIMARY (DEMO-PLANT). Edge v1 STOPPED. 19-signal production.
 
 ---
 
@@ -358,7 +357,8 @@ E2V2-11    ✅ COMPLETE (5/5 sub-phases, SA approved)
 E2V2-12    ✅ COMPLETE (3/3 comparison PASS, 2h+ monitoring)
 E2V2-13    ✅ COMPLETE (102 PASS, 0 FAIL, WAIVER RESOLVED)
 UNI-USER   ✅ COMPLETE (Center Users page + Edge v2 multi-user + Edge Access column)
-→ Production Switch: BROAD ROLLOUT (19 signals), RUNNING ✅
-→ Unified User Management: DEPLOYED ✅ (admin/engineer/operator, Center↔Edge sync, Edge Access UI)
+E2V2-14   ✅ COMPLETE (Full Production Switch — v2→PRIMARY/DEMO-PLANT, v1→stopped)
+→ Production Switch: FULL — v2 PRIMARY on DEMO-PLANT, 19 signals RUNNING ✅
+→ All SA gates: 16/22 RUNTIME_PASS, 0 WAIVER
 → WAIVER for >=15 signals: RESOLVED — 19 signals RUNTIME_PASS
 ```
