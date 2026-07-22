@@ -149,8 +149,8 @@ class TestSafeApply:
         config._data.setdefault("connectors", {})["test01"] = {"type": "original", "tags": []}
         config._save()
         config.save_draft("test01", {"type": "new_type", "tags": []})
-        backup = config.apply_draft("test01")
-        config.rollback("test01", backup)
+        config.apply_draft("test01")
+        config.rollback("test01")
         assert config._data.get("connectors", {}).get("test01", {}).get("type") == "original"
 
     def test_sanitized_export(self, config):
