@@ -6,13 +6,21 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.db.base import Base
-from app.core.config import settings
 
 # Import all models so Alembic sees them
 import app.modules  # noqa: F401
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL_SYNC)
+
+# Build DB URL from env vars (bypass settings singleton to ensure CI env is used)
+import os as _os
+_db_host = _os.environ.get("POSTGRES_HOST", "localhost")
+_db_port = _os.environ.get("POSTGRES_PORT", "5432")
+_db_user = _os.environ.get("POSTGRES_USER", "plantos")
+_db_pass = _os.environ.get("POSTGRES_PASSWORD", "plantos")
+_db_name = _os.environ.get("POSTGRES_DB", "plantos")
+_db_url = f"postgresql+psycopg2://{_db_user}:{_db_pass}@{_db_host}:{_db_port}/{_db_name}"
+config.set_main_option("sqlalchemy.url", _db_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

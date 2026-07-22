@@ -86,6 +86,8 @@ jobs:
           pip install -r edge-v2/requirements.txt
           pip install pytest-timeout
       - name: Run Edge tests
+        env:
+          PYTHONPATH: .
         run: |
           python -m pytest edge-v2/tests -q --timeout=30
 
@@ -95,10 +97,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build edge image
         run: |
-          docker build --no-cache \
-            --label org.opencontainers.image.revision=${{ github.sha }} \
-            -t plantos-edge-v2:ci-${{ github.sha }} \
+          set -x
+          docker build \
+            -t plantos-edge-v2:ci \
             -f edge-v2/Dockerfile .
+          docker images plantos-edge-v2:ci
 
   compose-validation:
     runs-on: ubuntu-latest

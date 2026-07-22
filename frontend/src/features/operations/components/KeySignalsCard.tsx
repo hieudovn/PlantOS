@@ -1,7 +1,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { Circle } from "lucide-react";
 import { getCurrentValues } from "@/lib/api";
-import type { AssetSignalConfig } from "../types";
+import type { AssetSignalConfig, ThresholdConfig } from "../types";
 
 interface Props {
   signalConfigs: AssetSignalConfig[];

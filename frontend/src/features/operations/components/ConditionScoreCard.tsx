@@ -1,5 +1,6 @@
 import { useQueries } from "@tanstack/react-query";
 import { getCurrentValues } from "@/lib/api";
+import { useWorkspace } from "@/lib/WorkspaceContext";
 import type { ThresholdConfig } from "../types";
 
 interface Props {
