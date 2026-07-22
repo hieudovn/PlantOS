@@ -2,9 +2,15 @@ name: Phase 8 Quality Gate
 
 on:
   push:
-    branches: [stabilization/phase8]
+    branches:
+      - stabilization/phase8
   pull_request:
-    branches: [stabilization/phase8]
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   backend-import-and-test:
@@ -47,7 +53,7 @@ jobs:
           DATABASE_URL: postgresql://plantos:plantos_test@localhost:5432/plantos_test
         run: |
           cd backend
-          pytest -q --timeout=30
+          python -m pytest -q --timeout=30
 
   frontend-typecheck-and-build:
     runs-on: ubuntu-latest
@@ -69,12 +75,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install edge deps
+      - name: Install Edge dependencies
         run: |
-          pip install pytest pyyaml
-      - name: Run edge tests
+          pip install -r edge-v2/requirements.txt
+          pip install pytest-timeout
+      - name: Run Edge tests
         run: |
-          pytest edge-v2/tests -q --timeout=30
+          python -m pytest edge-v2/tests -q --timeout=30
 
   edge-docker-build:
     runs-on: ubuntu-latest
@@ -87,6 +94,17 @@ jobs:
             -t plantos-edge-v2:ci-${{ github.sha }} \
             -f edge-v2/Dockerfile .
 
+  compose-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose config
+        run: |
+          docker compose -f deployment/docker-compose.yml config
+      - name: Build Compose images
+        run: |
+          docker compose -f deployment/docker-compose.yml build
+
   secret-scan:
     runs-on: ubuntu-latest
     steps:
@@ -94,5 +112,14 @@ jobs:
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v2
+
+  findings-register-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          config-path: .gitleaks.toml
+          python-version: "3.11"
+      - name: Validate findings CSV
+        run: |
+          python tools/validate_findings_csv.py
