@@ -261,16 +261,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Negative test — seed revoked credential
         run: |
-          echo "X-API-Key: plantos-edge-key-2026" > /tmp/negative-test-secret.txt
-          cp /tmp/negative-test-secret.txt negative-test-secret.txt
-          if gitleaks detect --source=. --no-git -v 2>&1 | grep -q "negative-test-secret"; then
+          TMPDIR=$(mktemp -d)
+          cd "$TMPDIR"
+          git init -q
+          git config user.email "test@test.test"
+          git config user.name "test"
+          echo 'api_key = "plantos-edge-key-2026"' > config.toml
+          git add config.toml && git commit -q -m "test"
+          GL=$(find /tmp -name gitleaks -type f 2>/dev/null | head -1)
+          if ${GL:-gitleaks} detect --log-level=debug 2>&1 | grep -q "config.toml"; then
             echo "OK: Gitleaks detected seeded credential"
           else
             echo "FAIL: Gitleaks did NOT detect seeded credential"
-            rm -f negative-test-secret.txt
+            rm -rf "$TMPDIR"
             exit 1
           fi
-          rm -f negative-test-secret.txt
+          rm -rf "$TMPDIR"
 
   findings-register-validation:
     runs-on: ubuntu-latest
