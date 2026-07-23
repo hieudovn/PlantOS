@@ -1,0 +1,12 @@
+{
+  "check_count": 10,
+  "fail_count": 4,
+  "findings_total": 30,
+  "findings_ci_verified": 13,
+  "findings_open": 15,
+  "findings_open_high": 10,
+  "findings_open_critical": 0,
+  "pr_merged": false,
+  "merge_sha": "pending",
+  "pass": false
+}

@@ -72,6 +72,8 @@ FORBIDDEN = [
     ("super-secret-key-change-in-production", "ACTIVE_CONFIG", ["*.yaml", "*.yml"]),
     ("StrictHostKeyChecking=no", "ACTIVE_CODE", ["*.sh", "*.py", "*.bat"]),
 ]
+# Exclude this checker script from its own search
+SELF = "tools/phase8_release_evidence_check.py"
 
 for pattern, classification, globs in FORBIDDEN:
     found = []
@@ -85,8 +87,8 @@ for pattern, classification, globs in FORBIDDEN:
                 found.extend(result.stdout.strip().split("\n"))
         except Exception:
             pass
-    # Exclude docs/ and .github/ from ACTIVE checks
-    active = [f for f in found if not f.startswith("docs/") and not f.startswith(".github/")]
+    # Exclude self and docs/.github from ACTIVE checks
+    active = [f for f in found if f != SELF and not f.startswith("docs/") and not f.startswith(".github/")]
     is_active_config = classification in ("ACTIVE_CONFIG", "ACTIVE_CODE")
     if is_active_config:
         check(f"No active {pattern}", len(active) == 0, f"found in: {active}")
