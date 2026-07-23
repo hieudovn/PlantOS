@@ -12,18 +12,16 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
   // Convert to local format (YYYY-MM-DDTHH:mm) to ensure TDengine query uses
   // the correct calendar date.
   const toLocalFormat = (ts: string): string => {
-    // If already in local format (YYYY-MM-DDTHH:mm), return as-is
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(ts)) return ts;
+    // If already in local format (YYYY-MM-DDTHH:mm), convert to UTC for API
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(ts)) {
+      // Append +07:00 to indicate Vietnam timezone
+      return ts + ":00+07:00";
+    }
     // If UTC ISO, convert to local date string
     try {
       const d = new Date(ts);
       if (!isNaN(d.getTime())) {
-        const y = d.getFullYear();
-        const mo = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
-        const h = String(d.getHours()).padStart(2, "0");
-        const mi = String(d.getMinutes()).padStart(2, "0");
-        return `${y}-${mo}-${dd}T${h}:${mi}`;
+        return d.toISOString();
       }
     } catch {}
     return ts;
