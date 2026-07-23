@@ -1,7 +1,7 @@
 import os, sys
 sys.path.insert(0, '/app')
-from app.core.security import get_password_hash
-new_hash = get_password_hash('PlantOS@2026!')
+from app.core.security import hash_password
+new_hash = hash_password('PlantOS@2026!')
 print(f"NEW_HASH={new_hash}")
 
 # Now update DB directly via psycopg2
