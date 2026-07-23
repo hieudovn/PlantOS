@@ -1,6 +1,0 @@
-@echo off
-echo Uploading containment script to VPS...
-scp -o StrictHostKeyChecking=no d:\Project\Github\PlantOS\tools\phase8-contain.sh plantos@103.97.132.249:/tmp/phase8-contain.sh
-echo.
-echo Executing containment script on VPS...
-ssh -o StrictHostKeyChecking=no plantos@103.97.132.249 "bash /tmp/phase8-contain.sh"

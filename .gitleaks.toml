@@ -1,18 +1,9 @@
 # Gitleaks configuration for PlantOS
-# False positives: revoked default keys, sanitized runbook examples
+# Only fingerprint/commit-scoped allowlists for confirmed historical false positives.
+# No global stopwords. No directory allowlists.
 
 [allowlist]
-  description = "PlantOS allow list — revoked defaults and sanitized docs"
-
-  # Revoked default API key — no longer valid, present only in git history
-  stopwords = [
-    "plantos-edge-key-2026",
-    "plantos-dev-secret-change-in-production",
-  ]
-
-  paths = [
-    # Sanitized runbook with placeholder credentials
-    "docs/runbooks/",
-    # Deployment example template — all values are placeholders
-    "deployment/env.example",
+  description = "Historical false positives — revoked keys in deleted files"
+  commits = [
+    "b8872e14e792bf2d23562dfb1225b67b49c150bc",  # tools/phase8-contain.sh (deleted)
   ]

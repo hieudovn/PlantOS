@@ -1,0 +1,26 @@
+# PlantOS — Immutable Release Compose
+# Used by deploy-from-release.sh. No `build:` directives.
+# All images reference RELEASE_SHORT tag + OCI labels.
+# Usage: RELEASE_SHORT=<sha> docker compose -f docker-compose.yml -f docker-compose.release.yml up -d
+
+services:
+  backend:
+    image: plantos-backend:${RELEASE_SHORT}
+    # build: removed — immutable release uses pre-built image
+
+  frontend:
+    image: plantos-frontend:${RELEASE_SHORT}
+    # build: removed — immutable release uses pre-built image
+
+  edge-v2:
+    image: plantos-edge-v2:${RELEASE_SHORT}
+    container_name: plantos-edge-v2
+    ports:
+      - "127.0.0.1:8011:8011"
+    environment:
+      EDGE_SESSION_SECRET: ${EDGE_SESSION_SECRET:?required}
+      API_KEYS: ${API_KEYS:?required}
+      CENTER_URL: ${CENTER_URL:-https://localhost}
+    networks:
+      - plantos-net
+    restart: unless-stopped

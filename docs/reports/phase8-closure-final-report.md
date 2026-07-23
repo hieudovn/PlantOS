@@ -270,13 +270,13 @@ Rollback result:            VERIFIED — Stack restored from compose within 30s
 
 Findings total: 30
 Open Critical:   0
-Open High:       8 (SEC-003/004/005/006/009/010/012/014, DRIFT-001/002)
-Open Medium:     3 (SEC-007/008, CQ-006)
-Open Low:        2 (CQ-004/005)
-CI_VERIFIED:     17
+Open High:       10 (SEC-003 through SEC-006, SEC-009, SEC-010, SEC-012, SEC-014, DRIFT-001, DRIFT-002)
+Open Medium:     3 (SEC-007, SEC-008, CQ-006)
+Open Low:        2 (CQ-004, CQ-005)
+CI_VERIFIED:     13 (SEC-013, SEC-015, CQ-001/002/003/008, NET-001/002, DEVOPS-001/002/003, TEST-001, FORMULA-001)
 SOURCE_FIXED:    1 (SEC-001)
-RUNTIME_APPLIED: 1 (SEC-002 — port 8001 firewalled)
-Risk accepted:   None (SEC-002 resolved)
+RUNTIME_APPLIED: 1 (SEC-002 — port 8001 firewalled, not yet RUNTIME_VERIFIED)
+Risk accepted:   None
 
 Phase 8 source:  PASS — Branch clean, env.example sanitized, no temp scripts
 Phase 8 CI:      PASS — PR #39 ALL GREEN, 9 blocking + 1 advisory, zero suppression

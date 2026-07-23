@@ -69,7 +69,7 @@ scp "plantos-backend-${RELEASE_SHORT}.tar" "root@${VPS_HOST}:/tmp/"
 scp "plantos-frontend-${RELEASE_SHORT}.tar" "root@${VPS_HOST}:/tmp/"
 scp "plantos-edge-v2-${RELEASE_SHORT}.tar" "root@${VPS_HOST}:/tmp/"
 
-# --- 6. Deploy on VPS — side-by-side, do not touch existing DB creds ---
+# --- 6. Deploy on VPS using immutable release compose ---
 echo "=== Deploying on VPS ==="
 ssh root@"${VPS_HOST}" << DEPLOY
 set -e
@@ -84,13 +84,8 @@ docker load -i "/tmp/plantos-edge-v2-${RELEASE_SHORT}.tar"
 docker compose exec -T postgres pg_isready -U plantos -d plantos
 echo "DB_CONNECTION_OK"
 
-# Tag images for compose
-docker tag "plantos-backend:${RELEASE_SHORT}" "plantos-backend:release"
-docker tag "plantos-frontend:${RELEASE_SHORT}" "plantos-frontend:release"
-docker tag "plantos-edge-v2:${RELEASE_SHORT}" "plantos-edge-v2:release"
-
-# Start new release side-by-side (if possible) or replace
-docker compose up -d backend frontend
+# Deploy using immutable release compose (no build: directives)
+RELEASE_SHORT=${RELEASE_SHORT} docker compose -f docker-compose.yml -f docker-compose.release.yml up -d backend frontend edge-v2
 
 # Clean up tar files
 rm -f "/tmp/plantos-backend-${RELEASE_SHORT}.tar" "/tmp/plantos-frontend-${RELEASE_SHORT}.tar" "/tmp/plantos-edge-v2-${RELEASE_SHORT}.tar"
