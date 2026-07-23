@@ -106,10 +106,10 @@ class TDengineHistorianAdapter(HistorianInterface):
         safe = signal_id.replace(".", "_").replace("-", "_").replace(":", "_")
         safe = safe.replace("/", "_").replace(" ", "_")
         safe = safe.lower()
-        # Collapse letter_number sequences: comp_01 -> comp01
+        # Collapse letter_digit sequences: comp_01 -> comp01
+        # Only collapse when letter is followed by underscore then digit
         import re
         safe = re.sub(r'([a-z])_(\d)', r'\1\2', safe)
-        safe = re.sub(r'(\d)_([a-z])', r'\1\2', safe)
         return safe
 
     async def _ensure_child_table(self, signal_id: str):
