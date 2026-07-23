@@ -35,21 +35,24 @@ docker build \
   --label "org.opencontainers.image.created=${TIMESTAMP}" \
   --label "org.opencontainers.image.version=phase8-${RELEASE_SHORT}" \
   -t "plantos-backend:${RELEASE_SHORT}" \
-  -f backend/Dockerfile .
+  -f backend/Dockerfile \
+  backend
 
 docker build \
   --label "org.opencontainers.image.revision=${RELEASE_SHA}" \
   --label "org.opencontainers.image.created=${TIMESTAMP}" \
   --label "org.opencontainers.image.version=phase8-${RELEASE_SHORT}" \
   -t "plantos-frontend:${RELEASE_SHORT}" \
-  -f frontend/Dockerfile .
+  -f frontend/Dockerfile \
+  frontend
 
 docker build \
   --label "org.opencontainers.image.revision=${RELEASE_SHA}" \
   --label "org.opencontainers.image.created=${TIMESTAMP}" \
   --label "org.opencontainers.image.version=phase8-${RELEASE_SHORT}" \
   -t "plantos-edge-v2:${RELEASE_SHORT}" \
-  -f edge-v2/Dockerfile .
+  -f edge-v2/Dockerfile \
+  .
 
 # --- 3. Capture image digests ---
 BACKEND_DIGEST="$(docker inspect plantos-backend:${RELEASE_SHORT} --format='{{.Id}}')"

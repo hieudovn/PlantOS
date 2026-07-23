@@ -1,5 +1,6 @@
 """Config Manager — loads, validates, and manages config ownership."""
 
+import os
 import yaml
 import logging
 from pathlib import Path
@@ -104,7 +105,23 @@ class ConfigManager:
 
     @property
     def session_secret(self) -> str:
-        return self._data.get("auth", {}).get("session_secret", "plantos-edge-default-secret")
+        return os.environ.get("EDGE_SESSION_SECRET",
+            self._data.get("auth", {}).get("session_secret", ""))
+
+    @property
+    def center_url(self) -> str:
+        return os.environ.get("CENTER_URL",
+            self._data.get("center_url", "https://localhost"))
+
+    @property
+    def api_key(self) -> str:
+        return os.environ.get("EDGE_API_KEY",
+            self._data.get("api_key", ""))
+
+    @property
+    def center_password(self) -> str:
+        return os.environ.get("EDGE_CENTER_PASSWORD",
+            self._data.get("auth", {}).get("center_password", ""))
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get a config value, supporting dot-separated nested keys."""

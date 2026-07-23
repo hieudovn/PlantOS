@@ -201,6 +201,52 @@ jobs:
       - name: Build Compose images
         run: docker compose -f deployment/docker-compose.yml build
 
+  release-image-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build release images
+        run: |
+          SHA=$(git rev-parse HEAD)
+          SHORT=${SHA:0:7}
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          echo "RELEASE_SHA=${SHA}" >> $GITHUB_ENV
+          echo "RELEASE_SHORT=${SHORT}" >> $GITHUB_ENV
+          docker build --label "org.opencontainers.image.revision=${SHA}" --label "org.opencontainers.image.created=${TS}" --label "org.opencontainers.image.version=phase8-${SHORT}" -t "plantos-backend:${SHORT}" -f backend/Dockerfile backend
+          docker build --label "org.opencontainers.image.revision=${SHA}" --label "org.opencontainers.image.created=${TS}" --label "org.opencontainers.image.version=phase8-${SHORT}" -t "plantos-frontend:${SHORT}" -f frontend/Dockerfile frontend
+          docker build --label "org.opencontainers.image.revision=${SHA}" --label "org.opencontainers.image.created=${TS}" --label "org.opencontainers.image.version=phase8-${SHORT}" -t "plantos-edge-v2:${SHORT}" -f edge-v2/Dockerfile .
+      - name: Verify OCI labels
+        run: |
+          SHA=$(git rev-parse HEAD)
+          for img in plantos-backend plantos-frontend plantos-edge-v2; do
+            TAG="${SHA:0:7}"
+            LABEL=$(docker inspect "${img}:${TAG}" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
+            if [ "${LABEL}" != "${SHA}" ]; then
+              echo "FAIL: ${img}:${TAG} label=${LABEL} expected=${SHA}"
+              exit 1
+            fi
+            echo "OK: ${img}:${TAG} revision=${LABEL}"
+          done
+          echo "ALL_OCI_LABELS_OK"
+      - name: Export effective release compose
+        run: |
+          SHA=${RELEASE_SHORT:-$(git rev-parse --short=7 HEAD)}
+          POSTGRES_PASSWORD=ci_validation_only JWT_SECRET=ci_validation_only API_KEYS=ci_validation_only \
+          EDGE_SESSION_SECRET=ci_validation_only EDGE_CENTER_PASSWORD=ci_validation_only \
+          EDGE_API_KEY=ci_validation_only CENTER_URL=https://center.example.invalid \
+          RELEASE_SHORT=${SHA} docker compose -f deployment/docker-compose.yml -f deployment/docker-compose.release.yml config > effective-release-compose.yml
+      - name: Validate effective release compose
+        run: |
+          fail() { echo "FAIL: $1"; exit 1; }
+          grep -q 'build:' effective-release-compose.yml && fail "backend contains build directive" || echo "OK: no build in effective compose"
+          grep -q 'target: development' effective-release-compose.yml && fail "development target found" || echo "OK: no dev target"
+          grep -q 'plantos-edge-v2' effective-release-compose.yml || fail "edge-v2 missing from release compose"
+          echo "RELEASE_COMPOSE_IMMUTABLE_OK"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: effective-release-compose
+          path: effective-release-compose.yml
+
   secret-scan:
     runs-on: ubuntu-latest
     steps:
@@ -210,6 +256,18 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Negative test — seed revoked credential
+        run: |
+          echo "X-API-Key: plantos-edge-key-2026" > /tmp/negative-test-secret.txt
+          cp /tmp/negative-test-secret.txt negative-test-secret.txt
+          if gitleaks detect --source=. --no-git -v 2>&1 | grep -q "negative-test-secret"; then
+            echo "OK: Gitleaks detected seeded credential"
+          else
+            echo "FAIL: Gitleaks did NOT detect seeded credential"
+            rm -f negative-test-secret.txt
+            exit 1
+          fi
+          rm -f negative-test-secret.txt
 
   findings-register-validation:
     runs-on: ubuntu-latest
