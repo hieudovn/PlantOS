@@ -36,7 +36,8 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
   }
 
   const toLocalTs = (ts: string): string => {
-    // Timestamps from seeder already have +07:00 offset — pass through
+    // Backend stores VN time but returns with Z suffix. Convert for display.
+    if (ts.endsWith("Z")) return ts.slice(0, -1) + "+07:00";
     return ts;
   };
 
