@@ -261,18 +261,26 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Negative test — seed revoked credential
         run: |
+          GL=$(find /tmp -maxdepth 3 -name gitleaks -type f -executable 2>/dev/null | head -1)
+          if [ -z "$GL" ]; then
+            GL=$(find / -maxdepth 5 -name gitleaks -type f -executable 2>/dev/null | head -1)
+          fi
+          if [ -z "$GL" ] || [ ! -x "$GL" ]; then
+            echo "FAIL: gitleaks binary not found anywhere"
+            exit 1
+          fi
+          echo "Using gitleaks: $GL"
           TMPDIR=$(mktemp -d)
           cd "$TMPDIR"
-          git init -q
-          git config user.email "test@test.test"
-          git config user.name "test"
+          git init -q && git config user.email "t@t.t" && git config user.name "t"
           echo 'api_key = "plantos-edge-key-2026"' > config.toml
           git add config.toml && git commit -q -m "test"
-          GL=$(find /tmp -name gitleaks -type f 2>/dev/null | head -1)
-          if ${GL:-gitleaks} detect --log-level=debug 2>&1 | grep -q "config.toml"; then
-            echo "OK: Gitleaks detected seeded credential"
+          $GL detect -v
+          RC=$?
+          if [ $RC -ne 0 ]; then
+            echo "OK: Gitleaks detected seeded credential (exit=$RC)"
           else
-            echo "FAIL: Gitleaks did NOT detect seeded credential"
+            echo "FAIL: Gitleaks did NOT detect seeded credential (exit=$RC)"
             rm -rf "$TMPDIR"
             exit 1
           fi
