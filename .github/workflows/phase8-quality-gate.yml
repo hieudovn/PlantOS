@@ -192,6 +192,9 @@ jobs:
       JWT_SECRET: ci_validation_only
       API_KEYS: ci_validation_only
       EDGE_SESSION_SECRET: ci_validation_only
+      EDGE_CENTER_PASSWORD: ci_validation_only
+      EDGE_API_KEY: ci_validation_only
+      CENTER_URL: https://center.example.invalid
     steps:
       - uses: actions/checkout@v4
       - name: Validate Compose config
