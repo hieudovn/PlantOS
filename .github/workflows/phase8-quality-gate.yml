@@ -187,10 +187,16 @@ jobs:
 
   compose-validation:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: ci_validation_only
+      JWT_SECRET: ci_validation_only
+      API_KEYS: ci_validation_only
     steps:
       - uses: actions/checkout@v4
       - name: Validate Compose config
         run: docker compose -f deployment/docker-compose.yml config
+      - name: Validate Release Compose config
+        run: RELEASE_SHORT=ci docker compose -f deployment/docker-compose.yml -f deployment/docker-compose.release.yml config
       - name: Build Compose images
         run: docker compose -f deployment/docker-compose.yml build
 
