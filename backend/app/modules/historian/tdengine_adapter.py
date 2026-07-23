@@ -105,7 +105,7 @@ class TDengineHistorianAdapter(HistorianInterface):
         """Convert signal_id to a safe TDengine child table name."""
         safe = signal_id.replace(".", "_").replace("-", "_").replace(":", "_")
         safe = safe.replace("/", "_").replace(" ", "_")
-        return safe
+        return safe.lower()
 
     async def _ensure_child_table(self, signal_id: str):
         """Ensure a child table exists for the given signal_id."""
