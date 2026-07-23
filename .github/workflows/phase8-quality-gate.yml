@@ -191,6 +191,7 @@ jobs:
       POSTGRES_PASSWORD: ci_validation_only
       JWT_SECRET: ci_validation_only
       API_KEYS: ci_validation_only
+      EDGE_SESSION_SECRET: ci_validation_only
     steps:
       - uses: actions/checkout@v4
       - name: Validate Compose config
