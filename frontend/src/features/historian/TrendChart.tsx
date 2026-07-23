@@ -12,13 +12,7 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
   // Convert to local format (YYYY-MM-DDTHH:mm) to ensure TDengine query uses
   // the correct calendar date.
   const toLocalFormat = (ts: string): string => {
-    // Convert datetime-local value (local time) to UTC ISO for API
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(ts)) {
-      const d = new Date(ts);
-      if (!isNaN(d.getTime())) {
-        return d.toISOString().replace(/\.\d{3}Z$/, 'Z');
-      }
-    }
+    // Pass through local time as-is — API + data both use VN timezone (+07:00)
     return ts;
   };
   const localFrom = toLocalFormat(from);
@@ -42,9 +36,7 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
   }
 
   const toLocalTs = (ts: string): string => {
-    // Timestamps from API have "Z" suffix but are actually server local time.
-    // Replace "Z" with "+07:00" so ECharts displays correct Vietnam time.
-    if (ts.endsWith("Z")) return ts.slice(0, -1) + "+07:00";
+    // Timestamps from seeder already have +07:00 offset — pass through
     return ts;
   };
 
