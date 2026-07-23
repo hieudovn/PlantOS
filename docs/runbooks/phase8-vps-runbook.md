@@ -73,7 +73,7 @@ ssh root@${VPS_HOST} 'chmod 600 /opt/plantos/deployment/.env'
 ```bash
 # Old API key should return 401
 curl -s -o /dev/null -w "%{http_code}" \
-  -H "X-API-Key: plantos-edge-key-2026" \
+  -H "X-API-Key: REPLACE_WITH_OLD_KEY" \
   http://${VPS_HOST}/api/v1/health
 # Expected: 401
 

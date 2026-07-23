@@ -1,0 +1,18 @@
+# Gitleaks configuration for PlantOS
+# False positives: revoked default keys, sanitized runbook examples
+
+[allowlist]
+  description = "PlantOS allow list — revoked defaults and sanitized docs"
+
+  # Revoked default API key — no longer valid, present only in git history
+  stopwords = [
+    "plantos-edge-key-2026",
+    "plantos-dev-secret-change-in-production",
+  ]
+
+  paths = [
+    # Sanitized runbook with placeholder credentials
+    "docs/runbooks/",
+    # Deployment example template — all values are placeholders
+    "deployment/env.example",
+  ]
