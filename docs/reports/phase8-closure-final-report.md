@@ -161,34 +161,64 @@ Risk Accepted:    0
 ## 6. Final Evidence
 
 ```
-PR merge SHA:           (pending merge)
-PR CI run:              https://github.com/hieudovn/PlantOS/actions/runs/29973037417 (#47 ALL GREEN)
-Required checks:        (configure after merge)
+PR merge SHA:           d3e8ef7 (2026-07-24)
+PR main CI:             Pending first run on main (branch protection configured, checks will appear after first CI)
+PR CI run (phase8):     https://github.com/hieudovn/PlantOS/actions/runs/29973037417 (#47 ALL GREEN)
+Branch protection:      ✅ main — Require PR + status checks + linear history (configured 2026-07-24)
 
-Release SHA:            17bd301 (phase8-closure tip)
+Release SHA:            d3e8ef7
 Release Compose:        deployment/docker-compose.release.yml (no build:, image: only)
 Deploy script:          deployment/scripts/deploy-from-release.sh (RELEASE_SHA-gated)
 Verify script:          deployment/scripts/verify-deployment.sh (assertion-based, no || true)
 
-Running images:         (pending deploy from merge SHA)
+Release Images (VPS):
+  plantos-backend:d3e8ef7   sha256:cd4b118d...
+  plantos-frontend:d3e8ef7  sha256:1abad07d...
+  plantos-edge-v2:d3e8ef7   sha256:73f649d3...
+
+Runtime Verification (VPS, 2026-07-24):
+  Backend:              ✅ /health 200, ingest 200
+  Frontend:             ✅ Vite proxy → plantos-backend:8000, timezone VN +07:00
+  Edge V2:              ✅ EDGEV2-PC-01 ONLINE, heartbeat 200
+  VF Compressor OPC UA: ✅ 26 signals via opc.tcp://172.19.0.1:4840 → Flushed
+  WTP HTTP Poll:        ✅ 19 signals via http://localhost:9998/ → Flushed
+  TDengine:             ✅ 13M+ measurements, historian queries 200 OK
+  Historian UI:         ✅ COMP01-CORE.speed + PUMP-101.flow_rate display correctly
+  Timezone:             ✅ UTC→VN+07:00 conversion in TrendChart
+
 Old credential reject:  VERIFIED (plantos-edge-key-2026 -> 401)
 New credential accept:  VERIFIED (rotated keys active)
 TLS:                    VERIFIED (HTTPS:200, HTTP->301, self-signed 90-day)
 External ports:         22, 80->301, 443:200 - all others filtered/refused
-Edge health:            VERIFIED (via SSH localhost:8011)
 Rollback:               VERIFIED (compose up, 30s restore)
 
 Findings counts:        13 CI_VERIFIED, 15 OPEN, 1 SOURCE_FIXED, 1 RUNTIME_APPLIED
 Unresolved Critical:    0
-Open High:              10
+Open High:              10 (deferred to Phase 9 hardening)
 
-Final Phase 8 decision:            APPROVE - Merge PR #1
-Phase 9 implementation decision:   GO - Unblocked
+Final Phase 8 decision:            APPROVE — PR merged, images tagged
+Phase 9 implementation decision:   GO — Unblocked
+Branch protection:                 ✅ Configured (manual, 2026-07-24)
 ```
 
 ---
 
-## 7. New Files Added
+## 7. Phase 8 Plan Cross-Reference
+
+| Plan Task | Status | Notes |
+|-----------|:---:|------|
+| 8-01 Golden Path Test | ⚠️ Partial | CI covers 204 tests, no standalone golden path script |
+| 8-02 Historian Hardening | ✅ | Edge cases handled, query timeout added, 13M+ records stable |
+| 8-03 Edge Health Check | ⚠️ Deferred | `/api/status` exists, no dedicated `/api/health` or DuckDB WAL cleanup |
+| 8-04 Backup Verification | ⚠️ Deferred | No dry-run restore test; backup runs but not verified |
+| 8-05 VF Systemd Fix | N/A | VF runs as host process, not systemd service |
+| 8-06 Quality Gates | ✅ | `phase8-quality-gate.yml`: 9 blocking + 1 advisory, 204 tests |
+
+**SA Corrections (10/10):** All completed per §2 checklist.
+
+---
+
+## 8. New Files Added
 
 | File | Purpose |
 |------|---------|
