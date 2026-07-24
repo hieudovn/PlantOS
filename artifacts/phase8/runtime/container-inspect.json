@@ -1,0 +1,28 @@
+{
+  "collected_at": "2026-07-24T04:45:00Z",
+  "release_sha": "d3e8ef763b33ed7357316d0d6d33d634ba6e7e98",
+  "backend": {
+    "name": "plantos-backend",
+    "image": "plantos-backend:801e952",
+    "image_id": "sha256:cd4b118d15ada69d01e1a5e13697fdc91aa08d990a61fdb32060ba1b3bbe21b0",
+    "oci_revision": "",
+    "running_revision_matches": false,
+    "note": "No OCI revision label. Image built before Phase 8 closure."
+  },
+  "frontend": {
+    "name": "plantos-frontend",
+    "image": "deployment-frontend:latest",
+    "image_id": "sha256:1abad07d3affe4afdea52f9df52c203bbcffed8cddefba70a12758b073e75d64",
+    "oci_revision": "",
+    "running_revision_matches": false,
+    "note": "No OCI revision label. Image built from compose, not release pipeline."
+  },
+  "edge": {
+    "name": "plantos-edge-v2",
+    "image": "plantos-edge-v2:patched",
+    "image_id": "sha256:73f649d3c10e8167740b4d038221c49ff098a93a934c5461bf8fc368c8fbc40f",
+    "oci_revision": "",
+    "running_revision_matches": false,
+    "note": "No OCI revision label. patched image with asyncua hotfix."
+  }
+}

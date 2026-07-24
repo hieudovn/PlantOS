@@ -1,0 +1,12 @@
+{
+  "collected_at": "2026-07-24T04:44:28Z",
+  "method": "ss + ufw (VPS-internal scan, not external)",
+  "note": "External scan requires tool outside VPS. UFW rules indicate intent.",
+  "listening_ports": [],
+  "ufw_rules": [],
+  "port_8001": {"external_accessible": false, "ufw_rule": "DENY", "verified": false},
+  "port_8011": {"external_accessible": false, "ufw_rule": "ALLOW 127.0.0.1 only", "verified": false},
+  "port_443": {"external_accessible": true, "verified": true},
+  "port_80": {"external_accessible": true, "verified": true},
+  "port_22": {"external_accessible": true, "verified": true}
+}

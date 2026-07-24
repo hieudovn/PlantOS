@@ -1,0 +1,32 @@
+{
+  "release_sha": "d3e8ef763b33ed7357316d0d6d33d634ba6e7e98",
+  "main_ci": {
+    "pass": false
+  },
+  "branch_protection": {
+    "pass": false
+  },
+  "container_alignment": {
+    "pass": false
+  },
+  "edge_integration": {
+    "pass": false
+  },
+  "security": {
+    "pass": true
+  },
+  "rollback": {
+    "pass": false
+  },
+  "backup_restore": {
+    "pass": false
+  },
+  "findings": {
+    "total": 30,
+    "unresolved_critical": 0,
+    "pass": true
+  },
+  "check_count": 29,
+  "fail_count": 8,
+  "final_gate": "FAIL"
+}

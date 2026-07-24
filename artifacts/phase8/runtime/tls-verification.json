@@ -1,0 +1,11 @@
+{
+  "collected_at": "2026-07-24T04:44:28Z",
+  "https_200": true,
+  "https_code": "200",
+  "http_301": true,
+  "http_code": "301",
+  "hsts_present": false,
+  "certificate_type": "self-signed",
+  "certificate_trusted": false,
+  "certificate_expiry": "90 days"
+}
