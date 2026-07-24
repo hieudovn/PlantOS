@@ -10,7 +10,7 @@
     "pass": false
   },
   "edge_integration": {
-    "pass": false
+    "pass": true
   },
   "security": {
     "pass": true
@@ -26,7 +26,7 @@
     "unresolved_critical": 0,
     "pass": true
   },
-  "check_count": 31,
+  "check_count": 33,
   "fail_count": 7,
   "final_gate": "FAIL"
 }

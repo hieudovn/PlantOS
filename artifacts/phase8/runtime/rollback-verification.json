@@ -1,0 +1,10 @@
+{
+  "collected_at": "2026-07-24T05:08:00Z",
+  "status": "NOT_VERIFIED",
+  "reason": "Only one release exists (d3e8ef7). No previous release tag to roll back to. Rollback procedure requires at least 2 immutable releases.",
+  "procedure_documented": true,
+  "procedure": "1. Record current SHA + image IDs. 2. Deploy previous release tag. 3. Verify health. 4. Redeploy d3e8ef7. 5. Verify health.",
+  "previous_restored": false,
+  "new_restored": false,
+  "note": "Will become verifiable after next release (Phase 9)."
+}
