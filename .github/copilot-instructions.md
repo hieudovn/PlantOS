@@ -26,6 +26,7 @@ When you need VPS access, SSH credentials, service URLs, or login info for any s
 - Use asset/signal/event APIs as boundaries.
 - Every major architecture decision should create or update an ADR.
 - Update documentation when changing architecture or data model.
+- 🚫 NEVER change the running frontend Docker image without explicit PO permission. Only fix env vars/network on running container.
 
 ## Expected working style
 

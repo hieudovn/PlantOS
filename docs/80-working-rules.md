@@ -99,6 +99,7 @@ Constraints:
 - Do not let UI query storage directly.
 - Maintain edge-center responsibility split.
 - Prefer open-source infrastructure and PlantOS-specific governance/modeling.
+- **🚫 NEVER change the running frontend Docker image without explicit permission from the Product Owner.** If the frontend has connectivity/proxy issues, fix the env var or network config on the running container — do not swap images.
 
 Expected output:
 - implementation plan,
