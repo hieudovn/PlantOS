@@ -4,7 +4,7 @@
     "pass": false
   },
   "branch_protection": {
-    "pass": false
+    "pass": true
   },
   "container_alignment": {
     "pass": false
@@ -26,7 +26,7 @@
     "unresolved_critical": 0,
     "pass": true
   },
-  "check_count": 29,
-  "fail_count": 8,
+  "check_count": 31,
+  "fail_count": 7,
   "final_gate": "FAIL"
 }

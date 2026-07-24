@@ -1,0 +1,2 @@
+@echo off
+echo y | plink -ssh -pw PlantOS@2026! plantos@103.97.132.249 "echo ===PING===; docker exec plantos-edge-v2 timeout 3 bash -c 'echo > /dev/tcp/plantos-backend/8000 && echo PORT_OPEN || echo PORT_CLOSED' 2>&1; echo ===BACKEND_NET===; docker inspect plantos-backend --format '{{range .NetworkSettings.Networks}}{{.NetworkID}} {{.IPAddress}}{{end}}' 2>&1; echo ===EDGE_NET===; docker inspect plantos-edge-v2 --format '{{range .NetworkSettings.Networks}}{{.NetworkID}} {{.IPAddress}}{{end}}' 2>&1; echo DONE"

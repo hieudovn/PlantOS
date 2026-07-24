@@ -15,8 +15,19 @@
     "allow_deletions": false,
     "do_not_allow_bypass": false
   },
-  "required_status_checks": [],
-  "required_status_checks_count": 0,
+  "required_status_checks": [
+    "backend-unit",
+    "backend-postgres-integration",
+    "backend-auth-security",
+    "frontend-typecheck-and-build",
+    "edge-tests",
+    "edge-docker-build",
+    "compose-validation",
+    "release-image-build",
+    "secret-scan",
+    "findings-register-validation"
+  ],
+  "required_status_checks_count": 10,
   "direct_push_restricted": true,
   "force_push_disabled": true,
   "deletion_disabled": true,
