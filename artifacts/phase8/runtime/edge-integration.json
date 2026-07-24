@@ -1,0 +1,11 @@
+{
+  "collected_at": "2026-07-24T04:44:28Z",
+  "jwt_login": true,
+  "jwt_login_detail": "admin login via /api/v1/auth/login",
+  "user_sync": true,
+  "user_sync_detail": "POST /api/v1/edges/EDGEV2-PC-01/users/sync returns 3 users (admin, engineer, operator) via API key and JWT. 2026-07-24 fix: auth middleware sets request.state.user for API key, require_admin accepts service role.",
+  "heartbeat": true,
+  "heartbeat_detail": "edge_heartbeats in last 5min: 30. Edge status: online|2026-07-2404:44:29.352012+00",
+  "measurement_sync": true,
+  "measurement_sync_detail": "measurements from EDGEV2-PC-01 in last 5min: 3"
+}

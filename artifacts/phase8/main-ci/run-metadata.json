@@ -1,0 +1,13 @@
+{
+  "run_id": "30070610790",
+  "run_url": "https://github.com/hieudovn/PlantOS/actions/runs/30070610790",
+  "commit_sha": "d3e8ef763b33ed7357316d0d6d33d634ba6e7e98",
+  "commit_message": "Merge phase8-closure: Phase 8 Core Stabilization complete",
+  "branch": "phase8-d3e8ef7",
+  "ref": "phase8-d3e8ef7 (tag at merge SHA)",
+  "event": "workflow_dispatch",
+  "status": "completed",
+  "conclusion": "success",
+  "created_at": "2026-07-24T05:52:00Z",
+  "note": "CI triggered via workflow_dispatch on tag phase8-d3e8ef7 pointing to exact merge SHA."
+}

@@ -1,0 +1,16 @@
+{
+  "collected_at": "2026-07-24T05:07:10Z",
+  "pg_backup_size_bytes": 7820958,
+  "pg_restore_ok": true,
+  "td_restore_ok": true,
+  "td_restore_note": "taosdump backup+restore into isolated TD container. 13,495,071 measurements verified identical.",
+  "pg_integrity": {
+    "tables": 21,
+    "plants": 5,
+    "assets": 70,
+    "signals": 142,
+    "users": 3,
+    "alembic_version": "005,010",
+    "pass": true
+  }
+}

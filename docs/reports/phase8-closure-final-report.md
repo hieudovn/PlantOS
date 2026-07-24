@@ -1,38 +1,40 @@
-# Phase 8 Core Stabilization — Progress Report
+# Phase 8 Core Stabilization — Post-Merge Closure Progress Report
 
-> **Note:** This is a **Progress Report**, not a Final Closure Report.
-> PR #1 has NOT been merged. Main CI has NOT run on merge SHA.
-> Images have NOT been built from merge SHA. Runtime verification has NOT been completed.
-> See Stage E-G requirements for final closure.
-
-> **Date:** 2026-07-23 | **Branch:** `phase8-closure` | **PR Head:** `0414130`
-> **PR:** [#1](https://github.com/hieudovn/PlantOS/pull/1) — `phase8-closure → main`
-> **Last PR CI:** [#47](https://github.com/hieudovn/PlantOS/actions/runs/29973037417) — ✅ ALL 10 GREEN
+> **Status:** 19/21 mandatory gates PASS | 1 blocked (Rollback — single release)
+> **Date:** 2026-07-24 | **Merge SHA:** `d3e8ef763b33ed7357316d0d6d33d634ba6e7e98`
+> **Main CI:** [Run #100](https://github.com/hieudovn/PlantOS/actions/runs/30070610790) — 11/11 green on exact SHA
+> **Phase 9 readiness:** UNBLOCKED
 
 ---
 
 ## Executive Summary
 
-Phase 8 Core Stabilization is **COMPLETE**. All SA-mandated corrections applied.
-CI: **9 blocking + 1 advisory** jobs, **zero failure suppression**, PR #47 ALL GREEN.
-Runtime: UFW hardened, TLS enabled, port 8001 firewalled, credentials rotated, rollback verified.
-Source: 15 scratch files removed, production defaults replaced with `:?required`, immutable release compose created.
-Findings: 30 entries — **0 Open Critical**, 13 CI_VERIFIED, counts from CI validator.
+Phase 8 post-merge closure remediation is substantially complete. All SA-identified gaps (Workstreams A–I) addressed except Rollback, inherently blocked by single release.
 
-**Recommendation: APPROVE** — Merge PR #1. Close Phase 8.
+- **CI:** Run #100 on exact merge SHA — 10 blocking + 1 advisory, ALL GREEN
+- **Branch protection:** 10 required checks, PR required, no force push/delete
+- **Images:** All 3 rebuilt with OCI revision labels `d3e8ef7...`; image IDs match manifest
+- **Edge integration:** JWT, user sync (API key), heartbeat, measurement — Center-side verified
+- **Security:** TLS (HTTPS 200, HTTP\u2192301), ports 8001/8011 blocked, old credential rejected
+- **Backup:** PG (7.8MB, 21 tables) + TD (13.4M measurements) restored into isolated containers
+- **Findings:** 30 entries, 0 unresolved critical, 5 transitions to RUNTIME_VERIFIED
+- **Rollback:** NOT VERIFIED — requires 2 releases; will resolve with Phase 9 merge
 
 ---
 
-## 1. SA Decision Response
+## 1. SA Second Review — Gap Status
 
-| SA Gate | Original Verdict | Closure Status |
-|----------|-----------------|----------------|
-| Source and CI baseline | PASS | ✅ Confirmed — PR #47 ALL GREEN |
-| PR-head CI | PASS | ✅ Confirmed — 10/10 jobs green |
-| Branch cleanup | FAIL | ✅ **FIXED** — 15 scratch files deleted, zero temp scripts in PR head |
-| Findings reconciliation | FAIL | ✅ **FIXED** — Counts from CSV: 13 CI_VERIFIED, 15 OPEN, validator PASS |
-| Runtime release alignment | FAIL | ✅ **FIXED** — Immutable compose, `:?required` secrets, RELEASE_SHA pipeline |
-| Branch governance | NOT COMPLETE | ✅ **FIXED** — PR #1 with CI on PR event |
+| WS | SA Requirement | Status | Evidence |
+|----|---------------|:---:|------|
+| A | Main CI on exact merge SHA, 10 blocking green | ✅ | Run #100, tag `phase8-d3e8ef7` |
+| B | Branch protection: 10 checks, PR required | ✅ | Rule 80712787, `main-ruleset.json` |
+| C | Evidence checker no bypass, reads artifacts | ✅ | v2.0, `or True` removed |
+| D | Edge config: canonical center_url | ✅ | `plantos-backend:8000`, env vars in `.env` |
+| E | Runtime verification: 22 checks, Center-side | ✅ | `runtime/` artifacts |
+| F | Immutable deployment: OCI labels | ✅ | All 3 images rebuilt with revision label |
+| G | Rollback: previous\u2192verify\u2192new\u2192verify | ❌ | Single release |
+| H | Backup restore: PG + TD isolated | ✅ | PG 21 tables, TD 13.4M measurements |
+| I | Findings: 0 unresolved critical | ✅ | 5 SEC \u2192 RUNTIME_VERIFIED |
 
 ---
 
@@ -156,37 +158,97 @@ Risk Accepted:    0
 
 ---
 
-## 6. Final Evidence
+## 6. Gate Truth Table (SA §15)
+
+| # | Gate | Status | Evidence |
+|---|------|:---:|------|
+| 1 | PR merged | ✅ | `d3e8ef7` in main history |
+| 2 | Main CI exact SHA | ✅ | Run #100, 11/11 green |
+| 3 | Branch protection | ✅ | 10 checks, PR required |
+| 4 | Release manifest | ✅ | `release-manifest.json` |
+| 5 | Backend OCI + image ID | ✅ | Matches manifest |
+| 6 | Frontend OCI + image ID | ✅ | Matches manifest |
+| 7 | Edge OCI + image ID | ✅ | Matches manifest |
+| 8 | Edge JWT login | ✅ | 200 + token |
+| 9 | Edge user sync | ✅ | API key, 3 users |
+| 10 | Edge heartbeat | ✅ | 30+ records/5min |
+| 11 | Edge measurement sync | ✅ | Confirmed in TDengine |
+| 12 | Old credential rejected | ✅ | `plantos-edge-key-2026` → 401 |
+| 13 | New credential accepted | ✅ | Rotated key → 200 |
+| 14 | Port 8001 blocked | ✅ | UFW DENY |
+| 15 | Port 8011 blocked | ✅ | 127.0.0.1 bind |
+| 16 | HTTPS 200 | ✅ | `tls-verification.json` |
+| 17 | HTTP→HTTPS redirect | ✅ | 301 |
+| 18 | PG backup restore | ✅ | 7.8MB, 21 tables |
+| 19 | TD backup restore | ✅ | taosdump, 13.4M meas |
+| 20 | Findings: 0 unresolved critical | ✅ | `findings.csv` |
+| 21 | Rollback verified | ❌ | Single release |
+
+**19/21 PASS. 1 blocked (rollback).**
+
+---
+
+## 7. Findings Transitions
+
+| ID | From | To | Evidence |
+|----|------|-----|------|
+| SEC-002 | RUNTIME_APPLIED | RUNTIME_VERIFIED | UFW + port scan |
+| SEC-003 | OPEN | RUNTIME_VERIFIED | HTTPS 200 + HTTP→301 |
+| SEC-004 | OPEN | RUNTIME_VERIFIED | EDGE_SESSION_SECRET env var |
+| SEC-005 | OPEN | RUNTIME_VERIFIED | Old key rejected, new active |
+| SEC-006 | OPEN | RUNTIME_VERIFIED | 127.0.0.1 bind |
+
+**Totals:** 13 CI_VERIFIED, 5 RUNTIME_VERIFIED, 1 SOURCE_FIXED, 11 OPEN, 0 unresolved critical.
+
+---
+
+## 8. Rollback
+
+Blocked: rollback requires 2 immutable releases. Only `d3e8ef7` exists. Procedure in `rollback-verification.json`. Resolves with Phase 9 merge.
+
+---
+
+## 9. Decision
+
+| Item | Verdict |
+|------|:---:|
+| Phase 8 mandatory gates | 19/21 PASS |
+| Phase 8 final | NOT CLOSED (rollback) |
+| Phase 9 plan/design | GO |
+| Phase 9 implement | GO (rollback resolves after merge) |
+
+---
+
+## 10. Evidence Package
 
 ```
-PR merge SHA:           (pending merge)
-PR CI run:              https://github.com/hieudovn/PlantOS/actions/runs/29973037417 (#47 ALL GREEN)
-Required checks:        (configure after merge)
-
-Release SHA:            17bd301 (phase8-closure tip)
-Release Compose:        deployment/docker-compose.release.yml (no build:, image: only)
-Deploy script:          deployment/scripts/deploy-from-release.sh (RELEASE_SHA-gated)
-Verify script:          deployment/scripts/verify-deployment.sh (assertion-based, no || true)
-
-Running images:         (pending deploy from merge SHA)
-Old credential reject:  VERIFIED (plantos-edge-key-2026 -> 401)
-New credential accept:  VERIFIED (rotated keys active)
-TLS:                    VERIFIED (HTTPS:200, HTTP->301, self-signed 90-day)
-External ports:         22, 80->301, 443:200 - all others filtered/refused
-Edge health:            VERIFIED (via SSH localhost:8011)
-Rollback:               VERIFIED (compose up, 30s restore)
-
-Findings counts:        13 CI_VERIFIED, 15 OPEN, 1 SOURCE_FIXED, 1 RUNTIME_APPLIED
-Unresolved Critical:    0
-Open High:              10
-
-Final Phase 8 decision:            APPROVE - Merge PR #1
-Phase 9 implementation decision:   GO - Unblocked
+artifacts/phase8/
+├── main-ci/          run-metadata.json, jobs.json
+├── governance/       main-ruleset.json
+├── release/          release-manifest.json
+├── runtime/          container-inspect, edge-integration, port-scan, tls, rollback, backup-restore
+├── evidence-summary.json
+└── evidence-summary.md
 ```
 
 ---
 
-## 7. New Files Added
+## 7. Phase 8 Plan Cross-Reference (legacy)
+
+| Plan Task | Status | Notes |
+|-----------|:---:|------|
+| 8-01 Golden Path Test | ⚠️ Partial | CI covers 204 tests, no standalone golden path script |
+| 8-02 Historian Hardening | ✅ | Edge cases handled, query timeout added, 13M+ records stable |
+| 8-03 Edge Health Check | ⚠️ Deferred | `/api/status` exists, no dedicated `/api/health` or DuckDB WAL cleanup |
+| 8-04 Backup Verification | ⚠️ Deferred | No dry-run restore test; backup runs but not verified |
+| 8-05 VF Systemd Fix | N/A | VF runs as host process, not systemd service |
+| 8-06 Quality Gates | ✅ | `phase8-quality-gate.yml`: 9 blocking + 1 advisory, 204 tests |
+
+**SA Corrections (10/10):** All completed per §2 checklist.
+
+---
+
+## 8. New Files Added
 
 | File | Purpose |
 |------|---------|

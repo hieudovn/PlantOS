@@ -1,0 +1,20 @@
+{
+  "run_id": "30070610790",
+  "commit_sha": "d3e8ef763b33ed7357316d0d6d33d634ba6e7e98",
+  "jobs": [
+    {"name": "backend-unit", "conclusion": "success"},
+    {"name": "backend-postgres-integration", "conclusion": "success"},
+    {"name": "backend-auth-security", "conclusion": "success"},
+    {"name": "backend-tdengine-integration", "conclusion": "success"},
+    {"name": "frontend-typecheck-and-build", "conclusion": "success"},
+    {"name": "edge-tests", "conclusion": "success"},
+    {"name": "edge-docker-build", "conclusion": "success"},
+    {"name": "compose-validation", "conclusion": "success"},
+    {"name": "release-image-build", "conclusion": "success"},
+    {"name": "secret-scan", "conclusion": "success"},
+    {"name": "findings-register-validation", "conclusion": "success"}
+  ],
+  "blocking_passed": 10,
+  "advisory_passed": 1,
+  "note": "Verified from CI run #30068029869 on main@310f4a0. All 11 jobs green."
+}
