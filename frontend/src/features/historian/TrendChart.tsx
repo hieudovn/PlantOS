@@ -12,20 +12,7 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
   // Convert to local format (YYYY-MM-DDTHH:mm) to ensure TDengine query uses
   // the correct calendar date.
   const toLocalFormat = (ts: string): string => {
-    // If already in local format (YYYY-MM-DDTHH:mm), return as-is
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(ts)) return ts;
-    // If UTC ISO, convert to local date string
-    try {
-      const d = new Date(ts);
-      if (!isNaN(d.getTime())) {
-        const y = d.getFullYear();
-        const mo = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
-        const h = String(d.getHours()).padStart(2, "0");
-        const mi = String(d.getMinutes()).padStart(2, "0");
-        return `${y}-${mo}-${dd}T${h}:${mi}`;
-      }
-    } catch {}
+    // Pass through local time as-is — API + data both use VN timezone (+07:00)
     return ts;
   };
   const localFrom = toLocalFormat(from);
@@ -49,8 +36,7 @@ export function TrendChart({ signalIds, from, to, chartType = "line" }: Props) {
   }
 
   const toLocalTs = (ts: string): string => {
-    // Timestamps from API have "Z" suffix but are actually server local time.
-    // Replace "Z" with "+07:00" so ECharts displays correct Vietnam time.
+    // Backend stores VN time but returns with Z suffix. Convert for display.
     if (ts.endsWith("Z")) return ts.slice(0, -1) + "+07:00";
     return ts;
   };

@@ -1,7 +1,7 @@
 edge_node_id: edge-agent-01
 plant_id: DEMO-PLANT
-center_url: http://localhost:8000
-api_key: plantos-edge-key-2026
+center_url: ${CENTER_URL:-http://localhost:8000}
+api_key: ${EDGE_API_KEY:-}
 
 # DuckDB local buffer
 buffer:

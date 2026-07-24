@@ -1,0 +1,30 @@
+# PlantOS — Immutable Release Compose
+# No `build:` directives. No source-code bind mounts. No dev targets.
+# Usage:
+#   RELEASE_SHORT=<sha> POSTGRES_PASSWORD=<...> JWT_SECRET=<...> API_KEYS=<...>
+#   EDGE_SESSION_SECRET=<...> EDGE_CENTER_PASSWORD=<...> EDGE_API_KEY=<...>
+#   CENTER_URL=<...> docker compose -f docker-compose.yml -f docker-compose.release.yml up -d
+
+services:
+  backend:
+    image: plantos-backend:${RELEASE_SHORT}
+    build: !reset null
+
+  frontend:
+    image: plantos-frontend:${RELEASE_SHORT}
+    build: !reset null
+
+  edge-v2:
+    image: plantos-edge-v2:${RELEASE_SHORT}
+    container_name: plantos-edge-v2
+    ports:
+      - "127.0.0.1:8011:8011"
+    environment:
+      EDGE_CONFIG_PATH: /app/agent/config/config.edge-v2.yaml
+      EDGE_SESSION_SECRET: ${EDGE_SESSION_SECRET:?required}
+      EDGE_CENTER_PASSWORD: ${EDGE_CENTER_PASSWORD:?required}
+      EDGE_API_KEY: ${EDGE_API_KEY:?required}
+      CENTER_URL: ${CENTER_URL:?required}
+    networks:
+      - plantos-net
+    restart: unless-stopped

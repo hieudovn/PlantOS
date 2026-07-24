@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-plantos}
       POSTGRES_USER: ${POSTGRES_USER:-plantos}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-plantos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -72,14 +72,14 @@ services:
       POSTGRES_PORT: 5432
       POSTGRES_DB: ${POSTGRES_DB:-plantos}
       POSTGRES_USER: ${POSTGRES_USER:-plantos}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-plantos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
       TDENGINE_HOST: tdengine
       TDENGINE_PORT: ${TDENGINE_REST_PORT:-6041}
       TDENGINE_DATABASE: ${TDENGINE_DATABASE:-plantos_ts}
       EMQX_HOST: emqx
       EMQX_MQTT_PORT: ${EMQX_MQTT_PORT:-1883}
-      JWT_SECRET: ${JWT_SECRET:-plantos-dev-secret-change-in-production}
-      API_KEYS: ${API_KEYS:-plantos-edge-key-2026}
+      JWT_SECRET: ${JWT_SECRET:?required}
+      API_KEYS: ${API_KEYS:?required}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:

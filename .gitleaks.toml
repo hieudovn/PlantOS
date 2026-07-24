@@ -1,0 +1,9 @@
+# Gitleaks configuration for PlantOS
+# Only fingerprint/commit-scoped allowlists for confirmed historical false positives.
+# No global stopwords. No directory allowlists.
+
+[allowlist]
+  description = "Historical false positives — revoked keys in deleted files"
+  commits = [
+    "b8872e14e792bf2d23562dfb1225b67b49c150bc",  # tools/phase8-contain.sh (deleted)
+  ]
