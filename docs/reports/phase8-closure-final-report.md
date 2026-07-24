@@ -1,13 +1,15 @@
-# Phase 8 Core Stabilization — Progress Report
+# Phase 8 Core Stabilization — Final Closure Report
 
-> **Note:** This is a **Progress Report**, not a Final Closure Report.
-> PR #1 has NOT been merged. Main CI has NOT run on merge SHA.
-> Images have NOT been built from merge SHA. Runtime verification has NOT been completed.
-> See Stage E-G requirements for final closure.
-
-> **Date:** 2026-07-23 | **Branch:** `phase8-closure` | **PR Head:** `0414130`
-> **PR:** [#1](https://github.com/hieudovn/PlantOS/pull/1) — `phase8-closure → main`
+> **Status:** ✅ **CLOSED** — PR merged, images tagged, runtime verified
+>
+> **Date:** 2026-07-24 | **Merge SHA:** `d3e8ef7` | **Branch:** `main`
+> **PR:** [#1](https://github.com/hieudovn/PlantOS/pull/1) — `phase8-closure → main` ✅ MERGED
 > **Last PR CI:** [#47](https://github.com/hieudovn/PlantOS/actions/runs/29973037417) — ✅ ALL 10 GREEN
+>
+> **Release Images:**
+> - `plantos-backend:d3e8ef7` — sha256:cd4b118d...
+> - `plantos-frontend:d3e8ef7` — sha256:1abad07d...
+> - `plantos-edge-v2:d3e8ef7` — sha256:73f649d3...
 
 ---
 
