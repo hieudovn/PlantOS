@@ -92,6 +92,9 @@ FORBIDDEN = [
     ("plantos-dev-secret-change-in-production", "ACTIVE_CONFIG", ["*.yaml", "*.yml"]),
     ("super-secret-key-change-in-production", "ACTIVE_CONFIG", ["*.yaml", "*.yml"]),
     ("StrictHostKeyChecking=no", "ACTIVE_CODE", ["*.sh", "*.py", "*.bat"]),
+    ("plink -pw", "ACTIVE_CODE", ["*.sh", "*.bat"]),
+    ("pscp -pw", "ACTIVE_CODE", ["*.sh", "*.bat"]),
+    ("PlantOS@2026!", "ACTIVE_CODE", ["*.sh", "*.bat", "*.py"]),
 ]
 # Exclude this checker script from its own search
 SELF = "tools/phase8_release_evidence_check.py"
@@ -122,12 +125,18 @@ for pattern, classification, globs in FORBIDDEN:
 print("=== Scratch Files ===")
 scratch_patterns = ["_vps_", "_build.js", "_build.py", "_check_build.py", "_deploy_backup.py", "_run_"]
 scratch_found = []
-for f in ROOT.iterdir():
+for f in ROOT.rglob("*"):
+    if f.is_dir():
+        continue
     name = f.name
+    rel = str(f.relative_to(ROOT))
+    # Skip artifacts and docs
+    if rel.startswith("artifacts/") or rel.startswith("docs/"):
+        continue
     if name.endswith(".bat") or name.endswith(".ps1"):
-        if any(p in name.lower() for p in ["vps", "build", "check", "run"]):
+        if any(p in name.lower() for p in ["vps", "build", "check", "run", "deploy", "fix", "seed", "diag", "debug", "dep", "dns", "fe", "fw", "hist", "jwt", "log", "net", "node", "sd", "td", "ts", "tz", "vfy"]):
             if name != "README.md":
-                scratch_found.append(name)
+                scratch_found.append(rel)
 check("No scratch files in root", len(scratch_found) == 0, str(scratch_found))
 
 # ── 4. PR merge status (from git, not env var) ──

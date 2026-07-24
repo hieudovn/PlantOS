@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy import text
 
 from app.db import get_session
-from app.middleware.auth import require_admin
+from app.middleware.auth import require_admin, require_edge_or_admin
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -101,7 +101,7 @@ def remove_user_from_edge(edge_node_id: str, user_id: str):
 
 
 @router.post("/edges/{edge_node_id}/users/sync",
-             dependencies=[Depends(require_admin)])
+             dependencies=[Depends(require_edge_or_admin)])
 def push_users_to_edge(edge_node_id: str):
     """Push assigned users to an edge node. Returns sync payload."""
     with get_session() as session:
@@ -136,7 +136,7 @@ def push_users_to_edge(edge_node_id: str):
 
 
 @router.get("/edges/{edge_node_id}/users/export",
-            dependencies=[Depends(require_admin)])
+            dependencies=[Depends(require_edge_or_admin)])
 def export_edge_users(edge_node_id: str):
     """Export user list for edge pull (same as push but GET for edge-initiated sync)."""
     with get_session() as session:

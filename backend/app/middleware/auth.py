@@ -58,11 +58,24 @@ from fastapi import Depends, HTTPException, Request
 
 def require_admin(request: Request) -> bool:
     """FastAPI dependency — require admin role. Raises 403 if not admin.
-    API key authentication (role=service) is trusted as admin-equivalent."""
+    API key authentication is NOT admin-equivalent (see SA review §5)."""
     user = getattr(request.state, "user", None)
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required")
     role = user.get("role", "")
-    if role not in ("admin", "service"):
+    if role != "admin":
         raise HTTPException(status_code=403, detail="Admin role required")
     return True
+
+
+def require_edge_or_admin(request: Request) -> bool:
+    """Allow admin OR API key (Edge M2M) for scoped edge endpoints.
+    API key access is LIMITED to edge-specific operations (user sync, heartbeat, ingest).
+    Does NOT grant admin access to other endpoints."""
+    user = getattr(request.state, "user", None)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    role = user.get("role", "")
+    if role in ("admin", "service"):
+        return True
+    raise HTTPException(status_code=403, detail="Admin or Edge service role required")
